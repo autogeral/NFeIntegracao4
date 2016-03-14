@@ -1111,6 +1111,7 @@ public class IntegracaoNfe extends Servico {
             case 1949:
             case 2949:
             case 5949:
+            case 5557: //transferencia materia uso/consumo
             case 6949: {
                 if ("60".equals(st)) {
                     atribuiIcms60(icms, item, origem, st);
@@ -1363,6 +1364,7 @@ public class IntegracaoNfe extends Servico {
                 case 1101:
                 case 1551://COMPRA DE ATIVO
                 case 5913://RETORNO DE REMESSA PARA DEMONSTRACAO
+                case 5557://TRANSFERENCIA MATERIAL DE USO/CONSUMO
                     PIS.PISOutr pisOutr = new PIS.PISOutr();
                     pisOutr.setCST("99");
                     pisOutr.setQBCProd("0.0000");
@@ -1606,6 +1608,7 @@ public class IntegracaoNfe extends Servico {
                 case 1101:
                 case 1551://COMPRA DE ATIVO
                 case 5913://RETORNO DE REMESSA PARA DEMONSTRACAO
+                case 5557://TRANSFERENCIA MATERIAL DE USO/CONSUMO
                     COFINS.COFINSOutr cofinsOutr = new COFINS.COFINSOutr();
                     cofinsOutr.setCST("99");
                     cofinsOutr.setQBCProd("0.0000");
