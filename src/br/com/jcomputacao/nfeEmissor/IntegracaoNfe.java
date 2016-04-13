@@ -1039,6 +1039,7 @@ public class IntegracaoNfe extends Servico {
             case 5101:
             case 6556:
             case 5919:
+            case 5410:
                 atribuiIcms00(icms, item, origem, st);
                 break;
             case 1201:
@@ -1325,13 +1326,14 @@ public class IntegracaoNfe extends Servico {
                 case 2411:
                 case 5111:
                 case 6556:
-                case 5661:
+                case 5661:                
                 case 5919:// RETORNO DE CONSIGNADO PARA FORNECEDOR
                     pisnt.setCST("04");
                     pis.setPISNT(pisnt);
                     break;
                 case 5602:
                 case 5605:
+                case 5410:
                 case 5411:
                 case 5413:
                 case 6411:
@@ -1567,6 +1569,7 @@ public class IntegracaoNfe extends Servico {
                 case 5605:
                 case 1949:
                 case 2949:
+                case 5410:
                 case 5411:
                 case 5413:
                 case 5949:
