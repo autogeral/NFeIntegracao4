@@ -1738,7 +1738,7 @@ public class IntegracaoNfe extends Servico {
             } else {
                 IPITrib tributacao = new IPITrib();
                 tributacao.setVBC(NumberUtil.decimalBanco(item.getValorTotal()));
-                tributacao.setPIPI(NumberUtil.decimalBanco(item.getIpiAliquota()));
+                tributacao.setPIPI(NumberUtil.decimalBanco(item.getIpiAliquota() * 100));
                 tributacao.setVIPI(NumberUtil.decimalBanco(item.getIpiValor()));
                 if (item.getCfop() == 5908) {
                     tributacao.setCST("99");
@@ -1967,8 +1967,11 @@ public class IntegracaoNfe extends Servico {
         tributacaoICMS10.setModBCST("4");
         tributacaoICMS10.setVBCST(NumberUtil.decimalBanco(item.getBaseIcmsStValor()));
         tributacaoICMS10.setPMVAST(NumberUtil.decimalBanco((item.getIva() - 1) * 100));
-        tributacaoICMS10.setPICMSST(NumberUtil.decimalBanco(item.getIcmsAliquota() * 100));
+        tributacaoICMS10.setPICMSST(NumberUtil.decimalBanco(item.getIcmsStAliquota() * 100));        
         tributacaoICMS10.setVICMSST(NumberUtil.decimalBanco(item.getValorIcmsSt()));
+        if(item.getValorIcmsStPorcentagemReducao() > 0) {
+            tributacaoICMS10.setPRedBCST(NumberUtil.decimalBanco(item.getValorIcmsStPorcentagemReducao()));
+        }
         icms.setICMS10(tributacaoICMS10);
     }
 
