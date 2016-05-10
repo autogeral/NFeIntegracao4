@@ -180,7 +180,7 @@ public class Servico {
         // 3 Operacao nao presencial, Teleatendimento
         // 4 NFC-e em operacao com entrega a domicilio
         // 9 Operacao nao presencial, outros
-        ide.setIndPres(nfeModel.getVendedorNome().toUpperCase().contains("ECOMMERCE") ? "2" : "1");
+        ide.setIndPres(nfeModel.getVendedorNome().toUpperCase().contains("ECOMMERCE") ? "2" : operacao.isComplementoIcms() || operacao.isComplementoValor() ? "0" : "1");
         ide.setTpNF(nfeModel.getSaida() ? "1" : "0");
 
         /**
@@ -196,7 +196,7 @@ public class Servico {
         // 2 Complementar
         // 3 De ajuste
         // 4 Devolucao de mercadoria
-        ide.setFinNFe(operacao.isDevolucao() ? "4" : "1");
+        ide.setFinNFe(operacao.isDevolucao() ? "4" : operacao.isComplementoIcms() || operacao.isComplementoValor() ? "2" : "1");
 
         //Tipo de impressao da danfe
         //1 - retrato
