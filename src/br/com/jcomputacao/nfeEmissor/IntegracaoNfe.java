@@ -1111,8 +1111,7 @@ public class IntegracaoNfe extends Servico {
             case 6411:
             case 1949:
             case 2949:
-            case 5949:
-            case 5557: //transferencia materia uso/consumo
+            case 5949:            
             case 5925://RETORNO DE MERCADORIA PARA INDUSTRIALIZACAO, PARA O ADQUIRENTE POR NAO TER TRANSITADO A MESMA, NO ESTABELECIMENTO DO ADQUIRENTE
             case 6949: {
                 if ("60".equals(st)) {
@@ -1128,7 +1127,14 @@ public class IntegracaoNfe extends Servico {
                 }
             }
             break;
-
+            case 5557: { //transferencia materia uso/consumo
+                if ("60".equals(st)) {
+                    atribuiIcms60(icms, item, origem, st);
+                } else if ("40".equals(st) || "41".equals(st)) {
+                    atribuiIcms40(icms, origem, st);
+                }
+            }
+            break;
             case 5913://RETORNO DE REMESSA PARA DEMONSTRACAO
                 if ("50".equals(st)) {
                     ICMS40 tributacaoIcms5_4 = new ICMS40();
@@ -1358,6 +1364,7 @@ public class IntegracaoNfe extends Servico {
                 case 5409:
                 case 5659:
                 case 6659:
+                case 5557://TRANSFERENCIA MATERIAL DE USO/CONSUMO
                     pisnt.setCST("08");
                     pis.setPISNT(pisnt);
                     break;
@@ -1366,8 +1373,7 @@ public class IntegracaoNfe extends Servico {
                 case 5551: //VENDA DE IMOBILIZADO
                 case 1101:
                 case 1551://COMPRA DE ATIVO
-                case 5913://RETORNO DE REMESSA PARA DEMONSTRACAO
-                case 5557://TRANSFERENCIA MATERIAL DE USO/CONSUMO
+                case 5913://RETORNO DE REMESSA PARA DEMONSTRACAO                
                 case 5925://RETORNO DE MERCADORIA PARA INDUSTRIALIZACAO, PARA O ADQUIRENTE POR NAO TER TRANSITADO A MESMA, NO ESTABELECIMENTO DO ADQUIRENTE
                     PIS.PISOutr pisOutr = new PIS.PISOutr();
                     pisOutr.setCST("99");
@@ -1463,6 +1469,7 @@ public class IntegracaoNfe extends Servico {
                 case 5409:
                 case 5659:
                 case 6659:
+                case 5557:
                     pisnt.setCST("08");
                     pis.setPISNT(pisnt);
                     break;
@@ -1593,6 +1600,7 @@ public class IntegracaoNfe extends Servico {
                 case 5409:
                 case 5659:
                 case 6659:
+                case 5557://TRANSFERENCIA MATERIAL DE USO/CONSUMO
                     cofinsnt.setCST("08");
                     cofins.setCOFINSNT(cofinsnt);
                     break;
@@ -1612,8 +1620,7 @@ public class IntegracaoNfe extends Servico {
                 case 5551:// VENDA DE IMOBILIZADO    
                 case 1101:
                 case 1551://COMPRA DE ATIVO
-                case 5913://RETORNO DE REMESSA PARA DEMONSTRACAO
-                case 5557://TRANSFERENCIA MATERIAL DE USO/CONSUMO
+                case 5913://RETORNO DE REMESSA PARA DEMONSTRACAO                
                 case 5925://RETORNO DE MERCADORIA PARA INDUSTRIALIZACAO, PARA O ADQUIRENTE POR NAO TER TRANSITADO A MESMA, NO ESTABELECIMENTO DO ADQUIRENTE
                     COFINS.COFINSOutr cofinsOutr = new COFINS.COFINSOutr();
                     cofinsOutr.setCST("99");
@@ -1696,6 +1703,7 @@ public class IntegracaoNfe extends Servico {
                 case 5409:
                 case 5659:
                 case 6659:
+                case 5557:
                     cofinsnt.setCST("08");
                     cofins.setCOFINSNT(cofinsnt);
                     break;
@@ -1778,7 +1786,7 @@ public class IntegracaoNfe extends Servico {
             }
         }
         String operacaoObs = nfeModel.getOperacao().getObs().trim();
-        if (StringUtil.isNotNull(operacaoObs)) {
+        if (!nfeModel.getOperacao().isBaixaConsumo() && StringUtil.isNotNull(operacaoObs)) {
             info += operacaoObs;
             if (!info.endsWith(".")) {
                 info += ".";
