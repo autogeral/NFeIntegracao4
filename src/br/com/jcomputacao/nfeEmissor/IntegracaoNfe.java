@@ -996,7 +996,7 @@ public class IntegracaoNfe extends Servico {
 
         imp.getContent().add(new ObjectFactory().createTNFeInfNFeDetImpostoICMS(icms(item)));
         boolean tributaIpi = Boolean.parseBoolean(System.getProperty("nfe.tributaIpi", "false"));
-        if (tributaIpi && item.getIpiValor() > 0) {
+        if (tributaIpi) {
             imp.getContent().add(new ObjectFactory().createTNFeInfNFeDetImpostoIPI(ipi(item)));
         }
         imp.getContent().add(new ObjectFactory().createTNFeInfNFeDetImpostoPIS(pis(item)));
@@ -1127,7 +1127,12 @@ public class IntegracaoNfe extends Servico {
                 }
             }
             break;
-            case 5557: { //transferencia materia uso/consumo
+            case 5556://devolucao de material de consumo
+                if("20".equals(st)) {
+                  atribuiIcms20(icms, item, origem, st);  
+                }
+            break;
+            case 5557: { //transferencia material uso/consumo
                 if ("60".equals(st)) {
                     atribuiIcms60(icms, item, origem, st);
                 } else if ("40".equals(st) || "41".equals(st)) {
@@ -1375,6 +1380,7 @@ public class IntegracaoNfe extends Servico {
                 case 1551://COMPRA DE ATIVO
                 case 5913://RETORNO DE REMESSA PARA DEMONSTRACAO                
                 case 5925://RETORNO DE MERCADORIA PARA INDUSTRIALIZACAO, PARA O ADQUIRENTE POR NAO TER TRANSITADO A MESMA, NO ESTABELECIMENTO DO ADQUIRENTE
+                case 5556://DEVOLUCAO DE MERCADORIA DE CONSUMO
                     PIS.PISOutr pisOutr = new PIS.PISOutr();
                     pisOutr.setCST("99");
                     pisOutr.setQBCProd("0.0000");
@@ -1488,6 +1494,7 @@ public class IntegracaoNfe extends Servico {
                     pis.setPISNT(pisnt);
                     break;
                 case 5908:
+                case 5556://DEVOLUCAO DE MERCADORIA DE CONSUMO
                     PIS.PISOutr pisOutr = new PIS.PISOutr();
                     pisOutr.setCST("99");
                     pisOutr.setQBCProd("0.0000");
@@ -1622,6 +1629,7 @@ public class IntegracaoNfe extends Servico {
                 case 1551://COMPRA DE ATIVO
                 case 5913://RETORNO DE REMESSA PARA DEMONSTRACAO                
                 case 5925://RETORNO DE MERCADORIA PARA INDUSTRIALIZACAO, PARA O ADQUIRENTE POR NAO TER TRANSITADO A MESMA, NO ESTABELECIMENTO DO ADQUIRENTE
+                case 5556://DEVOLUCAO DE MERCADORIA PARA CONSUMO
                     COFINS.COFINSOutr cofinsOutr = new COFINS.COFINSOutr();
                     cofinsOutr.setCST("99");
                     cofinsOutr.setQBCProd("0.0000");
@@ -1720,6 +1728,7 @@ public class IntegracaoNfe extends Servico {
                     break;
                 case 5908:
                 case 6551:
+                case 5556://DEVOLUCAO DE MATERIAL DE CONSUMO
                     COFINS.COFINSOutr cofinsOutr = new COFINS.COFINSOutr();
                     cofinsOutr.setCST("99");
                     cofinsOutr.setQBCProd("0.0000");
@@ -1742,22 +1751,42 @@ public class IntegracaoNfe extends Servico {
         TIpi ipi = new TIpi();
         if (tributaIpi) {
             ipi.setCNPJProd(cnpj);
-            if (item.getCfop() == 5901 || item.getCfop() == 5902) {
-                IPINT ipint = new IPINT();
-                ipi.setIPINT(ipint);
-                ipint.setCST("55");
-            } else {
-                IPITrib tributacao = new IPITrib();
-                tributacao.setVBC(NumberUtil.decimalBanco(item.getValorTotal()));
-                tributacao.setPIPI(NumberUtil.decimalBanco(item.getIpiAliquota() * 100));
-                tributacao.setVIPI(NumberUtil.decimalBanco(item.getIpiValor()));
-                if (item.getCfop() == 5908) {
-                    tributacao.setCST("99");
+            if (item.getIpiSt() == 0) {
+                if (item.getIpiValor() == 0) {
+                    if (item.getCfop() == 5901 || item.getCfop() == 5902) {
+                        IPINT ipint = new IPINT();                        
+                        ipint.setCST("55");
+                        ipi.setIPINT(ipint);
+                    } else {
+                        IPINT ipint = new IPINT();
+                        ipint.setCST("51");
+                        ipi.setIPINT(ipint);
+                    }
                 } else {
-                    tributacao.setCST("50");
-                }
+                    IPITrib tributacao = new IPITrib();
+                    tributacao.setVBC(NumberUtil.decimalBanco(item.getValorTotal()));
+                    tributacao.setPIPI(NumberUtil.decimalBanco(item.getIpiAliquota() * 100));
+                    tributacao.setVIPI(NumberUtil.decimalBanco(item.getIpiValor()));
+                    if (item.getCfop() == 5908) {
+                        tributacao.setCST("99");
+                    } else {
+                        tributacao.setCST("50");
+                    }
 
-                ipi.setIPITrib(tributacao);
+                    ipi.setIPITrib(tributacao);
+                }
+            } else {
+                if(item.getIpiValor() > 0) {
+                    IPITrib tributacao = new IPITrib();
+                    tributacao.setVBC(NumberUtil.decimalBanco(item.getValorTotal()));
+                    tributacao.setPIPI(NumberUtil.decimalBanco(item.getIpiAliquota() * 100));
+                    tributacao.setVIPI(NumberUtil.decimalBanco(item.getIpiValor()));
+                    tributacao.setCST(Integer.toString(item.getIpiSt()));
+                } else {
+                    IPINT ipint = new IPINT();
+                    ipint.setCST(Integer.toString(item.getIpiSt()));
+                    ipi.setIPINT(ipint);
+                }
             }
 
         } else {
@@ -1984,6 +2013,23 @@ public class IntegracaoNfe extends Servico {
             tributacaoICMS10.setPRedBCST(NumberUtil.decimalBanco(item.getValorIcmsStPorcentagemReducao()));
         }
         icms.setICMS10(tributacaoICMS10);
+    }
+    
+    private void atribuiIcms20(ICMS icms, NfeItemModel item, String origem, String st) {
+        ICMS.ICMS20 tributaICMS20 = new ICMS.ICMS20();
+        tributaICMS20.setCST(st);
+        tributaICMS20.setOrig(origem);
+        tributaICMS20.setModBC("3");
+        tributaICMS20.setVBC(NumberUtil.decimalBanco(item.getBaseIcmsValor()));
+        tributaICMS20.setPICMS(NumberUtil.decimalBanco(item.getIcmsAliquota() * 100));
+        tributaICMS20.setVICMS(NumberUtil.decimalBanco(item.getIcmsValor()));
+        if(item.getValorIcmsStPorcentagemReducaoPorcentagem() > 0) {
+            tributaICMS20.setPRedBC(NumberUtil.decimalBanco(item.getValorIcmsStPorcentagemReducao()));
+        } else {
+            tributaICMS20.setPRedBC("0.00");
+        }
+        
+        icms.setICMS20(tributaICMS20);
     }
 
     private PISAliq aplicaPisParaSimplesIcmsSn900(PISAliq pisAliquota, NfeItemModel item) {
