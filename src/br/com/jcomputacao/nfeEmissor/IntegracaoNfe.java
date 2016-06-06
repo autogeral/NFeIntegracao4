@@ -1755,7 +1755,7 @@ public class IntegracaoNfe extends Servico {
                 if (item.getIpiValor() == 0) {
                     if (item.getCfop() == 5901 || item.getCfop() == 5902) {
                         IPINT ipint = new IPINT();                        
-                        ipint.setCST("55");
+                        ipint.setCST("51");
                         ipi.setIPINT(ipint);
                     } else {
                         IPINT ipint = new IPINT();
