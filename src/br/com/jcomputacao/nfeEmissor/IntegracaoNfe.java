@@ -104,7 +104,6 @@ import java.text.MessageFormat;
 import java.util.Calendar;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -1113,6 +1112,7 @@ public class IntegracaoNfe extends Servico {
             case 2949:
             case 5949:            
             case 5925://RETORNO DE MERCADORIA PARA INDUSTRIALIZACAO, PARA O ADQUIRENTE POR NAO TER TRANSITADO A MESMA, NO ESTABELECIMENTO DO ADQUIRENTE
+            case 5117://REMESSA DE VENDA PARA ENTREGA FUTURA                
             case 6949: {
                 if ("60".equals(st)) {
                     atribuiIcms60(icms, item, origem, st);
@@ -1148,7 +1148,14 @@ public class IntegracaoNfe extends Servico {
                     icms.setICMS40(tributacaoIcms5_4);
                 }
                 break;
-
+            case 5922:
+                 if ("50".equals(st)) {
+                    ICMS40 tributacaoIcms5_4 = new ICMS40();
+                    tributacaoIcms5_4.setCST(st);
+                    tributacaoIcms5_4.setOrig(origem);
+                    icms.setICMS40(tributacaoIcms5_4);
+                }
+                break;
             case 5601:
             case 5602:
             case 5603:
@@ -1340,6 +1347,7 @@ public class IntegracaoNfe extends Servico {
                 case 6556:
                 case 5661:                
                 case 5919:// RETORNO DE CONSIGNADO PARA FORNECEDOR
+                case 5922://VENDA DE REMESSA FUTURA
                     pisnt.setCST("04");
                     pis.setPISNT(pisnt);
                     break;
@@ -1369,7 +1377,7 @@ public class IntegracaoNfe extends Servico {
                 case 5409:
                 case 5659:
                 case 6659:
-                case 5557://TRANSFERENCIA MATERIAL DE USO/CONSUMO
+                case 5557://TRANSFERENCIA MATERIAL DE USO/CONSUMO                
                     pisnt.setCST("08");
                     pis.setPISNT(pisnt);
                     break;
@@ -1392,6 +1400,7 @@ public class IntegracaoNfe extends Servico {
                 case 5603:
                 case 5604:
                 case 5606:
+                case 5117://REMESSA DE VENDA PARA ENTREGA FUTURA                                        
                     pisnt.setCST("99");
                     pisAliquota.setPPIS("0.00");
                     pisAliquota.setVBC("0.00");
@@ -1435,6 +1444,7 @@ public class IntegracaoNfe extends Servico {
                 case 5111:
                 case 6556:
                 case 2102:
+                case 5922://VENDA DE REMESSA FUTURA
                     pisAliquota.setCST("01"); /// ALTERADO DE PISNT PARA PISALIQUOTA pois o código 01 refe-se ao CST do Pis Aliquota.
                     pisAliquota.setVBC(NumberUtil.decimalBanco(item.getValorTotal()));
                     aliquotaPis = Double.parseDouble(System.getProperty("nfe.pis.aliquota", "1.65"));
@@ -1484,6 +1494,7 @@ public class IntegracaoNfe extends Servico {
                 case 5604:
                 case 5606:
                 case 6551:
+                case 5117://REMESSA DE VENDA PARA ENTREGA FUTURA                                        
                     pisnt.setCST("99");
                     pisAliquota.setCST("99");
 //                    pisAliquota.setPorcentagemPis("0.0000");
@@ -1494,7 +1505,7 @@ public class IntegracaoNfe extends Servico {
                     pis.setPISNT(pisnt);
                     break;
                 case 5908:
-                case 5556://DEVOLUCAO DE MERCADORIA DE CONSUMO
+                case 5556://DEVOLUCAO DE MERCADORIA DE CONSUMO                                             
                     PIS.PISOutr pisOutr = new PIS.PISOutr();
                     pisOutr.setCST("99");
                     pisOutr.setQBCProd("0.0000");
@@ -1578,6 +1589,7 @@ public class IntegracaoNfe extends Servico {
                 case 6556:
                 case 5661:
                 case 5919:
+                case 5922://VENDA DE REMESSA FUTURA
                     cofinsnt.setCST("04");
                     cofins.setCOFINSNT(cofinsnt);
                     break;
@@ -1607,7 +1619,7 @@ public class IntegracaoNfe extends Servico {
                 case 5409:
                 case 5659:
                 case 6659:
-                case 5557://TRANSFERENCIA MATERIAL DE USO/CONSUMO
+                case 5557://TRANSFERENCIA MATERIAL DE USO/CONSUMO                
                     cofinsnt.setCST("08");
                     cofins.setCOFINSNT(cofinsnt);
                     break;
@@ -1615,6 +1627,7 @@ public class IntegracaoNfe extends Servico {
                 case 5603:
                 case 5604:
                 case 5606:
+                case 5117://REMESSA DE VENDA PARA ENTREGA FUTURA                                        
                     cofinsnt.setCST("99");
                     aliquota.setCST("99");
                     aliquota.setVBC(NumberUtil.decimalBanco(item.getValorTotal()));
@@ -1629,7 +1642,7 @@ public class IntegracaoNfe extends Servico {
                 case 1551://COMPRA DE ATIVO
                 case 5913://RETORNO DE REMESSA PARA DEMONSTRACAO                
                 case 5925://RETORNO DE MERCADORIA PARA INDUSTRIALIZACAO, PARA O ADQUIRENTE POR NAO TER TRANSITADO A MESMA, NO ESTABELECIMENTO DO ADQUIRENTE
-                case 5556://DEVOLUCAO DE MERCADORIA PARA CONSUMO
+                case 5556://DEVOLUCAO DE MERCADORIA PARA CONSUMO                
                     COFINS.COFINSOutr cofinsOutr = new COFINS.COFINSOutr();
                     cofinsOutr.setCST("99");
                     cofinsOutr.setQBCProd("0.0000");
@@ -1671,6 +1684,7 @@ public class IntegracaoNfe extends Servico {
                 case 5111:
                 case 6556:
                 case 2102:
+                case 5922://VENDA DE REMESSA FUTURA
                     aliquota.setCST("01");
                     aliquota.setVBC(NumberUtil.decimalBanco(item.getValorTotal()));
                     aliquotaCofins = Double.parseDouble(System.getProperty("nfe.cofins.aliquota", "6.0"));
@@ -1719,6 +1733,7 @@ public class IntegracaoNfe extends Servico {
                 case 5603:
                 case 5604:
                 case 5606:
+                case 5117://REMESSA DE VENDA PARA ENTREGA FUTURA                                        
                     cofinsnt.setCST("99");
                     aliquota.setCST("99");
                     aliquota.setVBC(NumberUtil.decimalBanco(item.getValorTotal()));
@@ -1728,7 +1743,7 @@ public class IntegracaoNfe extends Servico {
                     break;
                 case 5908:
                 case 6551:
-                case 5556://DEVOLUCAO DE MATERIAL DE CONSUMO
+                case 5556://DEVOLUCAO DE MATERIAL DE CONSUMO                
                     COFINS.COFINSOutr cofinsOutr = new COFINS.COFINSOutr();
                     cofinsOutr.setCST("99");
                     cofinsOutr.setQBCProd("0.0000");
