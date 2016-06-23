@@ -1149,7 +1149,7 @@ public class IntegracaoNfe extends Servico {
                 }
                 break;
             case 5922:
-                 if ("50".equals(st)) {
+                 if ("40".equals(st)) {
                     ICMS40 tributacaoIcms5_4 = new ICMS40();
                     tributacaoIcms5_4.setCST(st);
                     tributacaoIcms5_4.setOrig(origem);
