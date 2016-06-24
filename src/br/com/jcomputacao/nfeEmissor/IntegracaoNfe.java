@@ -1055,6 +1055,7 @@ public class IntegracaoNfe extends Servico {
             case 1101:
             case 1551://COMPRA DE ATIVO
             case 6916://RETORNO DE MERCADORIA OU BEM RECEBIDO PARA CONSERTO OU REPARO
+            case 6911://REMESSA DE AMOSTRA GRATIS
                 ICMS40 tributacaoIcms40 = new ICMS40();
                 tributacaoIcms40.setCST(st);
                 tributacaoIcms40.setOrig(origem);
@@ -1389,7 +1390,8 @@ public class IntegracaoNfe extends Servico {
                 case 5913://RETORNO DE REMESSA PARA DEMONSTRACAO                
                 case 5925://RETORNO DE MERCADORIA PARA INDUSTRIALIZACAO, PARA O ADQUIRENTE POR NAO TER TRANSITADO A MESMA, NO ESTABELECIMENTO DO ADQUIRENTE
                 case 5556://DEVOLUCAO DE MERCADORIA DE CONSUMO
-                case 5117://REMESSA DE VENDA PARA ENTREGA FUTURA                                        
+                case 5117://REMESSA DE VENDA PARA ENTREGA FUTURA         
+                case 6911://REMESSA DE AMOSTRA GRATIS
                     PIS.PISOutr pisOutr = new PIS.PISOutr();
                     pisOutr.setCST("99");
                     pisOutr.setQBCProd("0.0000");
@@ -1505,7 +1507,8 @@ public class IntegracaoNfe extends Servico {
                     break;
                 case 5908:
                 case 5556://DEVOLUCAO DE MERCADORIA DE CONSUMO                                             
-                case 5117://REMESSA DE VENDA PARA ENTREGA FUTURA                                                            
+                case 5117://REMESSA DE VENDA PARA ENTREGA FUTURA     
+                case 6911://REMESSA DE AMOSTRA GRATIS
                     PIS.PISOutr pisOutr = new PIS.PISOutr();
                     pisOutr.setCST("99");
                     pisOutr.setQBCProd("0.0000");
@@ -1642,7 +1645,8 @@ public class IntegracaoNfe extends Servico {
                 case 5913://RETORNO DE REMESSA PARA DEMONSTRACAO                
                 case 5925://RETORNO DE MERCADORIA PARA INDUSTRIALIZACAO, PARA O ADQUIRENTE POR NAO TER TRANSITADO A MESMA, NO ESTABELECIMENTO DO ADQUIRENTE
                 case 5556://DEVOLUCAO DE MERCADORIA PARA CONSUMO       
-                case 5117://REMESSA DE VENDA PARA ENTREGA FUTURA                               
+                case 5117://REMESSA DE VENDA PARA ENTREGA FUTURA           
+                case 6911://REMESSA DE AMOSTRA GRATIS
                     COFINS.COFINSOutr cofinsOutr = new COFINS.COFINSOutr();
                     cofinsOutr.setCST("99");
                     cofinsOutr.setQBCProd("0.0000");
@@ -1743,7 +1747,8 @@ public class IntegracaoNfe extends Servico {
                 case 5908:
                 case 6551:
                 case 5556://DEVOLUCAO DE MATERIAL DE CONSUMO    
-                case 5117://REMESSA DE VENDA PARA ENTREGA FUTURA                          
+                case 5117://REMESSA DE VENDA PARA ENTREGA FUTURA          
+                case 6911://REMESSA DE AMOSTRA GRATIS
                     COFINS.COFINSOutr cofinsOutr = new COFINS.COFINSOutr();
                     cofinsOutr.setCST("99");
                     cofinsOutr.setQBCProd("0.0000");
