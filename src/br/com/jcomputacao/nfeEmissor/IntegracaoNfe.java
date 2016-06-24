@@ -1038,6 +1038,7 @@ public class IntegracaoNfe extends Servico {
             case 5101:
             case 6556:
             case 5919:
+            case 5918://RETORNO DE CONSIGNACAO
             case 5410:
                 atribuiIcms00(icms, item, origem, st);
                 break;
@@ -1392,6 +1393,7 @@ public class IntegracaoNfe extends Servico {
                 case 5556://DEVOLUCAO DE MERCADORIA DE CONSUMO
                 case 5117://REMESSA DE VENDA PARA ENTREGA FUTURA         
                 case 6911://REMESSA DE AMOSTRA GRATIS
+                case 5918://RETORNO DE CONSIGNACAO                    
                     PIS.PISOutr pisOutr = new PIS.PISOutr();
                     pisOutr.setCST("99");
                     pisOutr.setQBCProd("0.0000");
@@ -1509,6 +1511,7 @@ public class IntegracaoNfe extends Servico {
                 case 5556://DEVOLUCAO DE MERCADORIA DE CONSUMO                                             
                 case 5117://REMESSA DE VENDA PARA ENTREGA FUTURA     
                 case 6911://REMESSA DE AMOSTRA GRATIS
+                case 5918://RETORNO DE CONSIGNACAO                    
                     PIS.PISOutr pisOutr = new PIS.PISOutr();
                     pisOutr.setCST("99");
                     pisOutr.setQBCProd("0.0000");
@@ -1647,6 +1650,7 @@ public class IntegracaoNfe extends Servico {
                 case 5556://DEVOLUCAO DE MERCADORIA PARA CONSUMO       
                 case 5117://REMESSA DE VENDA PARA ENTREGA FUTURA           
                 case 6911://REMESSA DE AMOSTRA GRATIS
+                case 5918://RETORNO DE CONSIGNACAO
                     COFINS.COFINSOutr cofinsOutr = new COFINS.COFINSOutr();
                     cofinsOutr.setCST("99");
                     cofinsOutr.setQBCProd("0.0000");
@@ -1749,6 +1753,7 @@ public class IntegracaoNfe extends Servico {
                 case 5556://DEVOLUCAO DE MATERIAL DE CONSUMO    
                 case 5117://REMESSA DE VENDA PARA ENTREGA FUTURA          
                 case 6911://REMESSA DE AMOSTRA GRATIS
+                case 5918://RETORNO DE CONSIGNACAO                    
                     COFINS.COFINSOutr cofinsOutr = new COFINS.COFINSOutr();
                     cofinsOutr.setCST("99");
                     cofinsOutr.setQBCProd("0.0000");
