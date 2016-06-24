@@ -1389,6 +1389,7 @@ public class IntegracaoNfe extends Servico {
                 case 5913://RETORNO DE REMESSA PARA DEMONSTRACAO                
                 case 5925://RETORNO DE MERCADORIA PARA INDUSTRIALIZACAO, PARA O ADQUIRENTE POR NAO TER TRANSITADO A MESMA, NO ESTABELECIMENTO DO ADQUIRENTE
                 case 5556://DEVOLUCAO DE MERCADORIA DE CONSUMO
+                case 5117://REMESSA DE VENDA PARA ENTREGA FUTURA                                        
                     PIS.PISOutr pisOutr = new PIS.PISOutr();
                     pisOutr.setCST("99");
                     pisOutr.setQBCProd("0.0000");
@@ -1400,7 +1401,6 @@ public class IntegracaoNfe extends Servico {
                 case 5603:
                 case 5604:
                 case 5606:
-                case 5117://REMESSA DE VENDA PARA ENTREGA FUTURA                                        
                     pisnt.setCST("99");
                     pisAliquota.setPPIS("0.00");
                     pisAliquota.setVBC("0.00");
@@ -1494,7 +1494,6 @@ public class IntegracaoNfe extends Servico {
                 case 5604:
                 case 5606:
                 case 6551:
-                case 5117://REMESSA DE VENDA PARA ENTREGA FUTURA                                        
                     pisnt.setCST("99");
                     pisAliquota.setCST("99");
 //                    pisAliquota.setPorcentagemPis("0.0000");
@@ -1506,6 +1505,7 @@ public class IntegracaoNfe extends Servico {
                     break;
                 case 5908:
                 case 5556://DEVOLUCAO DE MERCADORIA DE CONSUMO                                             
+                case 5117://REMESSA DE VENDA PARA ENTREGA FUTURA                                                            
                     PIS.PISOutr pisOutr = new PIS.PISOutr();
                     pisOutr.setCST("99");
                     pisOutr.setQBCProd("0.0000");
@@ -1626,8 +1626,7 @@ public class IntegracaoNfe extends Servico {
                 case 5601:
                 case 5603:
                 case 5604:
-                case 5606:
-                case 5117://REMESSA DE VENDA PARA ENTREGA FUTURA                                        
+                case 5606:                             
                     cofinsnt.setCST("99");
                     aliquota.setCST("99");
                     aliquota.setVBC(NumberUtil.decimalBanco(item.getValorTotal()));
@@ -1642,7 +1641,8 @@ public class IntegracaoNfe extends Servico {
                 case 1551://COMPRA DE ATIVO
                 case 5913://RETORNO DE REMESSA PARA DEMONSTRACAO                
                 case 5925://RETORNO DE MERCADORIA PARA INDUSTRIALIZACAO, PARA O ADQUIRENTE POR NAO TER TRANSITADO A MESMA, NO ESTABELECIMENTO DO ADQUIRENTE
-                case 5556://DEVOLUCAO DE MERCADORIA PARA CONSUMO                
+                case 5556://DEVOLUCAO DE MERCADORIA PARA CONSUMO       
+                case 5117://REMESSA DE VENDA PARA ENTREGA FUTURA                               
                     COFINS.COFINSOutr cofinsOutr = new COFINS.COFINSOutr();
                     cofinsOutr.setCST("99");
                     cofinsOutr.setQBCProd("0.0000");
@@ -1732,8 +1732,7 @@ public class IntegracaoNfe extends Servico {
                 case 5601:
                 case 5603:
                 case 5604:
-                case 5606:
-                case 5117://REMESSA DE VENDA PARA ENTREGA FUTURA                                        
+                case 5606:                                  
                     cofinsnt.setCST("99");
                     aliquota.setCST("99");
                     aliquota.setVBC(NumberUtil.decimalBanco(item.getValorTotal()));
@@ -1743,7 +1742,8 @@ public class IntegracaoNfe extends Servico {
                     break;
                 case 5908:
                 case 6551:
-                case 5556://DEVOLUCAO DE MATERIAL DE CONSUMO                
+                case 5556://DEVOLUCAO DE MATERIAL DE CONSUMO    
+                case 5117://REMESSA DE VENDA PARA ENTREGA FUTURA                          
                     COFINS.COFINSOutr cofinsOutr = new COFINS.COFINSOutr();
                     cofinsOutr.setCST("99");
                     cofinsOutr.setQBCProd("0.0000");
