@@ -124,6 +124,7 @@ public class IntegracaoNfe extends Servico {
     private boolean simples = false;
     public static final String ALIQUOTA_ZERO_PIS_COFINS = "ALIQUOTA REDUZIDA A 0 (ZERO) % PARA PIS E COFINS CONFORME ARTIGO 3o DA LEI 10485 DE 07/2002.";
     public static final String SUBSTITUICAO_TRIBUTARIA = "SUBSTITUICAO TRIBUTARIA CONFORME ARTIGO 313/O DO DECRETO 52804/08.";
+    private final int valorQuantidadePrecisao = Integer.parseInt(System.getProperty("decimal.precisao", "2"));
 
     private int trataRetorno(String recibo, NfeModel nfe, String idLote) throws DbfDatabaseException, DbfException {
         NfeLoteRetorno nfeLoteRetorno = new NfeLoteRetorno();
@@ -914,7 +915,7 @@ public class IntegracaoNfe extends Servico {
 //        item
         prod.setQCom(NFeUtil.quatroCasas(item.getQuantidade()));
         prod.setUCom(StringUtil.noDeadKeysToUpperCase(item.getUnidade()));
-        prod.setVUnCom(NumberUtil.decimalBanco(item.getValorUnidade()));
+        prod.setVUnCom(NumberUtil.decimalBanco(item.getValorUnidade(), valorQuantidadePrecisao));
         prod.setVProd(NumberUtil.decimalBanco(item.getValorTotal()));
 
         prod.setQTrib(prod.getQCom());
