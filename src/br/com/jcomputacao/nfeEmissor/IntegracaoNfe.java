@@ -1115,7 +1115,8 @@ public class IntegracaoNfe extends Servico {
             case 2949:
             case 5949:            
             case 5925://RETORNO DE MERCADORIA PARA INDUSTRIALIZACAO, PARA O ADQUIRENTE POR NAO TER TRANSITADO A MESMA, NO ESTABELECIMENTO DO ADQUIRENTE
-            case 5117://REMESSA DE VENDA PARA ENTREGA FUTURA                
+            case 5117://REMESSA DE VENDA PARA ENTREGA FUTURA         
+            case 5551: // VENDA DE IMOBILIZADO
             case 6949: {
                 if ("60".equals(st)) {
                     atribuiIcms60(icms, item, origem, st);
@@ -1164,7 +1165,6 @@ public class IntegracaoNfe extends Servico {
             case 5603:
             case 5604:
             case 5605:
-            case 5551: // VENDA DE IMOBILIZADO
             case 5553: // DEVOLUCAO COMPRA DE BEM PARA ATIVO IMOBILIZADO
             case 5606: {
                 ICMS90 tributacaoIcms90 = new ICMS90();
