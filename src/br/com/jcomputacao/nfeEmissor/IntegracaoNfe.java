@@ -2032,7 +2032,7 @@ public class IntegracaoNfe extends Servico {
         tributacaoICMS10.setVICMS(NumberUtil.decimalBanco(item.getIcmsValor()));
         tributacaoICMS10.setModBCST("4");
         tributacaoICMS10.setVBCST(NumberUtil.decimalBanco(item.getBaseIcmsStValor()));
-        tributacaoICMS10.setPMVAST(NumberUtil.decimalBanco((item.getIva() - 1) * 100));
+        tributacaoICMS10.setPMVAST(NumberUtil.decimalBanco((item.getBaseIcmsStValor() > 0 ? (item.getIva() - 1) * 100 : 0)));
         tributacaoICMS10.setPICMSST(NumberUtil.decimalBanco(item.getIcmsStAliquota() * 100));        
         tributacaoICMS10.setVICMSST(NumberUtil.decimalBanco(item.getValorIcmsSt()));
         if(item.getValorIcmsStPorcentagemReducao() > 0) {
