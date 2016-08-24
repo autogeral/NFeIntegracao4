@@ -1099,7 +1099,7 @@ public class IntegracaoNfe extends Servico {
             {
                 boolean existeCalculoSt = Boolean.parseBoolean(
                         System.getProperty("nfe.icms.substituicao", "false"));
-                if (existeCalculoSt) {
+                if (existeCalculoSt || item.getSituacaoTributaria() == 10) {
                     atribuiIcms10(icms, item, origem, st);
                 } else {
                     atribuiIcms60(icms, item, origem, st);
