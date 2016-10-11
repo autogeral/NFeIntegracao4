@@ -1058,6 +1058,7 @@ public class IntegracaoNfe extends Servico {
             case 1551://COMPRA DE ATIVO
             case 6916://RETORNO DE MERCADORIA OU BEM RECEBIDO PARA CONSERTO OU REPARO
             case 6911://REMESSA DE AMOSTRA GRATIS
+            case 6501://REMESSA DE PRODUCAO DO ESTABELECIMENTO COM FIM ESPECIFICO DE EXPORTACAO
                 ICMS40 tributacaoIcms40 = new ICMS40();
                 tributacaoIcms40.setCST(st);
                 tributacaoIcms40.setOrig(origem);
@@ -1380,7 +1381,8 @@ public class IntegracaoNfe extends Servico {
                 case 5409:
                 case 5659:
                 case 6659:
-                case 5557://TRANSFERENCIA MATERIAL DE USO/CONSUMO                
+                case 5557://TRANSFERENCIA MATERIAL DE USO/CONSUMO    
+                case 6501://REMESSA DE PRODUCAO DO ESTABELECIMENTO COM FIM ESPECIFICO DE EXPORTACAO
                     pisnt.setCST("08");
                     pis.setPISNT(pisnt);
                     break;
@@ -1626,7 +1628,8 @@ public class IntegracaoNfe extends Servico {
                 case 5409:
                 case 5659:
                 case 6659:
-                case 5557://TRANSFERENCIA MATERIAL DE USO/CONSUMO                
+                case 5557://TRANSFERENCIA MATERIAL DE USO/CONSUMO    
+                case 6501://REMESSA DE PRODUCAO DO ESTABELECIMENTO COM FIM ESPECIFICO DE EXPORTACAO                    
                     cofinsnt.setCST("08");
                     cofins.setCOFINSNT(cofinsnt);
                     break;
@@ -1826,7 +1829,11 @@ public class IntegracaoNfe extends Servico {
                 ipint.setCST("53");
             }
         }
-        ipi.setCEnq("999");
+        if(tributaIpi && item.getIpiSt() == 55) {
+            ipi.setCEnq("105");
+        } else {
+            ipi.setCEnq("999");
+        }
         return ipi;
     }
 
