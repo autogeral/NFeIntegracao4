@@ -1021,9 +1021,16 @@ public class IntegracaoNfe extends Servico {
         String st = Integer.toString(item.getSituacaoTributaria() % 100);
         st = StringUtil.ajusta(st, 2, StringUtil.ALINHAMENTO_DIREITA, '0');
 
-        switch (item.getCfop()) {
+        switch (item.getCfop()) {            
+            case 5201: {
+                if ("90".equals(st)) {
+                    atribuiIcms90(icms, item, origem, st);
+                } else {
+                    atribuiIcms00(icms, item, origem, st);
+                }
+            }
+            break;
             case 5102:
-            case 5201:
             case 5202:
             case 1202: //devolucao do 5102
             case 6101:
