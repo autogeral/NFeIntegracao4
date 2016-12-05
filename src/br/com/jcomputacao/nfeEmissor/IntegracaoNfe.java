@@ -808,7 +808,12 @@ public class IntegracaoNfe extends Servico {
             String doc = StringUtil.somenteNumeros(ent.getCpfCnpj());
             doc = StringUtil.ajusta(doc, 14, StringUtil.ALINHAMENTO_DIREITA, '0');
             dest.setCNPJ(doc);
-            dest.setIndIEDest((StringUtil.isNull(ent.getRgIe())) ? "2" : "1");
+            //dest.setIndIEDest((StringUtil.isNull(ent.getRgIe())) ? "2" : "1");
+            //http://tdn.totvs.com/pages/releaseview.action;jsessionid=05EE4EEDC1A9644B0FF7E1BF9DE41EDE?pageId=219121739
+            //Caso for informado a IE do Cliente e esteja marcado como ?Contribuinte ICMS?, o resultado será ?1 = Contribuinte ICMS?.
+            //Caso NÃO for informado a IE do Cliente e esteja marcado como ?Contribuinte ICMS?, o resultado será ?2 = Contribuinte Isento?.
+            //Caso NÃO esteja marcado como ?Contribuinte ICMS?, o resultado será ?9 = Não Contribuinte?.
+            dest.setIndIEDest((StringUtil.isNull(ent.getRgIe())) && cm.getTributacaoCodigo() == 0 ? "2" : (StringUtil.isNotNull(ent.getRgIe())) && cm.getTributacaoCodigo() == 0 ? "1" : "9");
             if (StringUtil.isNotNull(ent.getRgIe())) {
                 dest.setIE(ent.getRgIe());
             }
