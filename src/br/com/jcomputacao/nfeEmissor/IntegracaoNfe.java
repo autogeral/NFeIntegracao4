@@ -1243,6 +1243,11 @@ public class IntegracaoNfe extends Servico {
                 ICMSSN201 icmssn201 = new ICMSSN201();
                 icmssn201.setOrig(origem);
                 icmssn201.setCSOSN(st);
+                double simplesMeEppIcmsAliquota = Double.parseDouble(System.getProperty("nfe.me.epp.credito.icms.aliquota"));
+                double valorIcmsCredito = item.getValorTotal() * simplesMeEppIcmsAliquota;
+                simplesMeEppIcmsAliquota *= 100;
+                icmssn201.setPCredSN(NumberUtil.decimalBanco(simplesMeEppIcmsAliquota));
+                icmssn201.setVCredICMSSN(NumberUtil.decimalBanco(valorIcmsCredito));
                 icms.setICMSSN201(icmssn201);
             }
             break;
