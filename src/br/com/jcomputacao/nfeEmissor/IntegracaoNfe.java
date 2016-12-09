@@ -72,6 +72,7 @@ import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICM
 import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMSSN202;
 import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMSSN500;
 import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMSSN900;
+import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Det.Imposto.ICMSUFDest;
 import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Det.Imposto.PIS;
 import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Det.Imposto.PIS.PISAliq;
 import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Det.Imposto.PIS.PISNT;
@@ -687,6 +688,16 @@ public class IntegracaoNfe extends Servico {
             // com valor = 0.00 o ICMS Desoneração
             icms.setVICMSDeson(NumberUtil.decimalBanco(0));
         }
+        boolean nfeTributaDifal = Boolean.parseBoolean(System.getProperty("nfe.tributa.difal", "false"));
+        //uso, alem da variavel que indica se as notas tributam ou nao o difal,
+        //o valor do icms de destino para validar se o sistema preenche ou 
+        //não essa parte do XML, pois o Difal sempre terá o valor do icms de destino
+        //maior que zero quando o mesmo for preenchido na NFe
+        if(nfeTributaDifal && nota.getValorIcmsUFDestino() > 0) {
+            icms.setVFCPUFDest(NumberUtil.decimal(nota.getValorIcmsIndicePobreza()).replace(",", "."));
+            icms.setVICMSUFDest(NumberUtil.decimal(nota.getValorIcmsUFDestino()).replace(",", "."));
+            icms.setVICMSUFRemet(NumberUtil.decimal(nota.getValorIcmsUFRemetente()).replace(",", "."));
+        }
 
         icms.setVST(NumberUtil.decimalBanco(nota.getIcmsStValor()));
         icms.setVProd(NumberUtil.decimalBanco(nota.getValorProdutos()));
@@ -1008,6 +1019,10 @@ public class IntegracaoNfe extends Servico {
 //        imp.getContent().add(new ObjectFactory().createTNFeInfNFeDetImpostoPISST(pisSt(item)));
         imp.getContent().add(new ObjectFactory().createTNFeInfNFeDetImpostoCOFINS(cofins(item)));
 //        imp.getContent().add(new ObjectFactory().createTNFeInfNFeDetImpostoCOFINSST(cofinsSt(item)));
+        boolean nfeTributaDifal = Boolean.parseBoolean(System.getProperty("nfe.tributa.difal", "false"));
+        if(nfeTributaDifal && item.getValorIcmsUFDestino() > 0) {
+            imp.getContent().add(new ObjectFactory().createTNFeInfNFeDetImpostoICMSUFDest(difal(item)));
+        }
 
         return imp;
     }
@@ -1854,6 +1869,20 @@ public class IntegracaoNfe extends Servico {
         return ipi;
     }
 
+    private ICMSUFDest difal(NfeItemModel item) {
+        ICMSUFDest difal = new ICMSUFDest();
+        difal.setVBCUFDest(NumberUtil.decimalBanco(item.getValorTotal()));
+        difal.setPFCPUFDest(NumberUtil.decimalBanco(item.getIcmsIndicePobrezaAliquota()));
+        difal.setPICMSUFDest(NumberUtil.decimalBanco(item.getIcmsInternaUFDestinoAliquota()));
+        difal.setPICMSInter(NumberUtil.decimalBanco(item.getIcmsAliquota() * 100));      
+        difal.setPICMSInterPart(NumberUtil.decimalBanco(item.getIcmsProvisorioPartilhaAliquota()));
+        difal.setVFCPUFDest(NumberUtil.decimalBanco(item.getValorIcmsIndicePobreza()));
+        difal.setVICMSUFDest(NumberUtil.decimalBanco(item.getValorIcmsUFDestino()));
+        difal.setVICMSUFRemet(NumberUtil.decimalBanco(item.getValorIcmsUFRemetente()));
+        return difal;
+    }
+    
+    
     private void atribuiObservacoes(InfNFe inf, NfeModel nfeModel) throws DbfDatabaseException, DbfException {
         TNFe.InfNFe.InfAdic infAdicionais = new TNFe.InfNFe.InfAdic();
         DeOlhoNoImpostoLogic deOlho = new DeOlhoNoImpostoLogic();
