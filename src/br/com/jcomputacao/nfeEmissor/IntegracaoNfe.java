@@ -675,8 +675,10 @@ public class IntegracaoNfe extends Servico {
 
     private ICMSTot criaTotalIcms(NfeModel nota) throws DbfDatabaseException, DbfException {
         ICMSTot icms = new ICMSTot();
-        icms.setVBC(NumberUtil.decimalBanco(nota.getIcmsBase()));
-        icms.setVICMS(NumberUtil.decimalBanco(nota.getIcmsValor()));
+        boolean destacaImpostoCorpoNotaParaSimplesNacional = Boolean.parseBoolean(
+                    System.getProperty("destaca.impostos.corpoNota", "false"));
+        icms.setVBC(NumberUtil.decimalBanco((!simples || (simples && destacaImpostoCorpoNotaParaSimplesNacional) ? nota.getIcmsBase() : 0)));
+        icms.setVICMS(NumberUtil.decimalBanco((!simples || (simples && destacaImpostoCorpoNotaParaSimplesNacional) ? nota.getIcmsValor() : 0)));
         if (nota.getIcmsValor() > 0) {
             icms.setVBCST(NumberUtil.decimalBanco(nota.getIcmsStBase()));
             //até que realmente precise, Mirella do Office disse para deixar sempre 
@@ -709,9 +711,7 @@ public class IntegracaoNfe extends Servico {
         icms.setVOutro(NumberUtil.decimalBanco(nota.getOutrasDespesas()));
         icms.setVNF(NumberUtil.decimalBanco(nota.getValorTotal()));
 
-        if (simples) {
-            boolean destacaImpostoCorpoNotaParaSimplesNacional = Boolean.parseBoolean(
-                    System.getProperty("destaca.impostos.corpoNota", "false"));
+        if (simples) {            
             if (destacaImpostoCorpoNotaParaSimplesNacional) {
                 Double aliquotaPis = Double.parseDouble(System.getProperty("nfe.pis.aliquota", "1.65"));
                 double porcentagemPis = aliquotaPis / 100;
@@ -1234,9 +1234,9 @@ public class IntegracaoNfe extends Servico {
                 ICMSSN101 icmssn101 = new ICMSSN101();
                 icmssn101.setOrig(origem);
                 icmssn101.setCSOSN(st);
-
                 double simplesMeEppIcmsAliquota = Double.parseDouble(System.getProperty("nfe.me.epp.credito.icms.aliquota"));
                 double valorIcmsCredito = item.getValorTotal() * simplesMeEppIcmsAliquota;
+                System.setProperty("nfe.me.epp.credito.icms", "true");
                 simplesMeEppIcmsAliquota *= 100;
                 icmssn101.setPCredSN(NumberUtil.decimalBanco(simplesMeEppIcmsAliquota));
                 icmssn101.setVCredICMSSN(NumberUtil.decimalBanco(valorIcmsCredito));
@@ -1258,11 +1258,16 @@ public class IntegracaoNfe extends Servico {
                 ICMSSN201 icmssn201 = new ICMSSN201();
                 icmssn201.setOrig(origem);
                 icmssn201.setCSOSN(st);
-                double simplesMeEppIcmsAliquota = Double.parseDouble(System.getProperty("nfe.me.epp.credito.icms.aliquota"));
+                icmssn201.setModBCST("4");
+                icmssn201.setPMVAST(NumberUtil.decimalBanco((item.getBaseIcmsStValor() > 0 ? (item.getIva() - 1) * 100 : 0)));
+                icmssn201.setVBCST(NumberUtil.decimalBanco(item.getBaseIcmsStValor()));
+                icmssn201.setPICMSST(NumberUtil.decimalBanco(item.getIcmsStAliquota() * 100));
+                icmssn201.setVICMSST(NumberUtil.decimalBanco(item.getValorIcmsSt()));
+                double simplesMeEppIcmsAliquota = Double.parseDouble(System.getProperty("nfe.me.epp.credito.icms.aliquota").replace(",", "."));
                 double valorIcmsCredito = item.getValorTotal() * simplesMeEppIcmsAliquota;
                 simplesMeEppIcmsAliquota *= 100;
                 icmssn201.setPCredSN(NumberUtil.decimalBanco(simplesMeEppIcmsAliquota));
-                icmssn201.setVCredICMSSN(NumberUtil.decimalBanco(valorIcmsCredito));
+                icmssn201.setVCredICMSSN(NumberUtil.decimalBanco(valorIcmsCredito));                
                 icms.setICMSSN201(icmssn201);
             }
             break;
@@ -1270,6 +1275,11 @@ public class IntegracaoNfe extends Servico {
                 ICMSSN202 icmssn202 = new ICMSSN202();
                 icmssn202.setOrig(origem);
                 icmssn202.setCSOSN(st);
+                icmssn202.setModBCST("4");
+                icmssn202.setPMVAST(NumberUtil.decimalBanco((item.getBaseIcmsStValor() > 0 ? (item.getIva() - 1) * 100 : 0)));
+                icmssn202.setVBCST(NumberUtil.decimalBanco(item.getBaseIcmsStValor()));
+                icmssn202.setPICMSST(NumberUtil.decimalBanco(item.getIcmsStAliquota() * 100));
+                icmssn202.setVICMSST(NumberUtil.decimalBanco(item.getValorIcmsSt()));                
                 icms.setICMSSN202(icmssn202);
             }
             break;
@@ -1928,12 +1938,16 @@ public class IntegracaoNfe extends Servico {
 
         boolean isentoPisCofins = false;
         boolean substituicaoTributaria = false;
+        boolean cstComCreditoDeIcms = false;
         for (NfeItemModel item : nfeModel.getVendaItens()) {
             if (item.getPisCofins()) {
                 isentoPisCofins = true;
             }
             if (cfopComMensagemST(item.getCfop())) {
                 substituicaoTributaria = true;
+            }
+            if(cstComMensagemCreditoDeIcms(item.getSituacaoTributaria())) {
+                cstComCreditoDeIcms = true;
             }
         }
         boolean simplesMeEppIpi = Boolean.parseBoolean(System.getProperty("nfe.me.epp.sem.credito.ipi", "false"));
@@ -1947,7 +1961,7 @@ public class IntegracaoNfe extends Servico {
                 informacoes += "I - DOCUMENTO EMITIDO POR ME OU EPP OPTANTE PELO SIMPLES NACIONAL/ II - NAO GERA DIREITO A CREDITO FISCAL DE ISS E IPI.";
             }
 
-            if (simplesMeEppIcms) {
+            if (simplesMeEppIcms && cstComCreditoDeIcms) {
                 double simplesMeEppIcmsAliquota = Double.parseDouble(System.getProperty("nfe.me.epp.credito.icms.aliquota"));
                 double valorIcmsCredito = nfeModel.getValorTotal() * simplesMeEppIcmsAliquota;
                 simplesMeEppIcmsAliquota *= 100;
@@ -1997,6 +2011,17 @@ public class IntegracaoNfe extends Servico {
             }
             JOptionPane.showInternalMessageDialog(Ambiente.getDesktop(), avisos.toString(), "Lei 12.741/2012", JOptionPane.WARNING_MESSAGE);
         }
+    }
+    
+    private boolean cstComMensagemCreditoDeIcms(int cst) {
+        boolean retorno = false;
+        switch (cst) {
+            case 201:
+            case 101:
+                retorno = true;
+                break;
+        }
+        return retorno;
     }
 
     private boolean cfopComMensagemST(int cfop) {
