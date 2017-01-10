@@ -1972,16 +1972,16 @@ public class IntegracaoNfe extends Servico {
             String informacoes = "";
 
             if (simplesMeEppIpi) {
-                informacoes += "I - DOCUMENTO EMITIDO POR ME OU EPP OPTANTE PELO SIMPLES NACIONAL/ II - NAO GERA DIREITO A CREDITO FISCAL DE ISS E IPI.";
+                informacoes += "I - DOCUMENTO EMITIDO POR ME OU EPP OPTANTE PELO SIMPLES NACIONAL. NAO GERA DIREITO A CREDITO FISCAL DE ISS E DE IPI.";
             }
 
             if (simplesMeEppIcms && cstComCreditoDeIcms) {
                 double simplesMeEppIcmsAliquota = Double.parseDouble(System.getProperty("nfe.me.epp.credito.icms.aliquota"));
                 double valorIcmsCredito = nfeModel.getValorTotal() * simplesMeEppIcmsAliquota;
                 simplesMeEppIcmsAliquota *= 100;
-                informacoes += "PERMITE APENAS O APROVEITAMENTO DO CREDITO DE ICMS NO VALOR DE R$ "
+                informacoes += "II-PERMITE O APROVEITAMENTO DO CREDITO DE ICMS NO VALOR DE R$ "
                         + NumberUtil.decimal(valorIcmsCredito) + ",CORRESPONDENTE A ALIQUOTA DE "
-                        + NumberUtil.decimal(simplesMeEppIcmsAliquota) + "% CONFORME ARTIGO 23 DA LC 123/2006.";
+                        + NumberUtil.decimal(simplesMeEppIcmsAliquota) + "% NOS TERMOS DO ART 23 DA LC 123.";
             }
 
             if (isentoPisCofins && !simplesMeEppIpi) {
@@ -1991,7 +1991,11 @@ public class IntegracaoNfe extends Servico {
                 if (isentoPisCofins) {
                     informacoes += " ";
                 }
-                informacoes += SUBSTITUICAO_TRIBUTARIA;
+                if (!simples) {
+                    informacoes += SUBSTITUICAO_TRIBUTARIA;
+                } else {
+                    informacoes += "III- ICMS RETIDO POR SUBSTITUICAO TRIBUTARIA NOS TERMOS DO PROTOCOLO ICMS 32/09 ALTERADO PARA 139/09 E 112/10.";
+                }
             }
 
             if (nfeModel.getPossuiImpostoAdicional()) {
