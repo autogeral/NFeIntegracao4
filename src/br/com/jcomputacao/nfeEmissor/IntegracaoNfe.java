@@ -95,6 +95,7 @@ import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TRetConsReciNFe;
 import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TRetEnviNFe;
 import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TUf;
 import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TUfEmi;
+import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TVeiculo;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -607,6 +608,19 @@ public class IntegracaoNfe extends Servico {
          * Por conta de terceiros; 9- Sem frete. (V2.0)
          */
         transporte.setModFrete(Integer.toString(nota.getFreteConta().getNfeCodigo()));
+        
+        if(StringUtil.isNotNull(nota.getPlaca()) && !nota.getPlaca().isEmpty()) {
+            TVeiculo veiculo = new TVeiculo();
+            if(nota.getPlaca().contains("/")) {
+                System.out.println(nota.getPlaca());
+                veiculo.setPlaca(nota.getPlaca().substring(0, nota.getPlaca().indexOf("/")));
+                veiculo.setUF(TUf.valueOf(nota.getPlaca().substring(nota.getPlaca().indexOf("/") + 1, nota.getPlaca().length())));
+            } else {
+                veiculo.setPlaca(nota.getPlaca());
+                veiculo.setUF(TUf.SP);
+            }
+            transporte.setVeicTransp(veiculo);
+        }
 
         if (nota.getTransportadoraCodigo() > 0) {
             TransportadoraModel tmodel = new TransportadoraModel();
