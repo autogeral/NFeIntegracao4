@@ -878,11 +878,13 @@ public class IntegracaoNfe extends Servico {
             endereco.setXCpl(trataString(entEnd.getComplementoEndereco()));
         }
 
-        if (StringUtil.isNull(entTel.getTelefone())) {
-            throw new DbfException("Telefone nao encontrador para utilizacao em documento fiscal");
+        boolean validarTelefone = Boolean.parseBoolean(System.getProperty("cliente.validarTelefones", "true"));
+        if (validarTelefone) {
+            if (StringUtil.isNull(entTel.getTelefone())) {
+                throw new DbfException("Telefone nao encontrador para utilizacao em documento fiscal");
+            }
+            endereco.setFone(StringUtil.somenteNumeros(entTel.getTelefone()));
         }
-        endereco.setFone(StringUtil.somenteNumeros(entTel.getTelefone()));
-
         dest.setEnderDest(endereco);
         return dest;
     }
@@ -1349,7 +1351,8 @@ public class IntegracaoNfe extends Servico {
             boolean destacaImpostoCorpoNotaParaSimplesNacional = Boolean.parseBoolean(
                     System.getProperty("destaca.impostos.corpoNota", "false"));
             if (item.getSituacaoTributaria() == 41
-                    || item.getSituacaoTributaria() == 20) {
+                    || item.getSituacaoTributaria() == 20 || item.getSituacaoTributaria() == 201
+                    || item.getSituacaoTributaria() == 102 || item.getSituacaoTributaria() == 101) {
                 PIS.PISOutr pisOutr = new PIS.PISOutr();
                 pisOutr.setCST("99");
                 pisOutr.setVBC("0.00");
@@ -1596,7 +1599,8 @@ public class IntegracaoNfe extends Servico {
             boolean destacaImpostoCorpoNotaParaSimplesNacional = Boolean.parseBoolean(
                     System.getProperty("destaca.impostos.corpoNota", "false"));
             if (item.getSituacaoTributaria() == 41
-                    || item.getSituacaoTributaria() == 20) {
+                    || item.getSituacaoTributaria() == 20 || item.getSituacaoTributaria() == 201
+                    || item.getSituacaoTributaria() == 102 || item.getSituacaoTributaria() == 101) {
                 COFINS.COFINSOutr cofinsOutr = new COFINS.COFINSOutr();
                 cofinsOutr.setCST("99");
                 cofinsOutr.setVBC("0.00");
@@ -1994,7 +1998,38 @@ public class IntegracaoNfe extends Servico {
                 if (!simples) {
                     informacoes += SUBSTITUICAO_TRIBUTARIA;
                 } else {
-                    informacoes += "III- ICMS RETIDO POR SUBSTITUICAO TRIBUTARIA NOS TERMOS DO PROTOCOLO ICMS 32/09 ALTERADO PARA 139/09 E 112/10.";
+                    //a mensagem de substituiaco tributaria muda muito para simples nacional, no que diz respeito ao protocolo
+                    //como foi visto com o Fábio da Gisa contabilidade, para nosso cliente FHEL.
+                    //UM MESMO PRODUTO PODE TER PROTOCOLO DIFERENTE PARA CADA ESTADO
+                    //E PRODUTOS DIFERENTES PODEM TER PROTOCOLOS DIFERENTES PARA O MESMO ESTADO
+                    //para isso foi criado um parametro onde o valor tera a UF, classe fiscal do produto que possui ST
+                    //e o protocolo que atende esse produto.
+                    //EX de como montar o parametro --> (MG-39259090=32/2009;70139900=34/2009)(RJ-39259090=32/2014;70139900=131/2013)
+                    //Estados separados por (), NCMs separados por ; e para cada NCM tem um protocolo que é informado 
+                    //depois do sinal de =.
+                    String parametroMsgProtocolo = System.getProperty("nfe.me.epp.st.msgIII");
+                    String msgST = "III- ICMS RETIDO POR SUBSTITUICAO TRIBUTARIA";
+                    String protocolo = "";
+                    if (StringUtil.isNotNull(parametroMsgProtocolo) && !parametroMsgProtocolo.isEmpty()) {
+                        if (parametroMsgProtocolo.contains(nfeModel.getClienteEstado())) {
+                            parametroMsgProtocolo = parametroMsgProtocolo.substring(parametroMsgProtocolo.indexOf("(" + nfeModel.getClienteEstado()), parametroMsgProtocolo.indexOf(")", parametroMsgProtocolo.indexOf("(" + nfeModel.getClienteEstado())) + 1);
+                            System.out.println(parametroMsgProtocolo);
+                            for (NfeItemModel item : nfeModel.getVendaItens()) {
+                                if (cfopComMensagemST(item.getCfop())) {
+                                    if (parametroMsgProtocolo.contains(item.getClasseFiscal())) {
+                                        String p = parametroMsgProtocolo.substring(parametroMsgProtocolo.indexOf(item.getClasseFiscal()), parametroMsgProtocolo.indexOf(")", parametroMsgProtocolo.indexOf(item.getClasseFiscal())));
+                                        if (p.contains(";")) {
+                                            p = parametroMsgProtocolo.substring(parametroMsgProtocolo.indexOf(item.getClasseFiscal()), parametroMsgProtocolo.indexOf(";", parametroMsgProtocolo.indexOf(item.getClasseFiscal())));;
+                                        }
+                                        protocolo = (!protocolo.isEmpty() ? protocolo + ", " + p.replace(item.getClasseFiscal(), "").replace("=", "") : protocolo + p.replace(item.getClasseFiscal(), "").replace("=", ""));
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    informacoes += msgST + (!protocolo.isEmpty() ? " NOS TERMOS DO PROTOCOLO ICMS " + protocolo : protocolo);
+                    System.out.println(informacoes);
                 }
             }
 
