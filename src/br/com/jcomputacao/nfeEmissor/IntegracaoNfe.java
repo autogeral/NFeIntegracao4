@@ -1887,6 +1887,7 @@ public class IntegracaoNfe extends Servico {
                     tributacao.setPIPI(NumberUtil.decimalBanco(item.getIpiAliquota() * 100));
                     tributacao.setVIPI(NumberUtil.decimalBanco(item.getIpiValor()));
                     tributacao.setCST(Integer.toString(item.getIpiSt()));
+                    ipi.setIPITrib(tributacao);
                 } else {
                     IPINT ipint = new IPINT();
                     ipint.setCST(Integer.toString(item.getIpiSt()));
