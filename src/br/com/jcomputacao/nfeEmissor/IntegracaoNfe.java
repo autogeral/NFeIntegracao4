@@ -1362,6 +1362,14 @@ public class IntegracaoNfe extends Servico {
             } else if (item.getSituacaoTributaria() == 900
                     && destacaImpostoCorpoNotaParaSimplesNacional && !item.getPisCofins()) {
                 pis.setPISAliq(aplicaPisParaSimplesIcmsSn900(pisAliquota, item));
+            } else if (item.getSituacaoTributaria() == 900
+                    && (!destacaImpostoCorpoNotaParaSimplesNacional || !item.getPisCofins())) {
+                PIS.PISOutr pisOutr = new PIS.PISOutr();
+                pisOutr.setCST("99");
+                pisOutr.setVBC("0.00");
+                pisOutr.setPPIS("0.00");
+                pisOutr.setVPIS("0.00");
+                pis.setPISOutr(pisOutr);
             } else {
                 pisnt.setCST("04");
                 pis.setPISNT(pisnt);
@@ -1610,6 +1618,14 @@ public class IntegracaoNfe extends Servico {
             } else if (item.getSituacaoTributaria() == 900
                     && destacaImpostoCorpoNotaParaSimplesNacional && !item.getPisCofins()) {
                 cofins.setCOFINSAliq(aplicaCofinsParaSimplesIcmsSn900(aliquota, item));
+            } else if (item.getSituacaoTributaria() == 900
+                    && (!destacaImpostoCorpoNotaParaSimplesNacional || !item.getPisCofins())) {
+                COFINS.COFINSOutr cofinsOutr = new COFINS.COFINSOutr();
+                cofinsOutr.setCST("99");
+                cofinsOutr.setVBC("0.00");
+                cofinsOutr.setVCOFINS("0.00");
+                cofinsOutr.setPCOFINS("0.00");
+                cofins.setCOFINSOutr(cofinsOutr);
             } else {
                 cofinsnt.setCST("04");
                 cofins.setCOFINSNT(cofinsnt);
