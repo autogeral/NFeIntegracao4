@@ -2052,7 +2052,9 @@ public class IntegracaoNfe extends Servico {
                                         if (p.contains(";")) {
                                             p = parametroMsgProtocolo.substring(parametroMsgProtocolo.indexOf(item.getClasseFiscal()), parametroMsgProtocolo.indexOf(";", parametroMsgProtocolo.indexOf(item.getClasseFiscal())));;
                                         }
-                                        protocolo = (!protocolo.isEmpty() ? protocolo + ", " + p.replace(item.getClasseFiscal(), "").replace("=", "") : protocolo + p.replace(item.getClasseFiscal(), "").replace("=", ""));
+                                        protocolo = (!protocolo.isEmpty() ? 
+                                                    (!protocolo.contains(p.replace(item.getClasseFiscal(), "").replace("=", "")) ? protocolo + ", " + p.replace(item.getClasseFiscal(), "").replace("=", "") : protocolo)
+                                                    : protocolo + p.replace(item.getClasseFiscal(), "").replace("=", ""));
                                     }
                                 }
                             }
