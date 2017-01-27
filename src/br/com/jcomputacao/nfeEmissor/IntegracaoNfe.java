@@ -782,8 +782,8 @@ public class IntegracaoNfe extends Servico {
         emit.setIE(StringUtil.somenteNumerosELetras(estab.getIe()));
         if (StringUtil.isNotNull(estab.getIm())) {
             emit.setIM(estab.getIm());
-        }
-        emit.setCNAE(estab.getCnae());
+            emit.setCNAE(estab.getCnae());
+        }        
         simples = !EmpresaTributacao.NORMAL.equals(estab.getTributacao());
         emit.setCRT(Integer.toString(estab.getTributacao().getCrt()));
         TEnderEmi endereco = new TEnderEmi();
