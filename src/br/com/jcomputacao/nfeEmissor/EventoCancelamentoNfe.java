@@ -199,10 +199,11 @@ public class EventoCancelamentoNfe extends Servico {
             throw new DbfException("Erro ao criar o arquivo " + fileName, ex);
         }
         if (retEvento.getInfEvento() != null && retEvento.getInfEvento().getCStat() != null) {
-            if (Integer.parseInt(retEvento.getInfEvento().getCStat()) == 135) {
+            if (Integer.parseInt(retEvento.getInfEvento().getCStat()) == 135
+                    || Integer.parseInt(retEvento.getInfEvento().getCStat()) == 155) {
                 nfe.setNfeXmlCancelamento(xml);
                 nfe.setStatus(NFeStatus.CANCELADA);
-                nfe.setProtocoloStatus("135");
+                nfe.setProtocoloStatus(retEvento.getInfEvento().getCStat());
                 nfe.update();
             } else {
                 nfe.setProtocoloStatus(retEvento.getInfEvento().getCStat());
