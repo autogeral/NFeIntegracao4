@@ -175,7 +175,7 @@ public class EventoCancelamentoNfe extends Servico {
             for (TRetEvento retEv : retEnvEvento.getRetEvento()) {
                 retEvento = retEv;
             }
-        }
+        }        
 
         TProcEvento procEventoCanc = new TProcEvento();
         procEventoCanc.setVersao("1.00");
@@ -189,7 +189,11 @@ public class EventoCancelamentoNfe extends Servico {
             throw new DbfException("Erro ao tentar montar o resultado do processamento para armazenar", ex);
         }
 
-        xml = baos.toString();
+        String f = "</Signature>";
+        int inicio = xml.indexOf("<Signature");
+        int fim = xml.indexOf(f);
+        xml = xml.substring(inicio, fim + f.length());
+        xml = baos.toString().replace("</evento>", xml + "</evento>");
         xml = xml.replaceAll("xmlns:ns2=\".+#\"\\s", "").replaceAll("ns2:", "");
 
         try {
