@@ -126,7 +126,7 @@ public class IntegracaoNfe extends Servico {
     private boolean simples = false;
     public static final String ALIQUOTA_ZERO_PIS_COFINS = "ALIQUOTA REDUZIDA A 0 (ZERO) % PARA PIS E COFINS CONFORME ARTIGO 3o DA LEI 10485 DE 07/2002.";
     public static final String SUBSTITUICAO_TRIBUTARIA = "SUBSTITUICAO TRIBUTARIA CONFORME ARTIGO 313/O DO DECRETO 52804/08.";
-    private final int valorQuantidadePrecisao = Integer.parseInt(System.getProperty("decimal.precisao", "2"));
+    private final int valorQuantidadePrecisao = Integer.parseInt(System.getProperty("decimal.precisao", "2"));    
 
     private int trataRetorno(String recibo, NfeModel nfe, String idLote) throws DbfDatabaseException, DbfException {
         NfeLoteRetorno nfeLoteRetorno = new NfeLoteRetorno();
@@ -719,7 +719,12 @@ public class IntegracaoNfe extends Servico {
         icms.setVProd(NumberUtil.decimalBanco(nota.getValorProdutos()));
         icms.setVFrete(NumberUtil.decimalBanco(nota.getValorFrete()));
         icms.setVSeg(NumberUtil.decimalBanco(nota.getValorSeguro()));
-        icms.setVDesc("0.00");
+        if(nota.isDestacaDescontoNoCorpoDoDocumentoFiscal()
+                && nota.getDescontoValor() > 0) {
+            icms.setVDesc(NumberUtil.decimalBanco(nota.getDescontoValor()));
+        } else {
+            icms.setVDesc("0.00");
+        }
         icms.setVII("0.00");
         icms.setVIPI(NumberUtil.decimalBanco(nota.getValorIpi()));
         icms.setVOutro(NumberUtil.decimalBanco(nota.getOutrasDespesas()));
@@ -848,13 +853,14 @@ public class IntegracaoNfe extends Servico {
         }
 
         if ("2".equals(System.getProperty("nfe.ambiente", "2"))) {
-            if (dest.getCPF() != null && !dest.getCPF().isEmpty()) {
-                dest.setCPF(null);
-            }
-            dest.setCNPJ("99999999000191");
+//            if (dest.getCPF() != null && !dest.getCPF().isEmpty()) {
+//                dest.setCPF(null);
+//            }
+            
+//            dest.setCNPJ("99999999000191");
             dest.setXNome("NF-E EMITIDA EM AMBIENTE DE HOMOLOGACAO - SEM VALOR FISCAL");
-            dest.setIndIEDest("9");
-            dest.setIE(null);
+//            dest.setIndIEDest("9");
+//            dest.setIE(null);
         }
 
         TEndereco endereco = new TEndereco();
@@ -953,6 +959,11 @@ public class IntegracaoNfe extends Servico {
         prod.setQTrib(prod.getQCom());
         prod.setUTrib(prod.getUCom());
         prod.setVUnTrib(prod.getVUnCom());
+        
+        if(item.isDestacaDescontoNoCorpoDoDocumentoFiscal()
+                && item.getDescontoValor() > 0) {
+            prod.setVDesc(NumberUtil.decimalBanco(item.getDescontoValor()));
+        }
 
         /**
          * Este campo devera ser preenchido com: 0 eh o valor do item (vProd)
@@ -1527,10 +1538,18 @@ public class IntegracaoNfe extends Servico {
                 case 2102:
                 case 5922://VENDA DE REMESSA FUTURA
                     pisAliquota.setCST("01"); /// ALTERADO DE PISNT PARA PISALIQUOTA pois o código 01 refe-se ao CST do Pis Aliquota.
-                    pisAliquota.setVBC(NumberUtil.decimalBanco(item.getValorTotal()));
+                    if (item.isDestacaDescontoNoCorpoDoDocumentoFiscal()) {
+                        pisAliquota.setVBC(NumberUtil.decimalBanco(item.getValorTotal() - item.getDescontoValor()));
+                    } else {
+                        pisAliquota.setVBC(NumberUtil.decimalBanco(item.getValorTotal()));
+                    }
                     aliquotaPis = Double.parseDouble(System.getProperty("nfe.pis.aliquota", "1.65"));
                     porcentagemPis = aliquotaPis / 100;
-                    valorPis = item.getValorTotal() * porcentagemPis;
+                    if (item.isDestacaDescontoNoCorpoDoDocumentoFiscal()) {
+                        valorPis = (item.getValorTotal() - item.getDescontoValor()) * porcentagemPis;
+                    } else {
+                        valorPis = item.getValorTotal() * porcentagemPis;
+                    }                    
                     pisAliquota.setPPIS(NumberUtil.decimalBanco(aliquotaPis));
                     pisAliquota.setVPIS(NumberUtil.decimalBanco(valorPis));
                     pis.setPISAliq(pisAliquota);
@@ -1540,10 +1559,18 @@ public class IntegracaoNfe extends Servico {
                 case 5401:
                 case 2410:
                     pisAliquota.setCST("02"); /// ALTERADO DE PISNT PARA PISALIQUOTA pois o código 01 refe-se ao CST do Pis Aliquota.
-                    pisAliquota.setVBC(NumberUtil.decimalBanco(item.getValorTotal()));
+                    if (item.isDestacaDescontoNoCorpoDoDocumentoFiscal()) {
+                        pisAliquota.setVBC(NumberUtil.decimalBanco(item.getValorTotal() - item.getDescontoValor()));
+                    } else {
+                        pisAliquota.setVBC(NumberUtil.decimalBanco(item.getValorTotal()));
+                    }
                     aliquotaPis = Double.parseDouble(System.getProperty("nfe.pis.aliquota", "1.65"));
                     porcentagemPis = aliquotaPis / 100;
-                    valorPis = item.getValorTotal() * porcentagemPis;
+                    if (item.isDestacaDescontoNoCorpoDoDocumentoFiscal()) {
+                        valorPis = (item.getValorTotal() - item.getDescontoValor()) * porcentagemPis;
+                    } else {
+                        valorPis = item.getValorTotal() * porcentagemPis;
+                    }
                     pisAliquota.setPPIS(NumberUtil.decimalBanco(aliquotaPis));
                     pisAliquota.setVPIS(NumberUtil.decimalBanco(valorPis));
                     pis.setPISAliq(pisAliquota);
@@ -1788,10 +1815,18 @@ public class IntegracaoNfe extends Servico {
                 case 2102:
                 case 5922://VENDA DE REMESSA FUTURA
                     aliquota.setCST("01");
-                    aliquota.setVBC(NumberUtil.decimalBanco(item.getValorTotal()));
+                    if (item.isDestacaDescontoNoCorpoDoDocumentoFiscal()) {
+                        aliquota.setVBC(NumberUtil.decimalBanco(item.getValorTotal() - item.getDescontoValor()));
+                    } else {
+                        aliquota.setVBC(NumberUtil.decimalBanco(item.getValorTotal()));
+                    }
                     aliquotaCofins = Double.parseDouble(System.getProperty("nfe.cofins.aliquota", "6.0"));
                     porcentagemCofins = aliquotaCofins / 100;
-                    valorCofins = item.getValorTotal() * porcentagemCofins;
+                    if (item.isDestacaDescontoNoCorpoDoDocumentoFiscal()) {
+                        valorCofins = (item.getValorTotal() - item.getDescontoValor()) * porcentagemCofins;
+                    } else {
+                        valorCofins = item.getValorTotal() * porcentagemCofins;
+                    }
                     aliquota.setPCOFINS(NumberUtil.decimalBanco(aliquotaCofins));
                     aliquota.setVCOFINS(NumberUtil.decimalBanco(valorCofins));
                     cofins.setCOFINSAliq(aliquota);
@@ -1801,10 +1836,19 @@ public class IntegracaoNfe extends Servico {
                 case 6101:
                 case 2410:
                     aliquota.setCST("02");
+                    if (item.isDestacaDescontoNoCorpoDoDocumentoFiscal()) {
+                        aliquota.setVBC(NumberUtil.decimalBanco(item.getValorTotal() - item.getDescontoValor()));
+                    }else {
+                        aliquota.setVBC(NumberUtil.decimalBanco(item.getValorTotal()));
+                    }
                     aliquota.setVBC(NumberUtil.decimalBanco(item.getValorTotal()));
                     aliquotaCofins = Double.parseDouble(System.getProperty("nfe.cofins.aliquota", "6.0"));
                     porcentagemCofins = aliquotaCofins / 100;
-                    valorCofins = item.getValorTotal() * porcentagemCofins;
+                    if (item.isDestacaDescontoNoCorpoDoDocumentoFiscal()) {
+                        valorCofins = (item.getValorTotal() - item.getDescontoValor()) * porcentagemCofins;
+                    } else {
+                        valorCofins = item.getValorTotal() * porcentagemCofins;
+                    }                    
                     aliquota.setPCOFINS(NumberUtil.decimalBanco(aliquotaCofins));
                     aliquota.setVCOFINS(NumberUtil.decimalBanco(valorCofins));
                     cofins.setCOFINSAliq(aliquota);
@@ -1837,7 +1881,11 @@ public class IntegracaoNfe extends Servico {
                 case 5606:                                  
                     cofinsnt.setCST("99");
                     aliquota.setCST("99");
-                    aliquota.setVBC(NumberUtil.decimalBanco(item.getValorTotal()));
+                    if (item.isDestacaDescontoNoCorpoDoDocumentoFiscal()) {
+                        aliquota.setVBC(NumberUtil.decimalBanco(item.getValorTotal() - item.getDescontoValor()));
+                    } else {
+                        aliquota.setVBC(NumberUtil.decimalBanco(item.getValorTotal()));
+                    }
                     aliquota.setPCOFINS("0.00");
                     aliquota.setVCOFINS("0.00");
                     cofins.setCOFINSAliq(aliquota);
@@ -1883,7 +1931,11 @@ public class IntegracaoNfe extends Servico {
                     }
                 } else {
                     IPITrib tributacao = new IPITrib();
-                    tributacao.setVBC(NumberUtil.decimalBanco(item.getValorTotal()));
+                    if (item.isDestacaDescontoNoCorpoDoDocumentoFiscal()) {
+                        tributacao.setVBC(NumberUtil.decimalBanco(item.getValorTotal() - item.getDescontoValor()));
+                    } else {
+                        tributacao.setVBC(NumberUtil.decimalBanco(item.getValorTotal()));
+                    }
                     tributacao.setPIPI(NumberUtil.decimalBanco(item.getIpiAliquota() * 100));
                     tributacao.setVIPI(NumberUtil.decimalBanco(item.getIpiValor()));
                     if (item.getCfop() == 5908) {
@@ -1896,8 +1948,12 @@ public class IntegracaoNfe extends Servico {
                 }
             } else {
                 if(item.getIpiValor() > 0) {
-                    IPITrib tributacao = new IPITrib();
-                    tributacao.setVBC(NumberUtil.decimalBanco(item.getValorTotal()));
+                    IPITrib tributacao = new IPITrib();                    
+                    if (item.isDestacaDescontoNoCorpoDoDocumentoFiscal()) {
+                        tributacao.setVBC(NumberUtil.decimalBanco(item.getValorTotal() - item.getDescontoValor()));
+                    } else {
+                        tributacao.setVBC(NumberUtil.decimalBanco(item.getValorTotal()));
+                    }
                     tributacao.setPIPI(NumberUtil.decimalBanco(item.getIpiAliquota() * 100));
                     tributacao.setVIPI(NumberUtil.decimalBanco(item.getIpiValor()));
                     tributacao.setCST(Integer.toString(item.getIpiSt()));
@@ -1930,7 +1986,11 @@ public class IntegracaoNfe extends Servico {
 
     private ICMSUFDest difal(NfeItemModel item) {
         ICMSUFDest difal = new ICMSUFDest();
-        difal.setVBCUFDest(NumberUtil.decimalBanco(item.getValorTotal()));
+        if (item.isDestacaDescontoNoCorpoDoDocumentoFiscal()) {
+            difal.setVBCUFDest(NumberUtil.decimalBanco(item.getValorTotal() - item.getDescontoValor()));
+        } else {
+            difal.setVBCUFDest(NumberUtil.decimalBanco(item.getValorTotal()));
+        }        
         difal.setPFCPUFDest(NumberUtil.decimalBanco(item.getIcmsIndicePobrezaAliquota()));
         difal.setPICMSUFDest(NumberUtil.decimalBanco(item.getIcmsInternaUFDestinoAliquota()));
         difal.setPICMSInter(NumberUtil.decimalBanco(item.getIcmsAliquota() * 100));      
@@ -2224,10 +2284,19 @@ public class IntegracaoNfe extends Servico {
 
     private PISAliq aplicaPisParaSimplesIcmsSn900(PISAliq pisAliquota, NfeItemModel item) {
         pisAliquota.setCST("01"); /// ALTERADO DE PISNT PARA PISALIQUOTA pois o código 01 refe-se ao CST do Pis Aliquota.
-        pisAliquota.setVBC(NumberUtil.decimalBanco(item.getValorTotal()));
+        if(item.isDestacaDescontoNoCorpoDoDocumentoFiscal()) {
+            pisAliquota.setVBC(NumberUtil.decimalBanco(item.getValorTotal() - item.getDescontoValor()));
+        } else {
+            pisAliquota.setVBC(NumberUtil.decimalBanco(item.getValorTotal()));
+        }
         double aliquotaPis = Double.parseDouble(System.getProperty("nfe.pis.aliquota", "1.65"));
         double porcentagemPis = aliquotaPis / 100;
-        double valorPis = item.getValorTotal() * porcentagemPis;
+        double valorPis = 0;
+        if(item.isDestacaDescontoNoCorpoDoDocumentoFiscal()) {
+            valorPis = (item.getValorTotal() - item.getDescontoValor()) * porcentagemPis;
+        } else {
+            valorPis = item.getValorTotal() * porcentagemPis;
+        }
         pisAliquota.setPPIS(NumberUtil.decimalBanco(aliquotaPis));
         pisAliquota.setVPIS(NumberUtil.decimalBanco(valorPis));
         return pisAliquota;
@@ -2235,10 +2304,19 @@ public class IntegracaoNfe extends Servico {
 
     private COFINSAliq aplicaCofinsParaSimplesIcmsSn900(COFINSAliq aliquota, NfeItemModel item) {
         aliquota.setCST("01");
-        aliquota.setVBC(NumberUtil.decimalBanco(item.getValorTotal()));
+        if (item.isDestacaDescontoNoCorpoDoDocumentoFiscal()) {
+            aliquota.setVBC(NumberUtil.decimalBanco(item.getValorTotal() - item.getDescontoValor()));
+        } else {
+            aliquota.setVBC(NumberUtil.decimalBanco(item.getValorTotal()));
+        }        
         double aliquotaCofins = Double.parseDouble(System.getProperty("nfe.cofins.aliquota", "6.0"));
         double porcentagemCofins = aliquotaCofins / 100;
-        double valorCofins = item.getValorTotal() * porcentagemCofins;
+        double valorCofins = 0;
+        if (item.isDestacaDescontoNoCorpoDoDocumentoFiscal()) {
+            valorCofins = (item.getValorTotal() - item.getDescontoValor()) * porcentagemCofins;
+        } else {
+            valorCofins = item.getValorTotal() * porcentagemCofins;
+        }        
         aliquota.setPCOFINS(NumberUtil.decimalBanco(aliquotaCofins));
         aliquota.setVCOFINS(NumberUtil.decimalBanco(valorCofins));
         return aliquota;
