@@ -136,19 +136,15 @@ public class Servico {
         ide.setCUF(uf.getCodigo());
 
         /**
-         * 1 eh Normal eh emissao normal; 2 eh Contingencia FS eh emissao em
-         * contingencia com impressao do DANFE em Formulario de Seguranca; 3 eh
-         * Contingencia SCAN eh emissao em contingencia no Sistema de
-         * Contingencia do Ambiente Nacional eh SCAN; 4 eh Contingencia DPEC -
-         * emissao em contingencia com envio da Declaracao Previa de Emissao em
-         * Contingencia eh DPEC; 5 eh Contingencia FS-DA - emissao em
-         * contingencia com impressao do DANFE em Formulario de Seguranca para
-         * Impressao de Documento Auxiliar de Documento Fiscal Eletronico
-         * (FS-DA) 6 Contingencia SVC-AN (SEFAZ Virtual de Contingencia do AN);
-         * 7 Contin- gencia SVC-RS (SEFAZ Virtual de Contingencia do RS); 9
-         * Contingencia off-line da NFC-e (as demais opces de contingencia sao
-         * validas tambem para NFC-e); OBS: Para a NFC-e somente estao
-         * disponoeis e sao validas as opces de contingencia 5 e 9.
+         * 1 eh Normal eh emissao normal;<br/>
+         * 2 eh Contingencia FS eh emissao em contingencia com impressao do DANFE em Formulario de Seguranca; <br/>
+         * 3 eh Contingencia SCAN eh emissao em contingencia no Sistema de Contingencia do Ambiente Nacional eh SCAN;<br/>
+         * 4 eh Contingencia DPEC - emissao em contingencia com envio da Declaracao Previa de Emissao em Contingencia eh DPEC;<br/>
+         * 5 eh Contingencia FS-DA - emissao em contingencia com impressao do DANFE em Formulario de Seguranca para Impressao de Documento Auxiliar de Documento Fiscal Eletronico (FS-DA)<br/>
+         * 6 Contingencia SVC-AN (SEFAZ Virtual de Contingencia do AN);<br/>
+         * 7 Contin- gencia SVC-RS (SEFAZ Virtual de Contingencia do RS);<br/>
+         * 9 Contingencia off-line da NFC-e (as demais opces de contingencia sao validas tambem para NFC-e);<br/>
+         * OBS: Para a NFC-e somente estao disponoeis e sao validas as opces de contingencia 5 e 9.<<br/>
          */
         ide.setTpEmis("1");
         // 1 - PRODUCAO
