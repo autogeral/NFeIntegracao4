@@ -104,6 +104,7 @@ import java.io.UnsupportedEncodingException;
 import java.rmi.RemoteException;
 import java.text.MessageFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import javax.swing.JOptionPane;
@@ -127,6 +128,16 @@ public class IntegracaoNfe extends Servico {
     public static final String ALIQUOTA_ZERO_PIS_COFINS = "ALIQUOTA REDUZIDA A 0 (ZERO) % PARA PIS E COFINS CONFORME ARTIGO 3o DA LEI 10485 DE 07/2002.";
     public static final String SUBSTITUICAO_TRIBUTARIA = "SUBSTITUICAO TRIBUTARIA CONFORME ARTIGO 313/O DO DECRETO 52804/08.";
     private final int valorQuantidadePrecisao = Integer.parseInt(System.getProperty("decimal.precisao", "2"));    
+    private Date notBefore;
+    private Date notAfter;
+
+    public Date getNotBefore() {
+        return notBefore;
+    }
+
+    public Date getNotAfter() {
+        return notAfter;
+    }
 
     private int trataRetorno(String recibo, NfeModel nfe, String idLote) throws DbfDatabaseException, DbfException {
         NfeLoteRetorno nfeLoteRetorno = new NfeLoteRetorno();
@@ -317,7 +328,7 @@ public class IntegracaoNfe extends Servico {
         String resultado = null;
         try {
             resultado = envio.enviar(lote);
-        } catch (Exception ex) {
+        } catch (XMLStreamException | RemoteException ex) {
             throw new DbfException("Erro ao tentar se comunicar com o servico da SEFAZ", ex);
         }
         lote = "lote" + idLote + "-ret.xml";
@@ -461,7 +472,10 @@ public class IntegracaoNfe extends Servico {
     public String assinar(String xml) throws DbfException {
         try {
             Ambiente.debug(xml);
-            xml = Assinador.assinar(xml, NFeUtil.getCertificadoCaminho(cnpj), NFeUtil.getCertificadoSenha(cnpj), AssinadorTipo.INFORMACAO, cnpj);
+            Assinador a = new Assinador();
+            xml = a.assinar(xml, NFeUtil.getCertificadoCaminho(cnpj), NFeUtil.getCertificadoSenha(cnpj), AssinadorTipo.INFORMACAO, cnpj);
+            notBefore = a.getNotBefore();
+            notAfter = a.getNotAfter();
         } catch (Exception ex) {
             throw new DbfException("Erro ao tentar assinar o XML da NFe", ex);
         }

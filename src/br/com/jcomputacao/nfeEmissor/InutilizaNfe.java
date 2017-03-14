@@ -91,7 +91,8 @@ public class InutilizaNfe extends Servico {
         }
 
         try {
-            xml = Assinador.assinar(xml, NFeUtil.getCertificadoCaminho(cnpj), NFeUtil.getCertificadoSenha(cnpj), AssinadorTipo.INUTILIZACAO, cnpj);
+            Assinador a = new Assinador();
+            xml = a.assinar(xml, NFeUtil.getCertificadoCaminho(cnpj), NFeUtil.getCertificadoSenha(cnpj), AssinadorTipo.INUTILIZACAO, cnpj);
         } catch (Exception ex) {
             throw new DbfException("Erro ao tentar assinar o XML de inutilizacao da NFe", ex);
         }

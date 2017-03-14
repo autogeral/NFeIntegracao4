@@ -106,7 +106,8 @@ public class EventoCancelamentoNfe extends Servico {
         System.out.print(xml);
 
         try {
-            xml = Assinador.assinar(xml, NFeUtil.getCertificadoCaminho(cnpj), NFeUtil.getCertificadoSenha(cnpj), AssinadorTipo.CANCELAMENTO, cnpj);
+            Assinador a = new Assinador();
+            xml = a.assinar(xml, NFeUtil.getCertificadoCaminho(cnpj), NFeUtil.getCertificadoSenha(cnpj), AssinadorTipo.CANCELAMENTO, cnpj);
         } catch (Exception ex) {
             throw new DbfException("Erro ao tentar assinar o cancelamento", ex);
         }
