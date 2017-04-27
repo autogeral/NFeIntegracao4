@@ -3,6 +3,7 @@ package br.com.jcomputacao.nfeEmissor;
 import br.com.jcomputacao.exception.DbfDatabaseException;
 import br.com.jcomputacao.exception.DbfException;
 import br.com.jcomputacao.model.BoletoModel;
+import br.com.jcomputacao.model.CadastroEnderecoModel;
 import br.com.jcomputacao.model.CadastroEnderecoTipo;
 import br.com.jcomputacao.model.CadastroModel;
 import br.com.jcomputacao.model.CadastroTelefoneTipo;
@@ -49,6 +50,7 @@ import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TEndereco;
 import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TIpi;
 import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TIpi.IPINT;
 import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TIpi.IPITrib;
+import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TLocal;
 import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe;
 import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe;
 import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Cobr.Dup;
@@ -491,12 +493,16 @@ public class IntegracaoNfe extends Servico {
         TNFe.InfNFe inf = new TNFe.InfNFe();
         inf.setVersao("3.10");
         Ide ide = criaIdentificacao(nfeModel);
-        inf.setIde(ide);
+        inf.setIde(ide);        
         nfe.setInfNFe(inf);
         Emit emitente = criaEmitente(nfeModel);
         inf.setEmit(emitente);
         Dest destinatario = criaDestinatario(nfeModel);
         inf.setDest(destinatario);
+        if (nfeModel.getEntrega()) {
+            TLocal localEntrega = criarLocalEntrega(nfeModel);
+            inf.setEntrega(localEntrega);
+        }
 
         if (nfeModel.getReferencias() != null && !nfeModel.getReferencias().isEmpty()) {
             for (NfeReferenciaModel ref : nfeModel.getReferencias()) {
@@ -707,7 +713,8 @@ public class IntegracaoNfe extends Servico {
                     System.getProperty("destaca.impostos.corpoNota", "false"));
         icms.setVBC(NumberUtil.decimalBanco((!simples || (simples && destacaImpostoCorpoNotaParaSimplesNacional) ? nota.getIcmsBase() : 0)));
         icms.setVICMS(NumberUtil.decimalBanco((!simples || (simples && destacaImpostoCorpoNotaParaSimplesNacional) ? nota.getIcmsValor() : 0)));
-        if (nota.getIcmsValor() > 0) {
+        if (nota.getIcmsValor() > 0
+                || (nota.getOperacao().isComplementoIcms() && nota.getIcmsStBase() > 0)) {
             icms.setVBCST(NumberUtil.decimalBanco(nota.getIcmsStBase()));
             //até que realmente precise, Mirella do Office disse para deixar sempre 
             // com valor = 0.00 o ICMS Desoneração
@@ -907,6 +914,50 @@ public class IntegracaoNfe extends Servico {
         }
         dest.setEnderDest(endereco);
         return dest;
+    }
+
+    private TLocal criarLocalEntrega(NfeModel nfeModel) throws DbfException {
+        Entidade ent = null;
+        CadastroModel cm = new CadastroModel();
+        if (cm.retrieve(nfeModel.getCadastroLojaString(), nfeModel.getCadastroCodigoString())) {
+            if (nfeModel.getCadastroCodigo() != 0) {
+                cm.valida();
+            } else {
+                throw new DbfException("Nao encontrou o cadastro da Nfe");
+            }
+            ent = cm;            
+        } else {
+            throw new DbfException("nao encontrou o destinatario da NFe " + nfeModel.getNumero() + "." + nfeModel.getLoja());
+        }
+        CadastroEnderecoModel enderecoEntrega = nfeModel.getEnderecoEntregaVenda();
+        TLocal localEntrega = new TLocal();
+
+        if (ent.isPessoaFisica()) {
+            String doc = StringUtil.somenteNumeros(ent.getCpfCnpj());
+            doc = StringUtil.ajusta(doc, 11, StringUtil.ALINHAMENTO_DIREITA, '0');
+            localEntrega.setCPF(doc);
+        } else {
+            String doc = StringUtil.somenteNumeros(ent.getCpfCnpj());
+            doc = StringUtil.ajusta(doc, 14, StringUtil.ALINHAMENTO_DIREITA, '0');
+            localEntrega.setCNPJ(doc);
+        }                
+        localEntrega.setUF(TUf.valueOf(enderecoEntrega.getCidade().getEstado().getSigla()));
+        localEntrega.setXMun(enderecoEntrega.getCidade().getDescricao());
+        localEntrega.setCMun(Integer.toString(enderecoEntrega.getCidade().getIbgeCodigo()));        
+        if (StringUtil.isNull(enderecoEntrega.getBairro())) {
+            throw new DbfException("Bairro do cliente não encontrado para utilizacao em documento fiscal");
+        }
+        localEntrega.setXBairro(trataString(enderecoEntrega.getBairro()));
+        localEntrega.setXLgr(trataString(enderecoEntrega.getLogradouroEndereco()));
+        if (0 == enderecoEntrega.getNumeroEndereco()) {
+            localEntrega.setNro("S/N");
+        } else {
+            localEntrega.setNro(Integer.toString(enderecoEntrega.getNumeroEndereco()));
+        }
+        if (StringUtil.isNotNull(enderecoEntrega.getComplementoEndereco())) {
+            localEntrega.setXCpl(trataString(enderecoEntrega.getComplementoEndereco()));
+        }
+        return localEntrega;
     }
 
     private void preencheDetalhes(NfeModel nfeModel, List<Det> detalhes, Emit emitente, Dest destinatario) throws DbfDatabaseException, DbfException {
@@ -1125,7 +1176,8 @@ public class IntegracaoNfe extends Servico {
             case 1101:
             case 1551://COMPRA DE ATIVO
             case 6916://RETORNO DE MERCADORIA OU BEM RECEBIDO PARA CONSERTO OU REPARO
-            case 6911://REMESSA DE AMOSTRA GRATIS
+            case 6911://REMESSA DE AMOSTRA GRATIS FORA DO ESTADO
+            case 5911://REMESSA DE AMOSTRA GRATIS DENTRO DO ESTADO
             case 6501://REMESSA DE PRODUCAO DO ESTABELECIMENTO COM FIM ESPECIFICO DE EXPORTACAO
                 ICMS40 tributacaoIcms40 = new ICMS40();
                 tributacaoIcms40.setCST(st);
@@ -1151,8 +1203,7 @@ public class IntegracaoNfe extends Servico {
                     icms.setICMS51(tributacaoIcms51);
                 }
                 break;
-            case 5405:
-            case 6404:
+            case 5405:            
             case 1661:
             case 1411: //1411 dados tributarios sao iguais a 5405            
             case 5409:
@@ -1175,6 +1226,7 @@ public class IntegracaoNfe extends Servico {
                 }
             }
             break;
+            case 6404:
             case 6403:
             case 5411:
             case 5413:
@@ -1494,7 +1546,8 @@ public class IntegracaoNfe extends Servico {
                 case 5925://RETORNO DE MERCADORIA PARA INDUSTRIALIZACAO, PARA O ADQUIRENTE POR NAO TER TRANSITADO A MESMA, NO ESTABELECIMENTO DO ADQUIRENTE
                 case 5556://DEVOLUCAO DE MERCADORIA DE CONSUMO
                 case 5117://REMESSA DE VENDA PARA ENTREGA FUTURA         
-                case 6911://REMESSA DE AMOSTRA GRATIS
+                case 6911://REMESSA DE AMOSTRA GRATIS FORA DO ESTADO
+                case 5911://REMESSA DE AMOSTRA GRATIS DENTRO DO ESTADO
                 case 5918://RETORNO DE CONSIGNACAO                    
                     PIS.PISOutr pisOutr = new PIS.PISOutr();
                     pisOutr.setCST("99");
@@ -1628,7 +1681,8 @@ public class IntegracaoNfe extends Servico {
                 case 5908:
                 case 5556://DEVOLUCAO DE MERCADORIA DE CONSUMO                                             
                 case 5117://REMESSA DE VENDA PARA ENTREGA FUTURA     
-                case 6911://REMESSA DE AMOSTRA GRATIS
+                case 6911://REMESSA DE AMOSTRA GRATIS FORA DO ESTADO
+                case 5911://REMESSA DE AMOSTRA GRATIS DENTRO DO ESTADO
                 case 5918://RETORNO DE CONSIGNACAO                    
                     PIS.PISOutr pisOutr = new PIS.PISOutr();
                     pisOutr.setCST("99");
@@ -1784,7 +1838,8 @@ public class IntegracaoNfe extends Servico {
                 case 5925://RETORNO DE MERCADORIA PARA INDUSTRIALIZACAO, PARA O ADQUIRENTE POR NAO TER TRANSITADO A MESMA, NO ESTABELECIMENTO DO ADQUIRENTE
                 case 5556://DEVOLUCAO DE MERCADORIA PARA CONSUMO       
                 case 5117://REMESSA DE VENDA PARA ENTREGA FUTURA           
-                case 6911://REMESSA DE AMOSTRA GRATIS
+                case 6911://REMESSA DE AMOSTRA GRATIS FORA DO ESTADO
+                case 5911://REMESSA DE AMOSTRA GRATIS DENTRO DO ESTADO
                 case 5918://RETORNO DE CONSIGNACAO
                     COFINS.COFINSOutr cofinsOutr = new COFINS.COFINSOutr();
                     cofinsOutr.setCST("99");
@@ -1908,7 +1963,8 @@ public class IntegracaoNfe extends Servico {
                 case 6551:
                 case 5556://DEVOLUCAO DE MATERIAL DE CONSUMO    
                 case 5117://REMESSA DE VENDA PARA ENTREGA FUTURA          
-                case 6911://REMESSA DE AMOSTRA GRATIS
+                case 6911://REMESSA DE AMOSTRA GRATIS FORA DO ESTADO
+                case 5911://REMESSA DE AMOSTRA GRATIS DENTRO DO ESTADO
                 case 5918://RETORNO DE CONSIGNACAO                    
                     COFINS.COFINSOutr cofinsOutr = new COFINS.COFINSOutr();
                     cofinsOutr.setCST("99");
@@ -2054,6 +2110,12 @@ public class IntegracaoNfe extends Servico {
         if (nfeInformaComprador) {
             if (StringUtil.isNotNull(nfeModel.getCompradorNome())) {
                 info += " COMPRADOR: " + nfeModel.getCompradorNome();
+            }
+        }
+        boolean nfeInformaEnderecoEntrega = Boolean.parseBoolean(System.getProperty("nfe.informaEnderecoEntrega", "true"));
+        if(nfeInformaEnderecoEntrega) {
+            if(nfeModel.getEntrega()) {
+                info += " ENTREGA: " + nfeModel.getEnderecoEntregaVenda();
             }
         }
         infAdicionais.setInfCpl(StringUtil.noSpecialKeys(info, new String[]{".", ",", "$", "%"}));
