@@ -330,7 +330,9 @@ public class IntegracaoNfe extends Servico {
         String resultado = null;
         try {
             resultado = envio.enviar(lote);
-        } catch (XMLStreamException | RemoteException ex) {
+        } catch (XMLStreamException ex) {
+            throw new DbfException("Erro ao tentar se comunicar com o servico da SEFAZ", ex);
+        } catch (RemoteException ex) {
             throw new DbfException("Erro ao tentar se comunicar com o servico da SEFAZ", ex);
         }
         lote = "lote" + idLote + "-ret.xml";
