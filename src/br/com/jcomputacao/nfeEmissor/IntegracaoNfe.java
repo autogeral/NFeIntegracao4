@@ -645,18 +645,20 @@ public class IntegracaoNfe extends Servico {
         }
 
         if (nota.getTransportadoraCodigo() > 0) {
-            TransportadoraModel tmodel = new TransportadoraModel();
-            if (tmodel.retrieve(nota.getTransportadoraCodigoString())) {
+            CadastroModel tmodel = new CadastroModel();
+            if (tmodel.retrieve(NumberUtil.getNullSafeForUI(nota.getTransportadoraCodigo())
+                              , NumberUtil.getNullSafeForUI(nota.getTransportadoraLoja()))) {
                 Transporta transp = new Transporta();
-                transp.setXNome(StringUtil.ajusta(StringUtil.htmlIso8859encode(tmodel.getRazaoSocial()), 60, StringUtil.ALINHAMENTO_ESQUERDA).trim());
+                transp.setXNome(StringUtil.ajusta(StringUtil.htmlIso8859encode(tmodel.getNome()), 60, StringUtil.ALINHAMENTO_ESQUERDA).trim());
                 transp.setIE(StringUtil.somenteNumerosELetras(tmodel.getIe()));
                 transp.setCNPJ(StringUtil.ajusta(StringUtil.somenteNumeros(tmodel.getCnpj()), 14, StringUtil.ALINHAMENTO_DIREITA, '0'));
                 transp.setXEnder(StringUtil.htmlIso8859encode(tmodel.getEndereco()).trim());
-                if (StringUtil.isNull(tmodel.getEstado())) {
+
+                if (tmodel.getCidade() == null) {
                     throw new DbfException("Transportadora sem UF");
                 }
-                transp.setUF(TUf.valueOf(tmodel.getEstado()));
-                transp.setXMun(StringUtil.noDeadKeysToUpperCase(tmodel.getCidade()));
+                transp.setUF(TUf.valueOf(tmodel.getCidade().getEstado().getSigla()));
+                transp.setXMun(StringUtil.noDeadKeysToUpperCase(tmodel.getCidade().getDescricao()));
                 transporte.setTransporta(transp);
             }
 
