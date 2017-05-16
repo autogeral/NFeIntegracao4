@@ -24,7 +24,6 @@ import br.com.jcomputacao.model.NfePagamentoModel;
 import br.com.jcomputacao.model.NfePagamentoParcelaModel;
 import br.com.jcomputacao.model.NfeReferenciaModel;
 import br.com.jcomputacao.model.ProdutoDBFModel;
-import br.com.jcomputacao.model.TransportadoraModel;
 import br.com.jcomputacao.model.beans.LojaBean;
 import br.com.jcomputacao.model.beans.MovimentoOperacaoBean;
 import br.com.jcomputacao.model.beans.ProdutoTributacaoBean;
