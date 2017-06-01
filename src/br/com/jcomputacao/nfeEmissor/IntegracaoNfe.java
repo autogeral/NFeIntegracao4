@@ -645,8 +645,8 @@ public class IntegracaoNfe extends Servico {
 
         if (nota.getTransportadoraCodigo() > 0) {
             CadastroModel tmodel = new CadastroModel();
-            if (tmodel.retrieve(NumberUtil.getNullSafeForUI(nota.getTransportadoraCodigo())
-                              , NumberUtil.getNullSafeForUI(nota.getTransportadoraLoja()))) {
+            if (tmodel.retrieve(NumberUtil.getNullSafeForUI(nota.getTransportadoraLoja()), 
+                    NumberUtil.getNullSafeForUI(nota.getTransportadoraCodigo()))) {
                 Transporta transp = new Transporta();
                 transp.setXNome(StringUtil.ajusta(StringUtil.htmlIso8859encode(tmodel.getNome()), 60, StringUtil.ALINHAMENTO_ESQUERDA).trim());
                 transp.setIE(StringUtil.somenteNumerosELetras(tmodel.getIe()));
