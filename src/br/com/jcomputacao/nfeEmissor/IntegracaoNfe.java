@@ -650,8 +650,8 @@ public class IntegracaoNfe extends Servico {
                 Transporta transp = new Transporta();
                 transp.setXNome(StringUtil.ajusta(StringUtil.htmlIso8859encode(tmodel.getNome()), 60, StringUtil.ALINHAMENTO_ESQUERDA).trim());
                 transp.setIE(StringUtil.somenteNumerosELetras(tmodel.getIe()));
-                transp.setCNPJ(StringUtil.ajusta(StringUtil.somenteNumeros(tmodel.getCnpj()), 14, StringUtil.ALINHAMENTO_DIREITA, '0'));
-                transp.setXEnder(StringUtil.htmlIso8859encode(tmodel.getEndereco()).trim());
+                transp.setCNPJ(StringUtil.ajusta(StringUtil.somenteNumeros(tmodel.getCnpj()), 14, StringUtil.ALINHAMENTO_DIREITA, '0'));                
+                transp.setXEnder(StringUtil.htmlIso8859encode(tmodel.getEndereco()).trim() + ", " + (tmodel.getEnderecoNumero() > 0 ? tmodel.getEnderecoNumero() : "S/N"));
 
                 if (tmodel.getCidade() == null) {
                     throw new DbfException("Transportadora sem UF");
