@@ -200,6 +200,7 @@ public class IntegracaoNfe extends Servico {
                                 }
                             }
                             nfe.setStatus(NFeStatus.DENEGADA);
+                            trataDenegacao(nfe, prot);
                         } else if (539 == status) {
                             String motivo = infProt.getXMotivo();
                             Ambiente.debug("539 Motivo : " + motivo + " Chave protocolo " + infProt.getXMotivo());
@@ -420,6 +421,31 @@ public class IntegracaoNfe extends Servico {
         logger.log(Level.FINE, "N# Prot.  : {0}", infEvent.getNProt());
         colocaProtocoloNoXmlDaNfeCancelada(nfe, proc);
         nfe.setNumeroProtocolo(infEvent.getNProt());
+    }
+    
+    public void trataDenegacao(NfeModel nfe, TProtNFe prot) throws JAXBException, UnsupportedEncodingException, IOException {
+        Unmarshaller unmarshaller = context.createUnmarshaller();
+        TNfeProc proc = new TNfeProc();
+        ByteArrayInputStream bais = new ByteArrayInputStream((nfe.getNfeXml()).getBytes("UTF-8"));
+        TNFe tnfe = unmarshaller.unmarshal(new StreamSource(bais), TNFe.class).getValue();
+        bais.close();
+        proc.setNFe(tnfe);
+        proc.setVersao("3.10");
+        proc.setProtNFe(prot);
+
+        Marshaller marshaller = context.createMarshaller();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        marshaller.marshal(proc, baos);
+        String xml = baos.toString();
+        xml = xml.replaceAll("xmlns:ns2=\".+#\"\\s", "").replaceAll("ns2:", "").replaceAll("tNfeProc", "nfeProc").replace("<Signature>", "<Signature xmlns=\"http://www.w3.org/2000/09/xmldsig#\">");
+
+        InfProt infProt = prot.getInfProt();
+        String fileName = infProt.getChNFe() + "-procNFe.xml";
+        if (xml.contains("<NFe>")) {
+            xml = xml.replace("<NFe>", "<NFe xmlns=\"http://www.portalfiscal.inf.br/nfe\">");
+        }
+        escreve(fileName, xml);
+        nfe.setNfeXml(xml);        
     }
 
     private String colocaProtocoloNoXmlDaNfeCancelada(NfeModel nfe, TProcEvento proc) throws IOException, JAXBException {
@@ -1101,7 +1127,7 @@ public class IntegracaoNfe extends Servico {
         nfe.setNfeXml(xml);
         return xml;
     }
-
+    
     private Imposto imposto(NfeItemModel item) throws DbfDatabaseException {
         Imposto imp = new Imposto();
 
