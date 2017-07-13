@@ -23,27 +23,30 @@ public class AutoGeracao {
         String nfeStatusServico = "https://nfe.fazenda.sp.gov.br/ws/nfestatusservico2.asmx?WSDL";
         String nfeConsultaCadastro = "https://nfe.fazenda.sp.gov.br/ws/cadconsultacadastro2.asmx?WSDL";
         String recepcaoEvento = "https://nfe.fazenda.sp.gov.br/ws/recepcaoevento.asmx?WSDL";
-        String nfedownload = "https://www.sefazvirtual.fazenda.gov.br/NfeDownloadNF/NfeDownloadNF.asmx?WSDL";
+        //String nfedownload = "https://www.sefazvirtual.fazenda.gov.br/NfeDownloadNF/NfeDownloadNF.asmx?WSDL";
+        String nfedownload = "https://www.nfe.fazenda.gov.br/NfeDownloadNF/NfeDownloadNF.asmx?WSDL";
+        String nfeConsultaDest = "https://www.nfe.fazenda.gov.br/NFeConsultaDest/NFeConsultaDest.asmx?WSDL";
 //
         System.setProperty("sun.security.ssl.allowUnsafeRenegotiation", "true");
-        System.setProperty("nfe.certificado.senha", "498408800406");
-        System.setProperty("nfe.certificado.caminho", "C:/DBF/dist/A1_20160307.pfx");
+        System.setProperty("nfe.certificado.senha", "552289800533");
+        System.setProperty("nfe.certificado.caminho", "C:/DBF/dist/A1_20180308AG.pfx");
         WsConnectionConfig.setProperties("05437537000137");
         AutoGeracao gerador = new AutoGeracao();
-        gerador.geraWSDL(nfeConsultaCadastro, "consultaCadastro");
-        gerador.geraWSDL(nfeStatusServico, "statusServico");
-        gerador.geraWSDL(nfeConsultaProtocolo, "consultaProtocolo");
-        gerador.geraWSDL(nfeRecepcao, "recepcao");
-        gerador.geraWSDL(nfeRetRecepcao, "retornoRecepcao");
-        gerador.geraWSDL(nfeCancelamento, "cancelamento");
-        gerador.geraWSDL(nfeInutilizacao, "inutilizacao");
-        gerador.geraWSDL(recepcaoEvento, "recepcaoEvento");
-        gerador.geraWSDL(nfedownload, "downloadnfe");
+//        gerador.geraWSDL(nfeConsultaCadastro, "consultaCadastro");
+//        gerador.geraWSDL(nfeStatusServico, "statusServico");
+//        gerador.geraWSDL(nfeConsultaProtocolo, "consultaProtocolo");
+//        gerador.geraWSDL(nfeRecepcao, "recepcao");
+//        gerador.geraWSDL(nfeRetRecepcao, "retornoRecepcao");
+//        gerador.geraWSDL(nfeCancelamento, "cancelamento");
+//        gerador.geraWSDL(nfeInutilizacao, "inutilizacao");
+//        gerador.geraWSDL(recepcaoEvento, "recepcaoEvento");
+        gerador.geraWSDL(nfedownload, "nfedownload");
+        gerador.geraWSDL(nfeConsultaDest, "nfeConsultaDest");
     }
     
     public void geraWSDL(String wsdl, String pack) {
         try {
-            WSDL2Java.main(new String[]{"-uri", wsdl, "-p", "br.com.jcomputacao.nfe3.ws." + pack});
+            WSDL2Java.main(new String[]{"-uri", wsdl, "-p", "br.com.jcomputacao.nfe.manifesto.ws." + pack});
             System.out.println("*** Geracao concluida ***");
         } catch (Exception ex) {
             Logger.getLogger(AutoGeracao.class.getName()).log(Level.SEVERE, "*** Erro com a geracao ***", ex);
