@@ -1017,7 +1017,7 @@ public class IntegracaoNfe extends Servico {
 
         CestNcmModel ncm = buscarExistenciaCodigoCestParaItem(item);
         if (item.getCEST() != null) {
-            String cest = ncm.buscaCest();
+            String cest = StringUtil.somenteNumeros(ncm.buscaCest());
             prod.setCEST(cest);
         }
 
