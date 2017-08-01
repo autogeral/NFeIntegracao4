@@ -1019,6 +1019,14 @@ public class IntegracaoNfe extends Servico {
         if (item.getCEST() != null) {
             String cest = StringUtil.somenteNumeros(ncm.buscaCest());
             prod.setCEST(cest);
+        } else {
+            //Cest para os produtos onde o ncm não está relacionado a nenhum 
+            //item da lista de cests.
+            //Apenas para alguns segmentos existe esta opcao de outros
+            String cest = System.getProperty("codigo.cest.outros");
+            if(cest != null) {
+                prod.setCEST(cest);
+            }
         }
 
         boolean descricaoSimples = Boolean.parseBoolean(System.getProperty("nfe.descricao.simples", "true"));
@@ -2478,7 +2486,7 @@ public class IntegracaoNfe extends Servico {
         }
         if (ncm != null && ncm.getCestCodigo() > 0) {
             item.setCEST(ncm.getCestCodigo());
-        }
+        } 
         return ncm;
     }
 }
