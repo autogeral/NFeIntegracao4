@@ -1187,6 +1187,7 @@ public class IntegracaoNfe extends Servico {
             case 6202:
             case 6201:
             case 2202:
+            case 6107:
             case 6108:
             case 5152:
             case 5653:
@@ -1533,6 +1534,7 @@ public class IntegracaoNfe extends Servico {
                 case 6403:
                 case 6404:
                 case 6108:
+                case 6107:
                 case 1411:
                 case 2411:
                 case 5111:
@@ -1634,6 +1636,7 @@ public class IntegracaoNfe extends Servico {
                 case 6403:
                 case 6404:
                 case 6108:
+                case 6107:
                 case 1411:
                 case 6411:
                 case 2949:
@@ -1815,6 +1818,7 @@ public class IntegracaoNfe extends Servico {
                 case 6403:
                 case 6404:
                 case 6108:
+                case 6107:
                 case 1411:
                 case 2411:
                 case 5111:
@@ -1915,6 +1919,7 @@ public class IntegracaoNfe extends Servico {
                 case 6404:
                 case 6411:
                 case 6108:
+                case 6107:
                 case 1411:
                 case 2411:
                 case 2949:
