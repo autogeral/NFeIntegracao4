@@ -1206,6 +1206,7 @@ public class IntegracaoNfe extends Servico {
             case 5401:
             case 6401:
             case 2410:
+            case 1410:
                 atribuiIcms10(icms, item, origem, st);
                 break;
             case 5908:
@@ -1522,6 +1523,7 @@ public class IntegracaoNfe extends Servico {
                 case 5401:
                 case 6401:
                 case 2410://devolucao do 6401
+                case 1410://devolucao do 5401
                 case 5405:
                 case 5553:
                 case 5652:
@@ -1666,6 +1668,7 @@ public class IntegracaoNfe extends Servico {
                 case 6101:
                 case 5401:
                 case 2410:
+                case 1410:
                     pisAliquota.setCST("02"); /// ALTERADO DE PISNT PARA PISALIQUOTA pois o código 01 refe-se ao CST do Pis Aliquota.
                     if (item.isDestacaDescontoNoCorpoDoDocumentoFiscal()) {
                         pisAliquota.setVBC(NumberUtil.decimalBanco(item.getValorTotal() - item.getDescontoValor()));
@@ -1804,6 +1807,7 @@ public class IntegracaoNfe extends Servico {
                 case 5401:
                 case 6401:
                 case 2410:
+                case 1410:
                 case 5405:
                 case 5553:
                 case 5652:
@@ -1948,6 +1952,7 @@ public class IntegracaoNfe extends Servico {
                 case 5401:
                 case 6101:
                 case 2410:
+                case 1410:
                     aliquota.setCST("02");
                     if (item.isDestacaDescontoNoCorpoDoDocumentoFiscal()) {
                         aliquota.setVBC(NumberUtil.decimalBanco(item.getValorTotal() - item.getDescontoValor()));
