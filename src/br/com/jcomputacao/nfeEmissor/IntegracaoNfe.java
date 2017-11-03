@@ -1305,7 +1305,7 @@ public class IntegracaoNfe extends Servico {
             }
             break;
             case 5913://RETORNO DE REMESSA PARA DEMONSTRACAO
-                if ("50".equals(st)) {
+                if ("50".equals(st) || "41".equals(st)) {
                     ICMS40 tributacaoIcms5_4 = new ICMS40();
                     tributacaoIcms5_4.setCST(st);
                     tributacaoIcms5_4.setOrig(origem);
