@@ -1218,6 +1218,7 @@ public class IntegracaoNfe extends Servico {
             case 6911://REMESSA DE AMOSTRA GRATIS FORA DO ESTADO
             case 5911://REMESSA DE AMOSTRA GRATIS DENTRO DO ESTADO
             case 6501://REMESSA DE PRODUCAO DO ESTABELECIMENTO COM FIM ESPECIFICO DE EXPORTACAO
+            case 6109://VENDA INTERESTADUAL PARA ZONA FRANCA
                 ICMS40 tributacaoIcms40 = new ICMS40();
                 tributacaoIcms40.setCST(st);
                 tributacaoIcms40.setOrig(origem);
@@ -1566,6 +1567,7 @@ public class IntegracaoNfe extends Servico {
                 case 1916://RETORNO DE REMESSA PARA CONCERTO
                 case 2102:
                 case 5501:
+                case 6109://VENDA INTERESTADUAL ZONA FRANCA
                     pisnt.setCST("07");
                     pis.setPISNT(pisnt);
                     break;
@@ -1852,6 +1854,7 @@ public class IntegracaoNfe extends Servico {
                 case 1916: //RETORNO DE REMESSA PARA CONCERTO
                 case 2102:
                 case 5501:
+                case 6109://VENDA INTERESTADUAL ZONA FRANCA
                     cofinsnt.setCST("07");
                     cofins.setCOFINSNT(cofinsnt);
                     break;
