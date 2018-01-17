@@ -1198,6 +1198,7 @@ public class IntegracaoNfe extends Servico {
             case 5919:
             case 5918://RETORNO DE CONSIGNACAO
             case 5410:
+            case 5552:
                 atribuiIcms00(icms, item, origem, st);
                 break;
             case 1201:
@@ -1577,6 +1578,7 @@ public class IntegracaoNfe extends Servico {
                 case 6659:
                 case 5557://TRANSFERENCIA MATERIAL DE USO/CONSUMO    
                 case 6501://REMESSA DE PRODUCAO DO ESTABELECIMENTO COM FIM ESPECIFICO DE EXPORTACAO
+                case 5552://TRANSFERENCIA DE BEM OU ATIVO IMOBILIZADO
                     pisnt.setCST("08");
                     pis.setPISNT(pisnt);
                     break;
@@ -1707,6 +1709,7 @@ public class IntegracaoNfe extends Servico {
                 case 5659:
                 case 6659:
                 case 5557:
+                case 5552:
                     pisnt.setCST("08");
                     pis.setPISNT(pisnt);
                     break;
@@ -1864,6 +1867,7 @@ public class IntegracaoNfe extends Servico {
                 case 6659:
                 case 5557://TRANSFERENCIA MATERIAL DE USO/CONSUMO    
                 case 6501://REMESSA DE PRODUCAO DO ESTABELECIMENTO COM FIM ESPECIFICO DE EXPORTACAO                    
+                case 5552://TRANSFERENCIA DE BEM DO ATIVO IMOBILIZADO
                     cofinsnt.setCST("08");
                     cofins.setCOFINSNT(cofinsnt);
                     break;
@@ -1993,6 +1997,7 @@ public class IntegracaoNfe extends Servico {
                 case 5659:
                 case 6659:
                 case 5557:
+                case 5552:
                     cofinsnt.setCST("08");
                     cofins.setCOFINSNT(cofinsnt);
                     break;
