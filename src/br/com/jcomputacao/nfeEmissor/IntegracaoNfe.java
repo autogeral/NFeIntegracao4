@@ -1286,6 +1286,8 @@ public class IntegracaoNfe extends Servico {
                     atribuiIcms10(icms, item, origem, st);
                 } else if ("40".equals(st)) {
                     atribuiIcms40(icms, origem, st);
+                } else if ("41".equals(st)) {
+                    atribuiIcms40(icms, origem, st);
                 } else if ("90".equals(st)) {
                     atribuiIcms90(icms, item, origem, st);
                 } else {
