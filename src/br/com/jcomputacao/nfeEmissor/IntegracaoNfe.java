@@ -1141,7 +1141,7 @@ public class IntegracaoNfe extends Servico {
 
         imp.getContent().add(new ObjectFactory().createTNFeInfNFeDetImpostoICMS(icms(item)));
         boolean tributaIpi = Boolean.parseBoolean(System.getProperty("nfe.tributaIpi", "false"));
-        if (tributaIpi) {
+        if (tributaIpi && !simples) {
             imp.getContent().add(new ObjectFactory().createTNFeInfNFeDetImpostoIPI(ipi(item)));
         }
         imp.getContent().add(new ObjectFactory().createTNFeInfNFeDetImpostoPIS(pis(item)));
