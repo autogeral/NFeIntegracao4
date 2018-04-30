@@ -781,7 +781,16 @@ public class IntegracaoNfe extends Servico {
         icms.setVNF(NumberUtil.decimalBanco(nota.getValorTotal()));
 
         if (simples) {            
-            if (destacaImpostoCorpoNotaParaSimplesNacional) {
+            boolean possuiItemCst202 = false;
+            //segundo o que foi passado pela contabilidade o CST 202 qdo 
+            //tributa pis cofins, precisa destacar na nota para o simples
+            for(NfeItemModel i : nota.getNotaItens()) {
+                if(i.getSituacaoTributaria() == 202 && !i.getPisCofins()) {
+                    possuiItemCst202 = true;
+                    break;
+                }
+            }
+            if (destacaImpostoCorpoNotaParaSimplesNacional || possuiItemCst202) {
                 Double aliquotaPis = Double.parseDouble(System.getProperty("nfe.pis.aliquota", "1.65"));
                 double porcentagemPis = aliquotaPis / 100;
                 MovimentoOperacaoModel operacao = MovimentoOperacaoBean.getMovimentoPorCodigo(nota.getOperacaoCodigo());
@@ -1497,6 +1506,8 @@ public class IntegracaoNfe extends Servico {
                 pisOutr.setPPIS("0.00");
                 pisOutr.setVPIS("0.00");
                 pis.setPISOutr(pisOutr);
+            } else if(item.getSituacaoTributaria() == 202 && !item.getPisCofins()) {
+                pis.setPISAliq(aplicaPisParaSimplesIcmsSn202(pisAliquota, item));
             } else {
                 pisnt.setCST("04");
                 pis.setPISNT(pisnt);
@@ -1786,6 +1797,8 @@ public class IntegracaoNfe extends Servico {
                 cofinsOutr.setVCOFINS("0.00");
                 cofinsOutr.setPCOFINS("0.00");
                 cofins.setCOFINSOutr(cofinsOutr);
+            } else if(item.getSituacaoTributaria() == 202 && !item.getPisCofins()) {
+                cofins.setCOFINSAliq(aplicaCofinsParaSimplesIcmsSn202(aliquota, item));
             } else {
                 cofinsnt.setCST("04");
                 cofins.setCOFINSNT(cofinsnt);
@@ -2439,6 +2452,46 @@ public class IntegracaoNfe extends Servico {
 
     private COFINSAliq aplicaCofinsParaSimplesIcmsSn900(COFINSAliq aliquota, NfeItemModel item) {
         aliquota.setCST("01");
+        if (item.isDestacaDescontoNoCorpoDoDocumentoFiscal()) {
+            aliquota.setVBC(NumberUtil.decimalBanco(item.getValorTotal() - item.getDescontoValor()));
+        } else {
+            aliquota.setVBC(NumberUtil.decimalBanco(item.getValorTotal()));
+        }        
+        double aliquotaCofins = Double.parseDouble(System.getProperty("nfe.cofins.aliquota", "6.0"));
+        double porcentagemCofins = aliquotaCofins / 100;
+        double valorCofins = 0;
+        if (item.isDestacaDescontoNoCorpoDoDocumentoFiscal()) {
+            valorCofins = (item.getValorTotal() - item.getDescontoValor()) * porcentagemCofins;
+        } else {
+            valorCofins = item.getValorTotal() * porcentagemCofins;
+        }        
+        aliquota.setPCOFINS(NumberUtil.decimalBanco(aliquotaCofins));
+        aliquota.setVCOFINS(NumberUtil.decimalBanco(valorCofins));
+        return aliquota;
+    }
+    
+    private PISAliq aplicaPisParaSimplesIcmsSn202(PISAliq pisAliquota, NfeItemModel item) {
+        pisAliquota.setCST("02"); /// ALTERADO DE PISNT PARA PISALIQUOTA pois o código 01 refe-se ao CST do Pis Aliquota.
+        if(item.isDestacaDescontoNoCorpoDoDocumentoFiscal()) {
+            pisAliquota.setVBC(NumberUtil.decimalBanco(item.getValorTotal() - item.getDescontoValor()));
+        } else {
+            pisAliquota.setVBC(NumberUtil.decimalBanco(item.getValorTotal()));
+        }
+        double aliquotaPis = Double.parseDouble(System.getProperty("nfe.pis.aliquota", "1.65"));
+        double porcentagemPis = aliquotaPis / 100;
+        double valorPis = 0;
+        if(item.isDestacaDescontoNoCorpoDoDocumentoFiscal()) {
+            valorPis = (item.getValorTotal() - item.getDescontoValor()) * porcentagemPis;
+        } else {
+            valorPis = item.getValorTotal() * porcentagemPis;
+        }
+        pisAliquota.setPPIS(NumberUtil.decimalBanco(aliquotaPis));
+        pisAliquota.setVPIS(NumberUtil.decimalBanco(valorPis));
+        return pisAliquota;
+    }
+
+    private COFINSAliq aplicaCofinsParaSimplesIcmsSn202(COFINSAliq aliquota, NfeItemModel item) {
+        aliquota.setCST("02");
         if (item.isDestacaDescontoNoCorpoDoDocumentoFiscal()) {
             aliquota.setVBC(NumberUtil.decimalBanco(item.getValorTotal() - item.getDescontoValor()));
         } else {
