@@ -256,10 +256,10 @@ public class IntegracaoNfe extends Servico {
         } else if (nfe.getStatus() == NFeStatus.PROCESSAMENTO) {
             lote = new NfeLote();
             if (!lote.retrieve(Integer.toString(nfe.getLoja()), nfe.getNfeLote())) {
-                throw new DbfException("Nfe ja transmitida mas lote nao encontrado " + nfe.getNfeLote());
+                throw new DbfException("Nfe ja transmitida mas lote nao encontrado " + nfe.getNfeLote(), false);
             }
         } else {
-            throw new DbfException("Nfe ja transmitida e processada");
+            throw new DbfException("Nfe ja transmitida e processada", false);
         }
 
         int status = 0;
@@ -270,15 +270,15 @@ public class IntegracaoNfe extends Servico {
             try {
                 escreve(fname, recibo);
             } catch (IOException ex) {
-                throw new DbfException("Erro ao tentar escrever o arquivo " + lote, ex);
+                throw new DbfException("Erro ao tentar escrever o arquivo " + lote, ex, false);
             }
 //            logger.log(Level.FINE, "Recibo : {0}", recibo);
             System.out.println("Rebibo " + recibo);
             status = trataRetorno(recibo, nfe, Long.toString(lote.getLote()));
         } catch (RemoteException ex) {
-            throw new DbfException("Erro ao tentar obter o retorno do recibo " + Long.toString(lote.getRecibo()), ex);
+            throw new DbfException("Erro ao tentar obter o retorno do recibo " + Long.toString(lote.getRecibo()), ex, false);
         } catch (XMLStreamException ex) {
-            throw new DbfException("Erro ao tentar obter o retorno do recibo " + Long.toString(lote.getRecibo()), ex);
+            throw new DbfException("Erro ao tentar obter o retorno do recibo " + Long.toString(lote.getRecibo()), ex, false);
         }
         return status;
     }
@@ -331,9 +331,9 @@ public class IntegracaoNfe extends Servico {
         try {
             resultado = envio.enviar(lote);
         } catch (XMLStreamException ex) {
-            throw new DbfException("Erro ao tentar se comunicar com o servico da SEFAZ", ex);
+            throw new DbfException("Erro ao tentar se comunicar com o servico da SEFAZ", ex, false);
         } catch (RemoteException ex) {
-            throw new DbfException("Erro ao tentar se comunicar com o servico da SEFAZ", ex);
+            throw new DbfException("Erro ao tentar se comunicar com o servico da SEFAZ", ex, false);
         }
         lote = "lote" + idLote + "-ret.xml";
         try {
@@ -754,6 +754,7 @@ public class IntegracaoNfe extends Servico {
             // com valor = 0.00 o ICMS Desoneração
             icms.setVICMSDeson(NumberUtil.decimalBanco(0));
         }
+        icms.setVBCST(NumberUtil.decimalBanco(nota.getIcmsStBase()));
         boolean nfeTributaDifal = Boolean.parseBoolean(System.getProperty("nfe.tributa.difal", "false"));
         //uso, alem da variavel que indica se as notas tributam ou nao o difal,
         //o valor do icms de destino para validar se o sistema preenche ou 
