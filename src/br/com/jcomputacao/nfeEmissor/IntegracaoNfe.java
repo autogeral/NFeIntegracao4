@@ -2,6 +2,7 @@ package br.com.jcomputacao.nfeEmissor;
 
 import br.com.jcomputacao.exception.DbfDatabaseException;
 import br.com.jcomputacao.exception.DbfException;
+import br.com.jcomputacao.model.AnpModel;
 import br.com.jcomputacao.model.BoletoModel;
 import br.com.jcomputacao.model.CadastroEnderecoModel;
 import br.com.jcomputacao.model.CadastroEnderecoTipo;
@@ -13,6 +14,7 @@ import br.com.jcomputacao.model.Entidade;
 import br.com.jcomputacao.model.EntidadeEndereco;
 import br.com.jcomputacao.model.EntidadeTelefone;
 import br.com.jcomputacao.model.LojaModel;
+import br.com.jcomputacao.model.ModoPagamentoDBFModel;
 import br.com.jcomputacao.model.MovimentoOperacaoModel;
 import br.com.jcomputacao.model.NFeStatus;
 import br.com.jcomputacao.model.NfeImpostoAdicionalModel;
@@ -25,6 +27,7 @@ import br.com.jcomputacao.model.NfePagamentoParcelaModel;
 import br.com.jcomputacao.model.NfeReferenciaModel;
 import br.com.jcomputacao.model.ProdutoDBFModel;
 import br.com.jcomputacao.model.beans.LojaBean;
+import br.com.jcomputacao.model.beans.ModoPagamentoBean;
 import br.com.jcomputacao.model.beans.MovimentoOperacaoBean;
 import br.com.jcomputacao.model.beans.ProdutoTributacaoBean;
 import br.com.jcomputacao.nfe.ChaveAcesso;
@@ -41,62 +44,67 @@ import br.com.jcomputacao.tributacao.DeOlhoNoImpostoLogic;
 import br.com.jcomputacao.util.Ambiente;
 import br.com.jcomputacao.util.NumberUtil;
 import br.com.jcomputacao.util.StringUtil;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TProcEvento;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TRetEvento;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.ObjectFactory;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TEnderEmi;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TEndereco;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TIpi;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TIpi.IPINT;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TIpi.IPITrib;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TLocal;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Cobr.Dup;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Dest;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Det;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Det.Imposto;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Det.Imposto.COFINS;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Det.Imposto.COFINS.COFINSAliq;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Det.Imposto.COFINS.COFINSNT;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Det.Imposto.COFINSST;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Det.Imposto.ICMS;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMS00;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMS10;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMS40;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMS51;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMS60;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMS90;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMSSN101;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMSSN102;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMSSN201;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMSSN202;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMSSN500;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMSSN900;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Det.Imposto.ICMSUFDest;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Det.Imposto.PIS;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Det.Imposto.PIS.PISAliq;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Det.Imposto.PIS.PISNT;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Det.Imposto.PISST;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Det.Prod;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Det.Prod.Comb;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Emit;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Ide;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Ide.NFref;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Ide.NFref.RefECF;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Total;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Total.ICMSTot;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Total.RetTrib;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Transp;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Transp.Transporta;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNfeProc;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TProtNFe;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TProtNFe.InfProt;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TRetConsReciNFe;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TRetEnviNFe;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TUf;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TUfEmi;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TVeiculo;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.ObjectFactory;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TEnderEmi;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TEndereco;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TIpi;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TIpi.IPINT;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TIpi.IPITrib;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TLocal;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Cobr.Dup;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Dest;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.COFINS;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.COFINS.COFINSAliq;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.COFINS.COFINSNT;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.COFINSST;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMS00;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMS10;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMS40;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMS51;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMS60;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMS90;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMSSN101;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMSSN102;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMSSN201;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMSSN202;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMSSN500;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMSSN900;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMSUFDest;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.PIS;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.PIS.PISAliq;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.PIS.PISNT;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.PISST;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.ImpostoDevol;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.ImpostoDevol.IPI;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Prod;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Prod.Comb;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Emit;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Ide;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Ide.NFref;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Ide.NFref.RefECF;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Pag;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Pag.DetPag;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Pag.DetPag.Card;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Total;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Total.ICMSTot;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Total.RetTrib;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Transp;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Transp.Transporta;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNfeProc;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TProcEvento;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TProtNFe;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TProtNFe.InfProt;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TRetConsReciNFe;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TRetEnviNFe;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TRetEvento;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TUf;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TUfEmi;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TVeiculo;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -126,11 +134,15 @@ public class IntegracaoNfe extends Servico {
     private String chave;
     private String cnpj;
     private boolean simples = false;
+    private final boolean tributaIpi = Boolean.parseBoolean(System.getProperty("nfe.tributaIpi", "false"));;
     public static final String ALIQUOTA_ZERO_PIS_COFINS = "ALIQUOTA REDUZIDA A 0 (ZERO) % PARA PIS E COFINS CONFORME ARTIGO 3o DA LEI 10485 DE 07/2002.";
     public static final String SUBSTITUICAO_TRIBUTARIA = "SUBSTITUICAO TRIBUTARIA CONFORME ARTIGO 313/O DO DECRETO 52804/08.";
     private final int valorQuantidadePrecisao = Integer.parseInt(System.getProperty("decimal.precisao", "2"));    
     private Date notBefore;
     private Date notAfter;
+    private boolean valorFCPSTRetido;
+    private String informacaoAdicionalProduto = "";
+    private final boolean nfeTributaDifal = Boolean.parseBoolean(System.getProperty("nfe.tributa.difal", "false"));    
 
     public Date getNotBefore() {
         return notBefore;
@@ -312,7 +324,7 @@ public class IntegracaoNfe extends Servico {
          samento síncrono para a resposta do lote de NFe
          
          */
-        String lote = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><enviNFe xmlns=\"http://www.portalfiscal.inf.br/nfe\" versao=\"3.10\">"
+        String lote = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><enviNFe xmlns=\"http://www.portalfiscal.inf.br/nfe\" versao=\"4.00\">"
                 + "<idLote>" + idLote + "</idLote>"
                 + "<indSinc>0</indSinc>"
                 + xml.replace(prolog, "")
@@ -430,7 +442,7 @@ public class IntegracaoNfe extends Servico {
         TNFe tnfe = unmarshaller.unmarshal(new StreamSource(bais), TNFe.class).getValue();
         bais.close();
         proc.setNFe(tnfe);
-        proc.setVersao("3.10");
+        proc.setVersao("4.00");
         proc.setProtNFe(prot);
 
         Marshaller marshaller = context.createMarshaller();
@@ -518,7 +530,7 @@ public class IntegracaoNfe extends Servico {
     private TNFe exportarXml(NfeModel nfeModel) throws DbfDatabaseException, DbfException, JAXBException {
         TNFe nfe = new TNFe();
         TNFe.InfNFe inf = new TNFe.InfNFe();
-        inf.setVersao("3.10");
+        inf.setVersao("4.00");
         Ide ide = criaIdentificacao(nfeModel);
         inf.setIde(ide);        
         nfe.setInfNFe(inf);
@@ -526,6 +538,8 @@ public class IntegracaoNfe extends Servico {
         inf.setEmit(emitente);
         Dest destinatario = criaDestinatario(nfeModel);
         inf.setDest(destinatario);
+        Pag pgto = criaPagamento(nfeModel);
+        inf.setPag(pgto);
         if (nfeModel.getEntrega()) {
             TLocal localEntrega = criarLocalEntrega(nfeModel);
             inf.setEntrega(localEntrega);
@@ -585,7 +599,7 @@ public class IntegracaoNfe extends Servico {
         }
 
         List<Det> detalhes = inf.getDet();
-        preencheDetalhes(nfeModel, detalhes, emitente, destinatario);
+        preencheDetalhes(nfeModel, detalhes, destinatario);
 
         if (StringUtil.isNotNull(nfeModel.getNfeChaveAcesso())) {
             chave = nfeModel.getNfeChaveAcesso();
@@ -628,12 +642,12 @@ public class IntegracaoNfe extends Servico {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
         TNfeProc proc = new TNfeProc();
-        proc.setVersao("3.10");
+        proc.setVersao("4.00");
         TProtNFe protocolo = new TProtNFe();
         InfProt infProt = new InfProt();
         infProt.setNProt("ABRACADABRA");
         protocolo.setInfProt(infProt);
-        protocolo.setVersao("3.10");
+        protocolo.setVersao("4.00");
         proc.setProtNFe(protocolo);
         proc.setNFe(nfe);
         marshaller.marshal(proc, baos);
@@ -651,8 +665,13 @@ public class IntegracaoNfe extends Servico {
         Transp transporte = new Transp();
 
         /**
-         * 0- Por conta do emitente; 1- Por conta do destinatario/remetente; 2-
-         * Por conta de terceiros; 9- Sem frete. (V2.0)
+         * 0=Contratação do Frete por conta do Remetente (CIF);
+         * 1=Contratação do Frete por conta do Destinatário (FOB);
+         * 2=Contratação do Frete por conta de Terceiros;
+         * 3=Transporte Próprio por conta do Remetente;
+         * 4=Transporte Próprio por conta do Destinatário;
+         * 9=Sem Ocorrência de Transporte
+         * 
          */
         transporte.setModFrete(Integer.toString(nota.getFreteConta().getNfeCodigo()));
         
@@ -753,18 +772,19 @@ public class IntegracaoNfe extends Servico {
             //até que realmente precise, Mirella do Office disse para deixar sempre 
             // com valor = 0.00 o ICMS Desoneração
             icms.setVICMSDeson(NumberUtil.decimalBanco(0));
-        }
-        icms.setVBCST(NumberUtil.decimalBanco(nota.getIcmsStBase()));
-        boolean nfeTributaDifal = Boolean.parseBoolean(System.getProperty("nfe.tributa.difal", "false"));
+        }        
         //uso, alem da variavel que indica se as notas tributam ou nao o difal,
         //o valor do icms de destino para validar se o sistema preenche ou 
         //não essa parte do XML, pois o Difal sempre terá o valor do icms de destino
         //maior que zero quando o mesmo for preenchido na NFe
-        if(nfeTributaDifal && nota.getValorIcmsUFDestino() > 0) {
+        if(this.nfeTributaDifal && nota.getValorIcmsUFDestino() > 0) {
             icms.setVFCPUFDest(NumberUtil.decimal(nota.getValorIcmsIndicePobreza()).replace(",", "."));
             icms.setVICMSUFDest(NumberUtil.decimal(nota.getValorIcmsUFDestino()).replace(",", "."));
             icms.setVICMSUFRemet(NumberUtil.decimal(nota.getValorIcmsUFRemetente()).replace(",", "."));
         }
+        icms.setVFCP(!this.valorFCPSTRetido && nota.getValorIcmsUFDestino() == 0 && !this.simples ? NumberUtil.decimal(nota.getValorIcmsIndicePobreza()).replace(",", ".") : "0.00");
+        icms.setVFCPST(!this.valorFCPSTRetido ? NumberUtil.decimal(nota.getValorIcmsSTIndicePobreza()).replace(",", ".") : "0.00");
+        icms.setVFCPSTRet(this.valorFCPSTRetido ? NumberUtil.decimal(nota.getValorIcmsSTIndicePobreza()) : "0.00");
 
         icms.setVST(NumberUtil.decimalBanco(nota.getIcmsStValor()));
         icms.setVProd(NumberUtil.decimalBanco(nota.getValorProdutos()));
@@ -777,7 +797,8 @@ public class IntegracaoNfe extends Servico {
             icms.setVDesc("0.00");
         }
         icms.setVII("0.00");
-        icms.setVIPI(NumberUtil.decimalBanco(nota.getValorIpi()));
+        icms.setVIPI(this.tributaIpi ? NumberUtil.decimalBanco(nota.getValorIpi()) : "0.00");
+        icms.setVIPIDevol(!this.tributaIpi ? NumberUtil.decimalBanco(nota.getValorIpi()) : "0.00");
         icms.setVOutro(NumberUtil.decimalBanco(nota.getOutrasDespesas()));
         icms.setVNF(NumberUtil.decimalBanco(nota.getValorTotal()));
 
@@ -943,7 +964,7 @@ public class IntegracaoNfe extends Servico {
         if (StringUtil.isNotNull(entEnd.getComplementoEndereco())) {
             endereco.setXCpl(trataString(entEnd.getComplementoEndereco()));
         }
-
+        
         boolean validarTelefone = Boolean.parseBoolean(System.getProperty("cliente.validarTelefones", "true"));
         if (validarTelefone) {
             if (StringUtil.isNull(entTel.getTelefone())) {
@@ -953,6 +974,69 @@ public class IntegracaoNfe extends Servico {
         }
         dest.setEnderDest(endereco);
         return dest;
+    }
+    
+    private Pag criaPagamento(NfeModel nfeModel) throws DbfDatabaseException {
+//        vai precisar de troco?
+        MovimentoOperacaoModel operacao = MovimentoOperacaoBean.getMovimentoPorCodigo(nfeModel.getOperacaoCodigo());
+        Pag pag = new Pag();
+        for (NfePagamentoModel pagamento : nfeModel.getPagamentos()) {
+            DetPag detPag = new DetPag();        
+            
+            if(!operacao.isVenda()) {
+                //Para as notas com finalidade de Ajuste ou Devolução o
+                //campo Meio de Pagamento deve ser preenchido com 90=Sem Pagamento
+                detPag.setTPag("90");
+                detPag.setVPag("0.00");
+                pag.getDetPag().add(detPag);
+                break;
+            } else {
+                //01=Dinheiro
+                //02=Cheque
+                //03=Cartão de Crédito
+                //04=Cartão de Débito
+                //05=Crédito Loja
+                //10=Vale Alimentação
+                //11=Vale Refeição
+                //12=Vale Presente
+                //13=Vale Combustível
+                //15=Boleto Bancário
+                //90= Sem pagamento
+                //99=Outros
+                ModoPagamentoDBFModel modoPagamento = ModoPagamentoBean.getModoPagamentoPorCodigo(pagamento.getModoPagamentoCodigo());
+                int codigoNfePagamento = modoPagamento.getNfeCodigo();
+                detPag.setTPag(Ambiente.ajusta(Integer.toString(codigoNfePagamento), 2, Ambiente.ALINHAMENTO_DIREITA, '0'));  
+                detPag.setVPag(NumberUtil.decimalBanco(pagamento.getValorPagamento()));
+                //0= Pagamento à Vista 1= Pagamento à Prazo
+                detPag.setIndPag(codigoNfePagamento == 1 ? "0" : "1");
+                if(codigoNfePagamento == 3 || codigoNfePagamento == 4) {
+                    Card card = new Card();
+                    //1 = Pagamento integrado com o sistema de automação da
+                    //  empresa (Ex.: equipamento TEF, Comércio Eletrônico);
+                    //2 = Pagamento não integrado com o sistema de automaçã
+                    //   da empresa (Ex.: equipamento POS); 
+                    card.setTpIntegra("2");
+                    //Quando for TEF e mudar o campo acima ai os campos abaixo
+                    //serão obrigatórios;
+                    //Informar o CNPJ da Credenciadora de cartão de crédito/débito
+                    //card.setCNPJ();
+                    //01=Visa
+                    //02=Mastercard
+                    //03=American Express
+                    //04=Sorocred
+                    //05=Diners Club
+                    //06=Elo
+                    //07=Hipercard
+                    //08=Aura
+                    //09=Cabal
+                    //99=Outros
+                    //card.setCAut();   
+                    detPag.setCard(card);
+                }
+            }                                    
+            pag.getDetPag().add(detPag);
+        }        
+        return pag;
     }
 
     private TLocal criarLocalEntrega(NfeModel nfeModel) throws DbfException {
@@ -999,21 +1083,28 @@ public class IntegracaoNfe extends Servico {
         return localEntrega;
     }
 
-    private void preencheDetalhes(NfeModel nfeModel, List<Det> detalhes, Emit emitente, Dest destinatario) throws DbfDatabaseException, DbfException {
+    private void preencheDetalhes(NfeModel nfeModel, List<Det> detalhes, Dest destinatario) throws DbfDatabaseException, DbfException {
         for (NfeItemModel item : nfeModel.getVendaItens()) {
-            detalhes.add(criaDetalhe(item, emitente, destinatario));
+            detalhes.add(criaDetalhe(item, nfeModel, destinatario));
         }
     }
 
-    private Det criaDetalhe(NfeItemModel item, Emit emitente, Dest destinatario) throws DbfDatabaseException, DbfException {
+    private Det criaDetalhe(NfeItemModel item, NfeModel nfe, Dest destinatario) throws DbfDatabaseException, DbfException {
         Det det = new Det();
+        this.informacaoAdicionalProduto = "";
         det.setNItem(Integer.toString(item.getItem()));
-        det.setProd(produto(item, emitente, destinatario));
+        det.setProd(produto(item, destinatario));        
         det.setImposto(imposto(item));
+        if(!this.tributaIpi && nfe.getValorIpi() > 0) {//IPI DEVOLVIDO
+            det.setImpostoDevol(criaImpostoDevolvido(nfe, item));
+        }
+        if(this.informacaoAdicionalProduto != null && !this.informacaoAdicionalProduto.isEmpty()) {
+            det.setInfAdProd(this.informacaoAdicionalProduto);
+        }
         return det;
     }
 
-    private Prod produto(NfeItemModel item, Emit emitente, Dest destinatario) throws DbfException {
+    private Prod produto(NfeItemModel item, Dest destinatario) throws DbfException {
         Prod prod = new Prod();
         if (item.getCfop() > 5600 && item.getCfop() < 5610) {
             prod.setCProd("CFOP" + item.getCfop());
@@ -1107,16 +1198,17 @@ public class IntegracaoNfe extends Servico {
         if (item.getTributacaoCodigo() > 0) {
             if (ProdutoTributacaoBean.getTributacao(item.getTributacaoCodigo()).isCombustivelOuOleo()) {
                 Comb comb = new Comb();
-                comb.setUFCons(destinatario.getEnderDest().getUF());
+                comb.setUFCons(destinatario.getEnderDest().getUF());                
                 if (item.getCodigoAnp() == null) {
                     throw new DbfException("O item " + prod.getCProd() + " " + prod.getXProd() + " eh oleo/lubrificante e esta sem o código ANP");
                 } else {
                     comb.setCProdANP(item.getCodigoAnp().toString());
+                    comb.setDescANP(AnpModel.buscaDescricaoAnpPorCodigo(item.getCodigoAnp()));
                     prod.setComb(comb);
                 }
             }
         }
-
+        
         return prod;
     }
 
@@ -1127,7 +1219,7 @@ public class IntegracaoNfe extends Servico {
         TNFe tnfe = unmarshaller.unmarshal(new StreamSource(bais), TNFe.class).getValue();
         bais.close();
         proc.setNFe(tnfe);
-        proc.setVersao("3.10");
+        proc.setVersao("4.00");
         proc.setProtNFe(prot);
 
         Marshaller marshaller = context.createMarshaller();
@@ -1146,20 +1238,35 @@ public class IntegracaoNfe extends Servico {
         return xml;
     }
     
+    private ImpostoDevol criaImpostoDevolvido(NfeModel nota, NfeItemModel item) {
+        ImpostoDevol impDev = new ImpostoDevol();
+        double aliquotaIpi = 0;
+        for (NfeImpostoAdicionalModel i : nota.getImpostosAdicionais()) {
+            if (br.com.jcomputacao.model.Imposto.IPI.equals(i.getImposto())) {
+                aliquotaIpi = i.getPorcentagem();
+                break;
+            }
+        }            
+        IPI ipi = new IPI();
+        double valorIpiDevolvido = (aliquotaIpi > 1 ? item.getValorTotal() * (aliquotaIpi / 100) : item.getValorTotal() * aliquotaIpi);
+        ipi.setVIPIDevol(NumberUtil.decimalBanco(valorIpiDevolvido));
+        impDev.setIPI(ipi);
+        impDev.setPDevol(NumberUtil.decimalBanco((aliquotaIpi < 1 ? aliquotaIpi * 100 : aliquotaIpi)));
+        return impDev;
+    }
+    
     private Imposto imposto(NfeItemModel item) throws DbfDatabaseException {
         Imposto imp = new Imposto();
 
-        imp.getContent().add(new ObjectFactory().createTNFeInfNFeDetImpostoICMS(icms(item)));
-        boolean tributaIpi = Boolean.parseBoolean(System.getProperty("nfe.tributaIpi", "false"));
-        if (tributaIpi && !simples) {
+        imp.getContent().add(new ObjectFactory().createTNFeInfNFeDetImpostoICMS(icms(item)));        
+        if (this.tributaIpi && !simples) {
             imp.getContent().add(new ObjectFactory().createTNFeInfNFeDetImpostoIPI(ipi(item)));
         }
         imp.getContent().add(new ObjectFactory().createTNFeInfNFeDetImpostoPIS(pis(item)));
 //        imp.getContent().add(new ObjectFactory().createTNFeInfNFeDetImpostoPISST(pisSt(item)));
         imp.getContent().add(new ObjectFactory().createTNFeInfNFeDetImpostoCOFINS(cofins(item)));
-//        imp.getContent().add(new ObjectFactory().createTNFeInfNFeDetImpostoCOFINSST(cofinsSt(item)));
-        boolean nfeTributaDifal = Boolean.parseBoolean(System.getProperty("nfe.tributa.difal", "false"));
-        if(nfeTributaDifal && item.getValorIcmsUFDestino() > 0) {
+//        imp.getContent().add(new ObjectFactory().createTNFeInfNFeDetImpostoCOFINSST(cofinsSt(item)));        
+        if(this.nfeTributaDifal && item.getValorIcmsUFDestino() > 0) {
             imp.getContent().add(new ObjectFactory().createTNFeInfNFeDetImpostoICMSUFDest(difal(item)));
         }
 
@@ -1413,7 +1520,18 @@ public class IntegracaoNfe extends Servico {
                 double valorIcmsCredito = item.getValorTotal() * simplesMeEppIcmsAliquota;
                 simplesMeEppIcmsAliquota *= 100;
                 icmssn201.setPCredSN(NumberUtil.decimalBanco(simplesMeEppIcmsAliquota));
-                icmssn201.setVCredICMSSN(NumberUtil.decimalBanco(valorIcmsCredito));                
+                icmssn201.setVCredICMSSN(NumberUtil.decimalBanco(valorIcmsCredito));          
+                
+                if(this.nfeTributaDifal && item.getIcmsIndicePobrezaAliquota() > 0 
+                        && item.getValorIcmsSt() > 0) {
+                    icmssn201.setVBCFCPST(NumberUtil.decimalBanco(item.getBaseIcmsStValor()));
+                    icmssn201.setPFCPST(NumberUtil.decimalBanco(item.getIcmsIndicePobrezaAliquota()));
+                    icmssn201.setVFCPST(NumberUtil.decimalBanco(item.getValorIcmsSTIndicePobrezaOperacaoInternaInterestadualST()));
+                    String msgAliquota = " (" + NumberUtil.decimalBanco(item.getIcmsIndicePobrezaAliquota()) + "%)";                    
+                    if (item.getValorIcmsSTIndicePobrezaOperacaoInternaInterestadualST() > 0) {
+                        this.informacaoAdicionalProduto += "Valor FCP ST R$ " + item.getValorIcmsSTIndicePobrezaOperacaoInternaInterestadualST() + msgAliquota + ";";
+                    }
+                }
                 icms.setICMSSN201(icmssn201);
             }
             break;
@@ -1425,16 +1543,41 @@ public class IntegracaoNfe extends Servico {
                 icmssn202.setPMVAST(NumberUtil.decimalBanco((item.getBaseIcmsStValor() > 0 ? (item.getIva() - 1) * 100 : 0)));
                 icmssn202.setVBCST(NumberUtil.decimalBanco(item.getBaseIcmsStValor()));
                 icmssn202.setPICMSST(NumberUtil.decimalBanco(item.getIcmsStAliquota() * 100));
-                icmssn202.setVICMSST(NumberUtil.decimalBanco(item.getValorIcmsSt()));                
+                icmssn202.setVICMSST(NumberUtil.decimalBanco(item.getValorIcmsSt()));         
+                if(this.nfeTributaDifal && item.getIcmsIndicePobrezaAliquota() > 0 
+                        && item.getValorIcmsSt() > 0) {
+                    icmssn202.setVBCFCPST(NumberUtil.decimalBanco(item.getBaseIcmsStValor()));
+                    icmssn202.setPFCPST(NumberUtil.decimalBanco(item.getIcmsIndicePobrezaAliquota()));
+                    icmssn202.setVFCPST(NumberUtil.decimalBanco(item.getValorIcmsSTIndicePobrezaOperacaoInternaInterestadualST()));
+                    String msgAliquota = " (" + NumberUtil.decimalBanco(item.getIcmsIndicePobrezaAliquota()) + "%)";                    
+                    if (item.getValorIcmsSTIndicePobrezaOperacaoInternaInterestadualST() > 0) {
+                        this.informacaoAdicionalProduto += "Valor FCP ST R$ " + item.getValorIcmsSTIndicePobrezaOperacaoInternaInterestadualST() + msgAliquota + ";";
+                    }
+                }
                 icms.setICMSSN202(icmssn202);
             }
             break;
             case 500: {
                 ICMSSN500 icmssn500 = new ICMSSN500();
                 icmssn500.setOrig(origem);
-                icmssn500.setCSOSN(st);
-                icmssn500.setVBCSTRet("0.00");
-                icmssn500.setVICMSSTRet("0.00");
+                icmssn500.setCSOSN(st);                
+                if (item.getIcmsIndicePobrezaAliquota() > 0 && item.getIcmsStAliquota() > 0) {
+                    double aliquotaPST = item.getIcmsStAliquota() * 100;
+                    aliquotaPST += (item.getIcmsIndicePobrezaAliquota() > 1 ? item.getIcmsIndicePobrezaAliquota() : item.getIcmsIndicePobrezaAliquota() * 100);
+                    icmssn500.setPST(NumberUtil.decimalBanco(aliquotaPST));
+                    icmssn500.setVBCFCPSTRet(NumberUtil.decimalBanco(item.getBaseIcmsStValor()));
+                    icmssn500.setPFCPSTRet(NumberUtil.decimalBanco(item.getIcmsIndicePobrezaAliquota() > 1 ? item.getIcmsIndicePobrezaAliquota() : item.getIcmsIndicePobrezaAliquota() * 100));
+                    this.valorFCPSTRetido = true;
+                    icmssn500.setVFCPSTRet(NumberUtil.decimalBanco(item.getValorIcmsSTIndicePobrezaOperacaoInternaInterestadualST()));
+                    String msgAliquota = " (" + NumberUtil.decimalBanco(item.getIcmsIndicePobrezaAliquota()) + "%)";                    
+                    if (item.getValorIcmsSTIndicePobrezaOperacaoInternaInterestadualST() > 0) {
+                        this.informacaoAdicionalProduto += " Valor FCP retido por ST R$ " + item.getValorIcmsSTIndicePobrezaOperacaoInternaInterestadualST() + msgAliquota + ";";
+                    }
+                } else {
+                    icmssn500.setPST(NumberUtil.decimalBanco(item.getIcmsStAliquota() * 100));
+                    icmssn500.setVBCSTRet("0.00");
+                    icmssn500.setVICMSSTRet("0.00");
+                }
                 icms.setICMSSN500(icmssn500);
             }
             break;
@@ -2056,10 +2199,9 @@ public class IntegracaoNfe extends Servico {
         return null;
     }
 
-    private TIpi ipi(NfeItemModel item) throws DbfDatabaseException {
-        boolean tributaIpi = Boolean.parseBoolean(System.getProperty("nfe.tributaIpi", "false"));
+    private TIpi ipi(NfeItemModel item) throws DbfDatabaseException {             
         TIpi ipi = new TIpi();
-        if (tributaIpi) {
+        if (this.tributaIpi) {
             ipi.setCNPJProd(cnpj);
             if (item.getIpiSt() == 0) {
                 if (item.getIpiValor() == 0) {
@@ -2119,7 +2261,7 @@ public class IntegracaoNfe extends Servico {
                 ipint.setCST("53");
             }
         }
-        if(tributaIpi && item.getIpiSt() == 55) {
+        if(this.tributaIpi && item.getIpiSt() == 55) {
             ipi.setCEnq("105");
         } else {
             ipi.setCEnq("999");
@@ -2130,10 +2272,14 @@ public class IntegracaoNfe extends Servico {
     private ICMSUFDest difal(NfeItemModel item) {
         ICMSUFDest difal = new ICMSUFDest();
         if (item.isDestacaDescontoNoCorpoDoDocumentoFiscal()) {
-            difal.setVBCUFDest(NumberUtil.decimalBanco(item.getValorTotal() - item.getDescontoValor()));
+            String vB = NumberUtil.decimalBanco(item.getValorTotal() - item.getDescontoValor());
+            difal.setVBCUFDest(vB);
+            difal.setVBCFCPUFDest(item.getIcmsIndicePobrezaAliquota() > 0 ? vB : "0.00");
         } else {
-            difal.setVBCUFDest(NumberUtil.decimalBanco(item.getValorTotal()));
-        }        
+            String vB = NumberUtil.decimalBanco(item.getValorTotal());
+            difal.setVBCUFDest(vB);
+            difal.setVBCFCPUFDest(item.getIcmsIndicePobrezaAliquota() > 0 ? vB : "0.00");
+        }
         difal.setPFCPUFDest(NumberUtil.decimalBanco(item.getIcmsIndicePobrezaAliquota()));
         difal.setPICMSUFDest(NumberUtil.decimalBanco(item.getIcmsInternaUFDestinoAliquota()));
         difal.setPICMSInter(NumberUtil.decimalBanco(item.getIcmsAliquota() * 100));      
@@ -2285,6 +2431,17 @@ public class IntegracaoNfe extends Servico {
                 }
                 //MessageFormat.format("At {1,time} on {1,date}, there was {2} on planet {0,number,integer}.", planet, new Date(), event)
             }
+            if(this.nfeTributaDifal && nfeModel.getValorIcmsUFDestino() == 0 &&
+                    (nfeModel.getValorIcmsIndicePobreza() > 0 || nfeModel.getValorIcmsSTIndicePobreza() > 0)) {
+                String mensagem = "Valor Total do FCP";
+                if(nfeModel.getValorIcmsIndicePobreza() > 0) {
+                    informacoes += mensagem + " R$ " + nfeModel.getValorIcmsIndicePobrezaString() + ";";
+                }
+                if(nfeModel.getValorIcmsSTIndicePobreza() > 0) {
+                    informacoes += mensagem + 
+                            (!this.valorFCPSTRetido ? " por ST" : " retido anteriormente por ST") + " R$ " + nfeModel.getValorIcmsSTIndicePobrezaString() + ";";
+                }                
+            }
             infAdicionais.setInfAdFisco(informacoes);
         }
 
@@ -2343,6 +2500,17 @@ public class IntegracaoNfe extends Servico {
         tributacaoIcms60.setCST(st);
         tributacaoIcms60.setOrig(origem);
         tributacaoIcms60.setVBCSTRet(NumberUtil.decimalBanco(item.getBaseIcmsStValor()));
+        if(item.getIcmsIndicePobrezaAliquota() > 0 && item.getIcmsStAliquota() > 0) {
+            double aliquotaPST = item.getIcmsStAliquota() * 100;
+            aliquotaPST += (item.getIcmsIndicePobrezaAliquota() > 1 ? item.getIcmsIndicePobrezaAliquota() : item.getIcmsIndicePobrezaAliquota() * 100);
+            tributacaoIcms60.setPST(NumberUtil.decimalBanco(aliquotaPST));
+            tributacaoIcms60.setVBCFCPSTRet(NumberUtil.decimalBanco(item.getBaseIcmsStValor()));
+            tributacaoIcms60.setPFCPSTRet(NumberUtil.decimalBanco(item.getIcmsIndicePobrezaAliquota() > 1 ? item.getIcmsIndicePobrezaAliquota() : item.getIcmsIndicePobrezaAliquota() * 100));
+            this.valorFCPSTRetido = true;
+            tributacaoIcms60.setVFCPSTRet(NumberUtil.decimalBanco(item.getValorIcmsSTIndicePobrezaOperacaoInternaInterestadualST()));
+        } else {
+            tributacaoIcms60.setPST(NumberUtil.decimalBanco(item.getIcmsStAliquota() * 100));
+        }        
         tributacaoIcms60.setVICMSSTRet(NumberUtil.decimalBanco(item.getValorIcmsSt()));
         icms.setICMS60(tributacaoIcms60);
     }
@@ -2365,6 +2533,17 @@ public class IntegracaoNfe extends Servico {
             tributacaoIcms90.setVBC(NumberUtil.decimalBanco(item.getBaseIcmsValor()));
             tributacaoIcms90.setPICMS(NumberUtil.decimalBanco(item.getIcmsAliquota() * 100));
             tributacaoIcms90.setVICMS(NumberUtil.decimalBanco(item.getIcmsValor()));
+            if (this.nfeTributaDifal && item.getIcmsValor() > 0 && item.getIcmsIndicePobrezaAliquota() > 0
+                    && item.getValorIcmsUFDestino() == 0) {//ICMS UF Destino = 0, garante que a nota nao tenha DIFAL (nota para contribuite de ICMS)
+                tributacaoIcms90.setVBCFCP(tributacaoIcms90.getVBC());
+                tributacaoIcms90.setPFCP(NumberUtil.decimalBanco((item.getIcmsIndicePobrezaAliquota() < 1 ? item.getIcmsIndicePobrezaAliquota() * 100 : item.getIcmsIndicePobrezaAliquota())));
+                tributacaoIcms90.setVFCP(NumberUtil.decimalBanco(item.getValorIcmsIndicePobreza()));
+                String msgAliquota = " (" + NumberUtil.decimalBanco(item.getIcmsIndicePobrezaAliquota()) + "%)";
+                if (item.getValorIcmsIndicePobreza() > 0) {
+                    this.informacaoAdicionalProduto += "Valor base calculo FCP R$ " + tributacaoIcms90.getVBC() + "; "
+                            + " Valor FCP R$ " + item.getValorIcmsIndicePobrezaString() + msgAliquota + ";";
+                }             
+            }
         }
 
         if (item.getBaseIcmsStValor() > 0) {
@@ -2380,6 +2559,17 @@ public class IntegracaoNfe extends Servico {
             tributacaoIcms90.setPMVAST(NumberUtil.decimalBanco((item.getIva() != 0 ? ((item.getIva() - 1) * 100) : item.getIva() * 100)));
             tributacaoIcms90.setVBCST(NumberUtil.decimalBanco(item.getBaseIcmsStValor()));
             tributacaoIcms90.setVICMSST(NumberUtil.decimalBanco(item.getValorIcmsSt()));
+            
+            if (this.nfeTributaDifal && item.getValorIcmsSt() > 0 && item.getIcmsIndicePobrezaAliquota() > 0
+                    && item.getValorIcmsUFDestino() == 0) {//ICMS UF Destino = 0, garante que a nota nao tenha DIFAL (nota para contribuite de ICMS)
+                tributacaoIcms90.setVBCFCPST(tributacaoIcms90.getVBCST());
+                tributacaoIcms90.setPFCPST(NumberUtil.decimalBanco(item.getIcmsIndicePobrezaAliquota()));
+                tributacaoIcms90.setVFCPST(NumberUtil.decimalBanco(item.getValorIcmsSTIndicePobrezaOperacaoInternaInterestadualST()));
+                String msgAliquota = " (" + NumberUtil.decimalBanco(item.getIcmsIndicePobrezaAliquota()) + "%)";             
+                if (item.getValorIcmsSTIndicePobrezaOperacaoInternaInterestadualST() > 0) {
+                    this.informacaoAdicionalProduto += " Valor FCP ST R$ " + item.getValorIcmsSTIndicePobrezaOperacaoInternaInterestadualST() + msgAliquota + ";";
+                }
+            }
         }
         icms.setICMS90(tributacaoIcms90);
     }
@@ -2411,6 +2601,23 @@ public class IntegracaoNfe extends Servico {
         if(item.getValorIcmsStPorcentagemReducao() > 0) {
             tributacaoICMS10.setPRedBCST(NumberUtil.decimalBanco(item.getValorIcmsStPorcentagemReducao()));
         }
+        if (this.nfeTributaDifal && item.getValorIcmsSt() > 0 && item.getIcmsIndicePobrezaAliquota() > 0
+                && item.getValorIcmsUFDestino() == 0) {//ICMS UF Destino = 0, garante que a nota nao tenha DIFAL (nota para contribuite de ICMS)
+            tributacaoICMS10.setVBCFCP(tributacaoICMS10.getVBC());
+            tributacaoICMS10.setPFCP(NumberUtil.decimalBanco((item.getIcmsIndicePobrezaAliquota() < 1 ? item.getIcmsIndicePobrezaAliquota() * 100 : item.getIcmsIndicePobrezaAliquota())));            
+            tributacaoICMS10.setVFCP(NumberUtil.decimalBanco(item.getValorIcmsIndicePobreza()));
+            tributacaoICMS10.setVBCFCPST(tributacaoICMS10.getVBCST());
+            tributacaoICMS10.setPFCPST(NumberUtil.decimalBanco(item.getIcmsIndicePobrezaAliquota()));            
+            tributacaoICMS10.setVFCPST(NumberUtil.decimalBanco(item.getValorIcmsSTIndicePobrezaOperacaoInternaInterestadualST()));                    
+            String msgAliquota = " (" + NumberUtil.decimalBanco(item.getIcmsIndicePobrezaAliquota()) + "%)";
+            if (item.getValorIcmsIndicePobreza() > 0) {
+                this.informacaoAdicionalProduto += "Valor base calculo FCP R$ " + tributacaoICMS10.getVBC() + "; " 
+                        + " Valor FCP R$ " + item.getValorIcmsIndicePobrezaString() + msgAliquota + ";";
+            }
+            if (item.getValorIcmsSTIndicePobrezaOperacaoInternaInterestadualST() > 0) {
+                this.informacaoAdicionalProduto += " Valor FCP ST R$ " + item.getValorIcmsSTIndicePobrezaOperacaoInternaInterestadualST() + msgAliquota + ";";
+            }
+        }
         icms.setICMS10(tributacaoICMS10);
     }
     
@@ -2426,6 +2633,17 @@ public class IntegracaoNfe extends Servico {
             tributaICMS20.setPRedBC(NumberUtil.decimalBanco(item.getValorIcmsStPorcentagemReducao()));
         } else {
             tributaICMS20.setPRedBC("0.00");
+        }
+        if (this.nfeTributaDifal && item.getIcmsValor() > 0 && item.getIcmsIndicePobrezaAliquota() > 0
+                && item.getValorIcmsUFDestino() == 0) {//ICMS UF Destino = 0, garante que a nota nao tenha DIFAL (nota para contribuite de ICMS)
+            tributaICMS20.setVBCFCP(tributaICMS20.getVBC());
+            tributaICMS20.setPFCP(NumberUtil.decimalBanco((item.getIcmsIndicePobrezaAliquota() < 1 ? item.getIcmsIndicePobrezaAliquota() * 100 : item.getIcmsIndicePobrezaAliquota())));
+            tributaICMS20.setVFCP(NumberUtil.decimalBanco(item.getValorIcmsIndicePobreza()));            
+            String msgAliquota = " (" + NumberUtil.decimalBanco(item.getIcmsIndicePobrezaAliquota()) + "%)";
+            if (item.getValorIcmsIndicePobreza() > 0) {
+                this.informacaoAdicionalProduto += "Valor base calculo FCP R$ " + tributaICMS20.getVBC() + "; " 
+                        + " Valor FCP R$ " + item.getValorIcmsIndicePobrezaString() + msgAliquota + ";";
+            }            
         }
         
         icms.setICMS20(tributaICMS20);
@@ -2524,6 +2742,16 @@ public class IntegracaoNfe extends Servico {
             icmssn900.setPMVAST(NumberUtil.decimalBanco((item.getIva() - 1) * 100));
             icmssn900.setPICMSST(NumberUtil.decimalBanco(item.getIcmsStAliquota() * 100));
             icmssn900.setVICMSST(NumberUtil.decimalBanco(item.getValorIcmsSt()));
+            if (this.nfeTributaDifal && item.getValorIcmsSt() > 0 && item.getIcmsIndicePobrezaAliquota() > 0 
+                    && item.getValorIcmsUFDestino() == 0) {//ICMS UF Destino = 0, garante que a nota nao tenha DIFAL (nota para contribuite de ICMS)                
+                icmssn900.setVBCFCPST(icmssn900.getVBCST());
+                icmssn900.setPFCPST(NumberUtil.decimalBanco(item.getIcmsIndicePobrezaAliquota()));
+                icmssn900.setVFCPST(NumberUtil.decimalBanco(item.getValorIcmsSTIndicePobrezaOperacaoInternaInterestadualST()));
+                String msgAliquota = " (" + NumberUtil.decimalBanco(item.getIcmsIndicePobrezaAliquota()) + "%)";                
+                if (item.getValorIcmsSTIndicePobrezaOperacaoInternaInterestadualST() > 0) {
+                    this.informacaoAdicionalProduto += "Valor FCP ST R$ " + item.getValorIcmsSTIndicePobrezaOperacaoInternaInterestadualST() + msgAliquota + ";";
+                }
+            }
         }
         return icmssn900;
     }
@@ -2562,5 +2790,5 @@ public class IntegracaoNfe extends Servico {
             item.setCEST(ncm.getCestCodigo());
         } 
         return ncm;
-    }
+    }    
 }

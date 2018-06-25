@@ -5,7 +5,7 @@
  */
 package br.com.jcomputacao.nfeIntegracao;
 
-import br.com.jcomputacao.nfe3.ws.inutilizacao.NfeInutilizacao2Stub;
+import br.com.jcomputacao.nfe4.ws.inutilizacao.NFeInutilizacao4Stub;
 import java.rmi.RemoteException;
 import javax.xml.stream.XMLStreamException;
 import org.apache.axiom.om.OMElement;
@@ -19,16 +19,13 @@ import org.apache.axis2.AxisFault;
 public class ServicoInutilizaNfe {
 
     public String inutilizar(String xml) throws AxisFault, XMLStreamException, RemoteException {
-        NfeInutilizacao2Stub stub = new NfeInutilizacao2Stub();
-        NfeInutilizacao2Stub.NfeDadosMsg dados = new NfeInutilizacao2Stub.NfeDadosMsg();
+        NFeInutilizacao4Stub stub = new NFeInutilizacao4Stub();
         OMElement el = AXIOMUtil.stringToOM(xml);
+
+        NFeInutilizacao4Stub.NfeDadosMsg dados = new NFeInutilizacao4Stub.NfeDadosMsg();        
         dados.setExtraElement(el);
-        NfeInutilizacao2Stub.NfeCabecMsg6 cabecalho = new NfeInutilizacao2Stub.NfeCabecMsg6();
-        NfeInutilizacao2Stub.NfeCabecMsg cabec = new NfeInutilizacao2Stub.NfeCabecMsg();
-        cabec.setVersaoDados("3.10");
-        cabec.setCUF("35");
-        cabecalho.setNfeCabecMsg(cabec);
-        NfeInutilizacao2Stub.NfeInutilizacaoNF2Result inut = stub.nfeInutilizacaoNF2(dados, cabecalho);
+        
+        NFeInutilizacao4Stub.NfeResultMsg inut = stub.nfeInutilizacaoNF(dados);
         String resultado = inut.getExtraElement().toString();
         return resultado;
     }

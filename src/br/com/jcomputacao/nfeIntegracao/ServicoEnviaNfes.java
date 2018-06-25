@@ -7,7 +7,7 @@ package br.com.jcomputacao.nfeIntegracao;
 
 import br.com.jcomputacao.nfe.NFeUF;
 import br.com.jcomputacao.nfe.NFeUtil;
-import br.com.jcomputacao.nfe3.ws.recepcao.NfeAutorizacaoStub;
+import br.com.jcomputacao.nfe4.ws.recepcao.NFeAutorizacao4Stub;
 import java.rmi.RemoteException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,22 +27,17 @@ public class ServicoEnviaNfes {
         NFeWSEndpointResolver nwe = new NFeWSEndpointResolver();
         String endpoint = nwe.getEndpoing(NFeUF.SAO_PAULO, ServicoTipoNfe.NfeAutorizacao);
         System.out.println(endpoint);
-        NfeAutorizacaoStub stub;
+        NFeAutorizacao4Stub stub;
         if (virtual && NFeUtil.getAmbiente() == 1) {
-            stub = new NfeAutorizacaoStub("https://www.sefazvirtual.fazenda.gov.br/NfeAutorizacao/NfeAutorizacao.asmx");
+            stub = new NFeAutorizacao4Stub("https://www.sefazvirtual.fazenda.gov.br/NfeAutorizacao/NfeAutorizacao.asmx");
         } else {
-            stub = new NfeAutorizacaoStub();
+            stub = new NFeAutorizacao4Stub();
         }
-        NfeAutorizacaoStub.NfeDadosMsg nfeDadosMsg = new NfeAutorizacaoStub.NfeDadosMsg();
+        NFeAutorizacao4Stub.NfeDadosMsg nfeDadosMsg = new NFeAutorizacao4Stub.NfeDadosMsg();
         OMElement element = AXIOMUtil.stringToOM(xml);
-        nfeDadosMsg.setExtraElement(element);
-        NfeAutorizacaoStub.NfeCabecMsg3 nfeCabecMsg = new NfeAutorizacaoStub.NfeCabecMsg3();
-        NfeAutorizacaoStub.NfeCabecMsg cabec = new NfeAutorizacaoStub.NfeCabecMsg();
-        cabec.setCUF("35");
-        cabec.setVersaoDados("3.10");
-        nfeCabecMsg.setNfeCabecMsg(cabec);
+        nfeDadosMsg.setExtraElement(element);        
         Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.INFO, "Enviando Lote de NFes");
-        NfeAutorizacaoStub.NfeAutorizacaoLoteResult recepcao = stub.nfeAutorizacaoLote(nfeDadosMsg, nfeCabecMsg);
+        NFeAutorizacao4Stub.NfeResultMsg recepcao = stub.nfeAutorizacaoLote(nfeDadosMsg);
         Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.INFO, "Resultado do enviando de NFes");
 
         element = recepcao.getExtraElement();

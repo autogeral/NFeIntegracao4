@@ -9,18 +9,16 @@ import br.com.jcomputacao.exception.DbfDatabaseException;
 import br.com.jcomputacao.exception.DbfException;
 import br.com.jcomputacao.model.CadastroModel;
 import br.com.jcomputacao.model.LojaModel;
-import br.com.jcomputacao.model.ModoPagamentoDBFModel;
 import br.com.jcomputacao.model.MovimentoOperacaoModel;
 import br.com.jcomputacao.model.NfeModel;
 import br.com.jcomputacao.model.beans.LojaBean;
-import br.com.jcomputacao.model.beans.ModoPagamentoBean;
 import br.com.jcomputacao.model.beans.MovimentoOperacaoBean;
 import br.com.jcomputacao.nfe.NFeUF;
 import br.com.jcomputacao.nfe.NFeUtil;
 import br.com.jcomputacao.nfe.validacao.Validador;
 import br.com.jcomputacao.nfe.validacao.ValidadorListener;
 import br.com.jcomputacao.util.StringUtil;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Ide;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Ide;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -49,7 +47,7 @@ public class Servico {
 
     static {
         try {
-            context = JAXBContext.newInstance("br.inf.portalfiscal.nfe.xml.pl008h2.nfes");
+            context = JAXBContext.newInstance("br.inf.portalfiscal.nfe.xml.pl009v4.nfes");
         } catch (JAXBException ex) {
             logger.log(Level.SEVERE, "Erro ao criar o contexto do JAXB", ex);
         }
@@ -126,9 +124,7 @@ public class Servico {
         } catch (ParseException ex) {
             throw new DbfException("Erro ao manipular a data", ex);
         }
-        ModoPagamentoDBFModel mdPgto = ModoPagamentoBean.getModoPagamentoPorCodigo(nfeModel.getModoPgtoCodigo());
-        ide.setIndPag(mdPgto.getNfeCodigoString());
-
+        
         LojaModel lojaModel = LojaBean.getLojaPorCodigo(nfeModel.getLoja());
         ide.setCMunFG(Integer.toString(lojaModel.getCidade().getIbgeCodigo()));
 
@@ -175,6 +171,7 @@ public class Servico {
         // 2 Operacao nao presencial, pela internet
         // 3 Operacao nao presencial, Teleatendimento
         // 4 NFC-e em operacao com entrega a domicilio
+        // 5 Operação presencial, fora do estabelecimento;
         // 9 Operacao nao presencial, outros
         ide.setIndPres(nfeModel.getVendedorNome().toUpperCase().contains("ECOMMERCE") ? "2" : operacao.isComplementoIcms() || operacao.isComplementoValor() ? "0" : "1");
         ide.setTpNF(nfeModel.getSaida() ? "1" : "0");
@@ -187,7 +184,7 @@ public class Servico {
          * com aplicativo fornecido pelo Fisco.
          */
         ide.setProcEmi("0");
-        ide.setVerProc("3.10");
+        ide.setVerProc("4.00");
         // 1 Normal
         // 2 Complementar
         // 3 De ajuste

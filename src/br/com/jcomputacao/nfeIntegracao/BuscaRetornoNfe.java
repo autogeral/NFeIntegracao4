@@ -7,7 +7,7 @@ package br.com.jcomputacao.nfeIntegracao;
 
 import br.com.jcomputacao.nfe.NFeUF;
 import br.com.jcomputacao.nfe.NFeUtil;
-import br.com.jcomputacao.nfe3.ws.retornoRecepcao.NfeRetAutorizacaoStub;
+import br.com.jcomputacao.nfe4.ws.retornoRecepcao.NFeRetAutorizacao4Stub;
 import java.rmi.RemoteException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,20 +27,15 @@ public class BuscaRetornoNfe {
         NFeWSEndpointResolver nwe = new NFeWSEndpointResolver();
         String endpoint = nwe.getEndpoing(NFeUF.SAO_PAULO, ServicoTipoNfe.NfeRetAutorizacao);
         System.out.println(endpoint);
-        NfeRetAutorizacaoStub stub;
+        NFeRetAutorizacao4Stub stub;
         if (virtual && NFeUtil.getAmbiente() == 1) {
-            stub = new NfeRetAutorizacaoStub("https://www.sefazvirtual.fazenda.gov.br/NfeRetAutorizacao/NfeRetAutorizacao.asmx");
+            stub = new NFeRetAutorizacao4Stub("https://www.sefazvirtual.fazenda.gov.br/NfeRetAutorizacao/NfeRetAutorizacao.asmx");
         } else {
-            stub = new NfeRetAutorizacaoStub();
-        }
-        NfeRetAutorizacaoStub.NfeCabecMsg4 cabecalho = new NfeRetAutorizacaoStub.NfeCabecMsg4();
-        NfeRetAutorizacaoStub.NfeCabecMsg cabec = new NfeRetAutorizacaoStub.NfeCabecMsg();
-        cabec.setCUF("35");
-        cabec.setVersaoDados("3.10");
-        cabecalho.setNfeCabecMsg(cabec);
+            stub = new NFeRetAutorizacao4Stub();
+        }        
 
-        NfeRetAutorizacaoStub.NfeDadosMsg dados = new NfeRetAutorizacaoStub.NfeDadosMsg();
-        StringBuilder sb = new StringBuilder("<consReciNFe xmlns=\"http://www.portalfiscal.inf.br/nfe\" versao=\"3.10\">");
+        NFeRetAutorizacao4Stub.NfeDadosMsg dados = new NFeRetAutorizacao4Stub.NfeDadosMsg();
+        StringBuilder sb = new StringBuilder("<consReciNFe xmlns=\"http://www.portalfiscal.inf.br/nfe\" versao=\"4.00\">");
         sb.append("<tpAmb>").append(NFeUtil.getAmbiente()).append("</tpAmb>");
         sb.append("<nRec>").append(recibo).append("</nRec>");
         sb.append("</consReciNFe>");
@@ -51,7 +46,7 @@ public class BuscaRetornoNfe {
         OMElement element = AXIOMUtil.stringToOM(xml);
         dados.setExtraElement(element);
 
-        NfeRetAutorizacaoStub.NfeRetAutorizacaoLoteResult resultado = stub.nfeRetAutorizacaoLote(dados, cabecalho);
+        NFeRetAutorizacao4Stub.NfeResultMsg resultado = stub.nfeRetAutorizacaoLote(dados);
         element = resultado.getExtraElement();
         xml = element.toString();
         Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.ALL, xml);

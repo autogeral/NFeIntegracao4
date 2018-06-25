@@ -16,11 +16,11 @@ import br.com.jcomputacao.nfe.ws.WsConnectionConfig;
 import static br.com.jcomputacao.nfeEmissor.Servico.context;
 import br.com.jcomputacao.nfeIntegracao.ServicoInutilizaNfe;
 import br.com.jcomputacao.util.StringUtil;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TInutNFe;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TInutNFe.InfInut;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TNFe.InfNFe.Ide;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TProcInutNFe;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TRetInutNFe;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TInutNFe;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TInutNFe.InfInut;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Ide;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TProcInutNFe;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TRetInutNFe;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -75,7 +75,7 @@ public class InutilizaNfe extends Servico {
         inf.setXServ("INUTILIZAR");
 
         TInutNFe inutNFe = new TInutNFe();
-        inutNFe.setVersao("3.10");
+        inutNFe.setVersao("4.00");
         inutNFe.setInfInut(inf);
 
         Marshaller marshaller = null;

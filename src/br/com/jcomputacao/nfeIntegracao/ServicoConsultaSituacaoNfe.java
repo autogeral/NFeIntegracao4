@@ -6,7 +6,7 @@
 package br.com.jcomputacao.nfeIntegracao;
 
 import br.com.jcomputacao.nfe.NFeUF;
-import br.com.jcomputacao.nfe3.ws.consultaProtocolo.NfeConsulta2Stub;
+import br.com.jcomputacao.nfe4.ws.consultaProtocolo.NFeConsultaProtocolo4Stub;
 import java.rmi.RemoteException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -26,18 +26,12 @@ public class ServicoConsultaSituacaoNfe {
     }
 
     public String executar(String xml, NFeUF uf) throws AxisFault, XMLStreamException, RemoteException {
-        NfeConsulta2Stub stub = new NfeConsulta2Stub();
-        NfeConsulta2Stub.NfeDadosMsg dados = new NfeConsulta2Stub.NfeDadosMsg();
-        NfeConsulta2Stub.NfeCabecMsg2 cabec = new NfeConsulta2Stub.NfeCabecMsg2();
-        NfeConsulta2Stub.NfeCabecMsg param = new NfeConsulta2Stub.NfeCabecMsg();
-        param.setVersaoDados("3.10");
-        param.setCUF(uf.getCodigo());
-        cabec.setNfeCabecMsg(param);
-
+        NFeConsultaProtocolo4Stub stub = new NFeConsultaProtocolo4Stub();
         OMElement el = AXIOMUtil.stringToOM(xml);
+        NFeConsultaProtocolo4Stub.NfeDadosMsg dados = new NFeConsultaProtocolo4Stub.NfeDadosMsg();                
         dados.setExtraElement(el);
 
-        NfeConsulta2Stub.NfeConsultaNF2Result resultado = stub.nfeConsultaNF2(dados, cabec);
+        NFeConsultaProtocolo4Stub.NfeResultMsg resultado = stub.nfeConsultaNF(dados);
         String s = resultado.getExtraElement().toString();
         Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.FINER, s);
         return s;

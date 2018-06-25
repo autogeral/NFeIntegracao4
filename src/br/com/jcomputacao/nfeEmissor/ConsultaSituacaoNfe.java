@@ -11,8 +11,8 @@ import br.com.jcomputacao.nfe.NFeUtil;
 import br.com.jcomputacao.nfe.ws.WsConnectionConfig;
 import br.com.jcomputacao.nfeIntegracao.ServicoConsultaSituacaoNfe;
 import br.com.jcomputacao.util.StringUtil;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TConsSitNFe;
-import br.inf.portalfiscal.nfe.xml.pl008h2.nfes.TRetConsSitNFe;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TConsSitNFe;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TRetConsSitNFe;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -41,7 +41,7 @@ public class ConsultaSituacaoNfe extends Servico {
         TConsSitNFe consSitNFe = new TConsSitNFe();
         consSitNFe.setChNFe(nfe.getNfeChaveAcesso());
         consSitNFe.setTpAmb(Integer.toString(NFeUtil.getAmbiente())); //producao
-        consSitNFe.setVersao("3.10");
+        consSitNFe.setVersao("4.00");
         consSitNFe.setXServ("CONSULTAR");
         String xml = null;
         try {

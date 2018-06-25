@@ -5,7 +5,7 @@
  */
 package br.com.jcomputacao.nfeIntegracao;
 
-import br.com.jcomputacao.nfe3.ws.recepcaoEvento.RecepcaoEventoStub;
+import br.com.jcomputacao.nfe4.ws.recepcaoEvento.NFeRecepcaoEvento4Stub;
 import java.rmi.RemoteException;
 import javax.xml.stream.XMLStreamException;
 import org.apache.axiom.om.OMElement;
@@ -19,18 +19,12 @@ import org.apache.axis2.AxisFault;
 public class ServicoEventoCancelaNfe {
 
     public String executar(String xml) throws AxisFault, XMLStreamException, RemoteException {
-        RecepcaoEventoStub stub = new RecepcaoEventoStub();
-        RecepcaoEventoStub.NfeCabecMsg7 cabecalho = new RecepcaoEventoStub.NfeCabecMsg7();
-        RecepcaoEventoStub.NfeCabecMsg cabec = new RecepcaoEventoStub.NfeCabecMsg();
-        cabec.setCUF("35");
-        cabec.setVersaoDados("1.00");
-        cabecalho.setNfeCabecMsg(cabec);
-
-        RecepcaoEventoStub.NfeDadosMsg mensagem = new RecepcaoEventoStub.NfeDadosMsg();
+        NFeRecepcaoEvento4Stub stub = new NFeRecepcaoEvento4Stub();        
         OMElement element = AXIOMUtil.stringToOM(xml);
-        mensagem.setExtraElement(element);
+        NFeRecepcaoEvento4Stub.NfeDadosMsg mensagem = new NFeRecepcaoEvento4Stub.NfeDadosMsg();        
+        mensagem.setExtraElement(element);        
 
-        RecepcaoEventoStub.NfeRecepcaoEventoResult resultado = stub.nfeRecepcaoEvento(mensagem, cabecalho);
+        NFeRecepcaoEvento4Stub.NfeResultMsg resultado = stub.nfeRecepcaoEvento(mensagem);
         element = resultado.getExtraElement();
         return element.toString();
     }

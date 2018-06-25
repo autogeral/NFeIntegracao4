@@ -39,7 +39,7 @@ import br.com.jcomputacao.exception.DbfDatabaseException;
 import br.com.jcomputacao.model.beans.LojaBean;
 import br.com.jcomputacao.nfe.NFeUtil;
 import br.com.jcomputacao.nfe.ws.WsConnectionConfig;
-import br.com.jcomputacao.nfe3.ws.statusServico.NfeStatusServico2Stub;
+import br.com.jcomputacao.nfe4.ws.statusServico.NFeStatusServico4Stub;
 import br.com.jcomputacao.nfeEmissor.Servico;
 import java.rmi.RemoteException;
 import java.util.logging.Level;
@@ -59,21 +59,15 @@ public class ServicoConsultaStatusServicoSefaz extends Servico {
         String cnpj = obtemCnpjEmitente(LojaBean.getLojaAtual());
         WsConnectionConfig.setProperties(cnpj);
 
-        NfeStatusServico2Stub stub = new NfeStatusServico2Stub();
-        NfeStatusServico2Stub.NfeDadosMsg dados = new NfeStatusServico2Stub.NfeDadosMsg();
+        NFeStatusServico4Stub stub = new NFeStatusServico4Stub();
+        NFeStatusServico4Stub.NfeDadosMsg dados = new NFeStatusServico4Stub.NfeDadosMsg();
 
-        String s = "<consStatServ xmlns=\"http://www.portalfiscal.inf.br/nfe\" versao=\"3.10\"><tpAmb>"
+        String s = "<consStatServ xmlns=\"http://www.portalfiscal.inf.br/nfe\" versao=\"4.00\"><tpAmb>"
                 + NFeUtil.getAmbiente() + "</tpAmb><cUF>35</cUF><xServ>STATUS</xServ></consStatServ>";
         OMElement el = AXIOMUtil.stringToOM(s);
         dados.setExtraElement(el);
-
-        NfeStatusServico2Stub.NfeCabecMsg cab = new NfeStatusServico2Stub.NfeCabecMsg();
-        cab.setVersaoDados("3.10");
-        cab.setCUF("35");
-        NfeStatusServico2Stub.NfeCabecMsg1 cabE = new NfeStatusServico2Stub.NfeCabecMsg1();
-        cabE.setNfeCabecMsg(cab);
-
-        NfeStatusServico2Stub.NfeStatusServicoNF2Result retorno = stub.nfeStatusServicoNF2(dados, cabE);
+        
+        NFeStatusServico4Stub.NfeResultMsg retorno = stub.nfeStatusServicoNF(dados);
         s = retorno.getExtraElement().toString().replace("><", ">\n<");
         Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.FINER, s);
         return s;
