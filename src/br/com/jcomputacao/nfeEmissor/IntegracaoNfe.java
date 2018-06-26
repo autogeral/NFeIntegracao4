@@ -1008,7 +1008,7 @@ public class IntegracaoNfe extends Servico {
                 detPag.setTPag(Ambiente.ajusta(Integer.toString(codigoNfePagamento), 2, Ambiente.ALINHAMENTO_DIREITA, '0'));  
                 detPag.setVPag(NumberUtil.decimalBanco(pagamento.getValorPagamento()));
                 //0= Pagamento à Vista 1= Pagamento à Prazo
-                detPag.setIndPag(codigoNfePagamento == 1 ? "0" : "1");
+                detPag.setIndPag(codigoNfePagamento == 1 || codigoNfePagamento == 4 ? "0" : "1");
                 if(codigoNfePagamento == 3 || codigoNfePagamento == 4) {
                     Card card = new Card();
                     //1 = Pagamento integrado com o sistema de automação da
