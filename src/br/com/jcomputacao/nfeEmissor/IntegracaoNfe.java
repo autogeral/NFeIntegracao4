@@ -563,16 +563,22 @@ public class IntegracaoNfe extends Servico {
 
         if (nfeModel.isCobrancaGerada()) {
             TNFe.InfNFe.Cobr cob = new TNFe.InfNFe.Cobr();
+            TNFe.InfNFe.Cobr.Fat fat = new TNFe.InfNFe.Cobr.Fat();
             List<BoletoModel> boletos = BoletoModel.getItens(" WHERE B.NF_NUMERO=" + nfeModel.getNota()
                     + " AND B.LOJA=" + nfeModel.getLoja()
                     + " AND B.NOTA_TIPO='NFE'");
+            double valorTotalLiquido = 0;
             for (BoletoModel bol : boletos) {
                 Dup dup = new Dup();
                 dup.setNDup(bol.getCodigo() + "." + bol.getLoja());
                 dup.setDVenc(bol.getVencimentoDbString());
                 dup.setVDup(NumberUtil.decimalBanco(bol.getValor()));
+                valorTotalLiquido += bol.getValor();
                 cob.getDup().add(dup);
             }
+            fat.setVLiq(NumberUtil.decimalBanco(valorTotalLiquido));            
+            fat.setVOrig(NumberUtil.decimalBanco(valorTotalLiquido));
+            cob.setFat(fat);
             inf.setCobr(cob);
         }
 
@@ -1114,7 +1120,8 @@ public class IntegracaoNfe extends Servico {
             prod.setCProd(produtoCodigo);
         }
         String ignorados[] = new String[]{",", ".", "$"};
-        prod.setCEAN(item.getCodigoBarras());
+        prod.setCEAN(item.getCodigoBarras() != null && !item.getCodigoBarras().isEmpty() ? item.getCodigoBarras() : "SEM GTIN");
+
 
         CestNcmModel ncm = buscarExistenciaCodigoCestParaItem(item);
         if (item.getCEST() != null) {
@@ -1145,8 +1152,8 @@ public class IntegracaoNfe extends Servico {
         }
         prod.setXProd(descricao);
 //        if(StringUtil.isNotNull(item.getCodigoBarras())) {
-        prod.setCEAN(StringUtil.somenteNumeros(item.getCodigoBarras()));
-        prod.setCEANTrib(StringUtil.somenteNumeros(item.getCodigoBarras()));
+        prod.setCEAN(item.getCodigoBarras() != null && !item.getCodigoBarras().isEmpty() ? StringUtil.somenteNumeros(item.getCodigoBarras()) : "SEM GTIN");
+        prod.setCEANTrib(item.getCodigoBarras() != null && !item.getCodigoBarras().isEmpty() ? StringUtil.somenteNumeros(item.getCodigoBarras()) : "SEM GTIN");        
 //        }
         prod.setIndTot(null);
         prod.setEXTIPI(null);
