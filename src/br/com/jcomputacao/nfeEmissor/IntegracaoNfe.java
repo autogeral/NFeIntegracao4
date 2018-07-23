@@ -112,6 +112,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.rmi.RemoteException;
 import java.text.MessageFormat;
+import java.text.NumberFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -568,16 +569,29 @@ public class IntegracaoNfe extends Servico {
                     + " AND B.LOJA=" + nfeModel.getLoja()
                     + " AND B.NOTA_TIPO='NFE'");
             double valorTotalLiquido = 0;
+            int i = 0;
+            String nFaturas = "";
             for (BoletoModel bol : boletos) {
                 Dup dup = new Dup();
-                dup.setNDup(bol.getCodigo() + "." + bol.getLoja());
+                NumberFormat nf = NumberFormat.getInstance();
+                nf.setMaximumIntegerDigits(3);
+                nf.setMinimumIntegerDigits(3);
+                dup.setNDup(nf.format(++i));
                 dup.setDVenc(bol.getVencimentoDbString());
                 dup.setVDup(NumberUtil.decimalBanco(bol.getValor()));
                 valorTotalLiquido += bol.getValor();
+                if(!nFaturas.isEmpty()) {
+                    nFaturas += ", ";
+                }
+                nFaturas += bol.getCodigo() + "." + bol.getLoja();
                 cob.getDup().add(dup);
             }
+            fat.setNFat(nFaturas);
             fat.setVLiq(NumberUtil.decimalBanco(valorTotalLiquido));            
             fat.setVOrig(NumberUtil.decimalBanco(valorTotalLiquido));
+            if (Boolean.parseBoolean(System.getProperty("nfe.informa.valor.desconto.duplicata", "false"))) {
+                fat.setVDesc("0.00");
+            }
             cob.setFat(fat);
             inf.setCobr(cob);
         }
