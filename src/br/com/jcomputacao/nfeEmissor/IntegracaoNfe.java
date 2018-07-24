@@ -1386,8 +1386,7 @@ public class IntegracaoNfe extends Servico {
             case 1661:
             case 1411: //1411 dados tributarios sao iguais a 5405            
             case 5409:
-            case 5656:
-            case 6656:
+            case 5656:            
             case 5659:
             case 6659:
             case 5661: {
@@ -1417,6 +1416,7 @@ public class IntegracaoNfe extends Servico {
             case 5925://RETORNO DE MERCADORIA PARA INDUSTRIALIZACAO, PARA O ADQUIRENTE POR NAO TER TRANSITADO A MESMA, NO ESTABELECIMENTO DO ADQUIRENTE
             case 5117://REMESSA DE VENDA PARA ENTREGA FUTURA         
             case 5551: // VENDA DE IMOBILIZADO
+            case 6656://Venda de combustível ou lubrificante adquirido ou recebido de terceiros destinado a consumidor ou usuário final
             case 6949: {
                 if ("60".equals(st)) {
                     atribuiIcms60(icms, item, origem, st);
