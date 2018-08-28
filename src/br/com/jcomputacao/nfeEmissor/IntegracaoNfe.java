@@ -1336,9 +1336,14 @@ public class IntegracaoNfe extends Servico {
             case 5919:
             case 5918://RETORNO DE CONSIGNACAO
             case 5410:
-            case 5552:
-                atribuiIcms00(icms, item, origem, st);
-                break;
+            case 5552: {
+                if ("90".equals(st)) {
+                    atribuiIcms90(icms, item, origem, st);
+                } else {
+                    atribuiIcms00(icms, item, origem, st);
+                }
+            }
+            break;
             case 1201:
             case 5652:
             case 6652:
