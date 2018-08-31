@@ -1116,7 +1116,7 @@ public class IntegracaoNfe extends Servico {
         det.setProd(produto(item, destinatario));        
         det.setImposto(imposto(item));
         if(!this.tributaIpi && nfe.getValorIpi() > 0) {//IPI DEVOLVIDO
-            det.setImpostoDevol(criaImpostoDevolvido(nfe, item));
+            det.setImpostoDevol(criaImpostoDevolvido(item));
         }
         if(this.informacaoAdicionalProduto != null && !this.informacaoAdicionalProduto.isEmpty()) {
             det.setInfAdProd(this.informacaoAdicionalProduto);
@@ -1259,20 +1259,13 @@ public class IntegracaoNfe extends Servico {
         return xml;
     }
     
-    private ImpostoDevol criaImpostoDevolvido(NfeModel nota, NfeItemModel item) {
+    private ImpostoDevol criaImpostoDevolvido(NfeItemModel item) {
         ImpostoDevol impDev = new ImpostoDevol();
-        double aliquotaIpi = 0;
-        for (NfeImpostoAdicionalModel i : nota.getImpostosAdicionais()) {
-            if (br.com.jcomputacao.model.Imposto.IPI.equals(i.getImposto())) {
-                aliquotaIpi = i.getPorcentagem();
-                break;
-            }
-        }            
         IPI ipi = new IPI();
-        double valorIpiDevolvido = (aliquotaIpi > 1 ? item.getValorTotal() * (aliquotaIpi / 100) : item.getValorTotal() * aliquotaIpi);
+        double valorIpiDevolvido = (item.getIpiAliquota() > 1 ? item.getValorTotal() * (item.getIpiAliquota() / 100) : item.getValorTotal() * item.getIpiAliquota());
         ipi.setVIPIDevol(NumberUtil.decimalBanco(valorIpiDevolvido));
         impDev.setIPI(ipi);
-        impDev.setPDevol(NumberUtil.decimalBanco((aliquotaIpi < 1 ? aliquotaIpi * 100 : aliquotaIpi)));
+        impDev.setPDevol(NumberUtil.decimalBanco((item.getIpiAliquota() < 1 ? item.getIpiAliquota() * 100 : item.getIpiAliquota())));
         return impDev;
     }
     
