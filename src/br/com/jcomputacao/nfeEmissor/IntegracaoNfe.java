@@ -589,9 +589,8 @@ public class IntegracaoNfe extends Servico {
             fat.setNFat(nFaturas);
             fat.setVLiq(NumberUtil.decimalBanco(valorTotalLiquido));            
             fat.setVOrig(NumberUtil.decimalBanco(valorTotalLiquido));
-            if (Boolean.parseBoolean(System.getProperty("nfe.informa.valor.desconto.duplicata", "false"))) {
-                fat.setVDesc("0.00");
-            }
+            fat.setVDesc("0.00");
+
             cob.setFat(fat);
             inf.setCobr(cob);
         }
