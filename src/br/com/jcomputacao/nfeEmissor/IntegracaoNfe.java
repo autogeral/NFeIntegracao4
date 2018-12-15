@@ -1312,6 +1312,7 @@ public class IntegracaoNfe extends Servico {
             case 5102:
             case 5202:
             case 1202: //devolucao do 5102
+            case 1102: //compra de sucata
             case 6101:
             case 6102:
             case 6202:
@@ -1799,6 +1800,7 @@ public class IntegracaoNfe extends Servico {
                 case 6201:
                 case 6102:
                 case 6202:
+                case 1102://Compra de sucata
                 case 1201:
                 case 1202:
                 case 2202:
@@ -2088,6 +2090,7 @@ public class IntegracaoNfe extends Servico {
                 case 6201:
                 case 6102:
                 case 6202:
+                case 1102://compra de sucata
                 case 1201:
                 case 1202:
                 case 2202:
