@@ -618,7 +618,9 @@ public class IntegracaoNfe extends Servico {
         }
 
         List<Det> detalhes = inf.getDet();
+        System.setProperty("nfe.descricao.simples", "false");
         preencheDetalhes(nfeModel, detalhes, destinatario);
+        System.setProperty("nfe.descricao.simples", "true");
 
         if (StringUtil.isNotNull(nfeModel.getNfeChaveAcesso())) {
             chave = nfeModel.getNfeChaveAcesso();
@@ -781,7 +783,7 @@ public class IntegracaoNfe extends Servico {
         icms.setVBC(NumberUtil.decimalBanco((!simples || (simples && destacaImpostoCorpoNotaParaSimplesNacional) ? nota.getIcmsBase() : 0)));
         icms.setVICMS(NumberUtil.decimalBanco((!simples || (simples && destacaImpostoCorpoNotaParaSimplesNacional) ? nota.getIcmsValor() : 0)));
         if (nota.getIcmsValor() > 0
-                || (nota.getOperacao().isComplementoIcms() && nota.getIcmsStBase() > 0)) {
+                || (nota.getOperacao().isComplementoImposto() && nota.getIcmsStBase() > 0)) {
             icms.setVBCST(NumberUtil.decimalBanco(nota.getIcmsStBase()));
             //até que realmente precise, Mirella do Office disse para deixar sempre 
             // com valor = 0.00 o ICMS Desoneração
