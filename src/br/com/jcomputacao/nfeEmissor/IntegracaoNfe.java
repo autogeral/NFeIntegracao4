@@ -618,7 +618,7 @@ public class IntegracaoNfe extends Servico {
         }
 
         List<Det> detalhes = inf.getDet();
-        System.setProperty("nfe.descricao.simples", "false");
+        System.setProperty("nfe.descricao.simples", nfeModel.getOperacao().isComplementoImposto() ? "false" : "true");
         preencheDetalhes(nfeModel, detalhes, destinatario);
         System.setProperty("nfe.descricao.simples", "true");
 
