@@ -9,6 +9,7 @@ import br.com.jcomputacao.model.CadastroEnderecoTipo;
 import br.com.jcomputacao.model.CadastroModel;
 import br.com.jcomputacao.model.CadastroTelefoneTipo;
 import br.com.jcomputacao.model.CestNcmModel;
+import br.com.jcomputacao.model.CompraItemDBFModel;
 import br.com.jcomputacao.model.EmpresaTributacao;
 import br.com.jcomputacao.model.Entidade;
 import br.com.jcomputacao.model.EntidadeEndereco;
@@ -113,9 +114,11 @@ import java.io.UnsupportedEncodingException;
 import java.rmi.RemoteException;
 import java.text.MessageFormat;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 import javax.swing.JOptionPane;
 import javax.xml.bind.JAXBException;
@@ -1263,7 +1266,7 @@ public class IntegracaoNfe extends Servico {
     private ImpostoDevol criaImpostoDevolvido(NfeItemModel item) {
         ImpostoDevol impDev = new ImpostoDevol();
         IPI ipi = new IPI();
-        double valorIpiDevolvido = (item.getIpiAliquota() > 1 ? item.getValorTotal() * (item.getIpiAliquota() / 100) : item.getValorTotal() * item.getIpiAliquota());
+        double valorIpiDevolvido = (item.getIpiAliquota() > 1 ? item.getIpiBase() * (item.getIpiAliquota() / 100) : item.getIpiBase() * item.getIpiAliquota());
         ipi.setVIPIDevol(NumberUtil.decimalBanco(valorIpiDevolvido));
         impDev.setIPI(ipi);
         impDev.setPDevol(NumberUtil.decimalBanco((item.getIpiAliquota() < 1 ? item.getIpiAliquota() * 100 : item.getIpiAliquota())));
@@ -1288,7 +1291,7 @@ public class IntegracaoNfe extends Servico {
         return imp;
     }
 
-    private ICMS icms(NfeItemModel item) {
+    private ICMS icms(NfeItemModel item) throws DbfDatabaseException {
         if (simples) {
             return icmsSimples(item);
         } else {
@@ -1296,7 +1299,7 @@ public class IntegracaoNfe extends Servico {
         }
     }
 
-    private ICMS icmsNormal(NfeItemModel item) {
+    private ICMS icmsNormal(NfeItemModel item) throws DbfDatabaseException {
         ICMS icms = new ICMS();
         String origem = Integer.toString(item.getOrigem().ordinal());
         String st = Integer.toString(item.getSituacaoTributaria() % 100);
@@ -2518,11 +2521,24 @@ public class IntegracaoNfe extends Servico {
         return retorno;
     }
 
-    private void atribuiIcms60(ICMS icms, NfeItemModel item, String origem, String st) {
+    private void atribuiIcms60(ICMS icms, NfeItemModel item, String origem, String st) throws DbfDatabaseException {
+        ProdutoDBFModel produto = new ProdutoDBFModel();
+        List<CompraItemDBFModel> ultimasCompras = produto.getUltimasComprasParaICMS60(item.getProdutoCodigo());
+        CompraItemDBFModel itemFiltrado=null;
+        
+        for(CompraItemDBFModel i: ultimasCompras){
+            if(i.getIcmsStValor() > 0){
+                itemFiltrado = i;
+                break;
+            }
+        }
+              
         ICMS60 tributacaoIcms60 = new ICMS60();
         tributacaoIcms60.setCST(st);
         tributacaoIcms60.setOrig(origem);
-        tributacaoIcms60.setVBCSTRet(NumberUtil.decimalBanco(item.getBaseIcmsStValor()));
+        tributacaoIcms60.setVBCSTRet(NumberUtil.decimalBanco(itemFiltrado != null
+                ? itemFiltrado.getIcmsStBase() / itemFiltrado.getQuantidadeTributada() * item.getQuantidade()
+                : item.getValorBase()));
         if(item.getIcmsIndicePobrezaAliquota() > 0 && item.getIcmsStAliquota() > 0) {
             double aliquotaPST = item.getIcmsStAliquota() * 100;
             aliquotaPST += (item.getIcmsIndicePobrezaAliquota() > 1 ? item.getIcmsIndicePobrezaAliquota() : item.getIcmsIndicePobrezaAliquota() * 100);
@@ -2532,9 +2548,15 @@ public class IntegracaoNfe extends Servico {
             this.valorFCPSTRetido = true;
             tributacaoIcms60.setVFCPSTRet(NumberUtil.decimalBanco(item.getValorIcmsSTIndicePobrezaOperacaoInternaInterestadualST()));
         } else {
-            tributacaoIcms60.setPST(NumberUtil.decimalBanco(item.getIcmsStAliquota() * 100));
+            tributacaoIcms60.setPST(NumberUtil.decimalBanco(itemFiltrado!=null?
+                    itemFiltrado.getIcmsStAliquota():
+                    0.18
+                    ));
         }        
-        tributacaoIcms60.setVICMSSTRet(NumberUtil.decimalBanco(item.getValorIcmsSt()));
+        tributacaoIcms60.setVICMSSTRet(NumberUtil.decimalBanco(itemFiltrado!=null? 
+                itemFiltrado.getIcmsStValor()/itemFiltrado.getQuantidadeTributada()*item.getQuantidade(): 
+                item.getValorBase()*0.18));
+        tributacaoIcms60.setVICMSSubstituto(NumberUtil.decimalBanco(item.getValorTotal()*0.18));
         icms.setICMS60(tributacaoIcms60);
     }
 
