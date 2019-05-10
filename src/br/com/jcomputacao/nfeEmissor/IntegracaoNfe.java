@@ -2537,7 +2537,7 @@ public class IntegracaoNfe extends Servico {
         tributacaoIcms60.setCST(st);
         tributacaoIcms60.setOrig(origem);
         tributacaoIcms60.setVBCSTRet(NumberUtil.decimalBanco(itemFiltrado != null
-                ? itemFiltrado.getIcmsStBase() / itemFiltrado.getQuantidadeTributada() * item.getQuantidade()
+                ? itemFiltrado.getIcmsStBase() / itemFiltrado.getQuantidadeEstoque() * item.getQuantidade()
                 : item.getValorBase()));
         if(item.getIcmsIndicePobrezaAliquota() > 0 && item.getIcmsStAliquota() > 0) {
             double aliquotaPST = item.getIcmsStAliquota() * 100;
@@ -2554,7 +2554,7 @@ public class IntegracaoNfe extends Servico {
                     ));
         }        
         tributacaoIcms60.setVICMSSTRet(NumberUtil.decimalBanco(itemFiltrado!=null? 
-                itemFiltrado.getIcmsStValor()/itemFiltrado.getQuantidadeTributada()*item.getQuantidade(): 
+                itemFiltrado.getIcmsStValor()/itemFiltrado.getQuantidadeEstoque()*item.getQuantidade(): 
                 item.getValorBase()*0.18));
         tributacaoIcms60.setVICMSSubstituto(NumberUtil.decimalBanco(item.getValorTotal()*0.18));
         icms.setICMS60(tributacaoIcms60);
