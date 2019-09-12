@@ -637,7 +637,16 @@ public class IntegracaoNfe extends Servico {
             String xml = baos.toString();
             xml = xml.replaceAll("xmlns:ns2=\".+#\"\\s", "").replaceAll("ns2:", "");
             String cnf = ChaveAcesso.gerarCodigoNumerico(xml);
-            ide.setCNF(cnf);
+            try {                
+                //Evitando salvar a chave de acesso quando o codigo numerico da mesma
+                //nao é gerado.
+                if (Long.parseLong(cnf) == 0L) {
+                    ide = null;
+                }
+                ide.setCNF(cnf);
+            } catch (NullPointerException ex) {
+                throw new DbfException("Erro ao tentar gerar a chave de acesso ", ex, false);
+            }
 
             String anoEmissao = ide.getDhEmi().substring(0, 4);
             String mesEmissao = ide.getDhEmi().substring(5, 7);
@@ -1463,6 +1472,11 @@ public class IntegracaoNfe extends Servico {
                     tributacaoIcms5_4.setCST(st);
                     tributacaoIcms5_4.setOrig(origem);
                     icms.setICMS40(tributacaoIcms5_4);
+                } else if ("90".equals(st)) {
+                    ICMS90 tributacaoIcms90 = new ICMS90();
+                    tributacaoIcms90.setCST(st);
+                    tributacaoIcms90.setOrig(origem);
+                    icms.setICMS90(tributacaoIcms90);
                 }
                 break;
             case 5601:
