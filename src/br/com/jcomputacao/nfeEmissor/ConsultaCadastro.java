@@ -9,6 +9,8 @@ package br.com.jcomputacao.nfeEmissor;
 import br.com.jcomputacao.nfe.ws.WsConnectionConfig;
 import br.com.jcomputacao.nfe4.ws.consultaCadastro.CadConsultaCadastro4Stub;
 import java.rmi.RemoteException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.xml.stream.XMLStreamException;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.impl.llom.util.AXIOMUtil;
@@ -32,7 +34,7 @@ public class ConsultaCadastro {
      * @throws DbfException
      */
     
-    public String consultar(String xml, String cnpj) throws AxisFault, XMLStreamException, RemoteException {
+    public String consultar(String xml, String cnpj) throws AxisFault, XMLStreamException, RemoteException {        
         WsConnectionConfig.setProperties(cnpj);
         CadConsultaCadastro4Stub stub = new CadConsultaCadastro4Stub();
 //        CadConsultaCadastro2Stub.NfeCabecMsgConsultaCadastro2 cadastro = new CadConsultaCadastro2Stub.ConsultaCadastro2();
@@ -43,6 +45,9 @@ public class ConsultaCadastro {
 //        System.out.println(cadastro.getNfeDadosMsg().getExtraElement().toString());
 //        ConsultaCadastro2Result resultado = stub.consultaCadastro2(cadastro, cabecalho);
 //        element = resultado.getExtraElement();
-        return element.toString();
-    }
+        CadConsultaCadastro4Stub.NfeResultMsg resultado = stub.consultaCadastro(param);
+        String s = resultado.getExtraElement().toString();
+        Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.FINER, s);
+        return s;
+    }    
 }
