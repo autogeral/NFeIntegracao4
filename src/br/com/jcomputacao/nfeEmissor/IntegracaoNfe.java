@@ -1331,6 +1331,7 @@ public class IntegracaoNfe extends Servico {
             case 6102:
             case 6202:
             case 6201:
+            case 2102:
             case 2202:
             case 6107:
             case 6108:
@@ -1383,8 +1384,7 @@ public class IntegracaoNfe extends Servico {
             case 5901:
             case 5902:
             case 6551:
-            case 1916://RETORNO DE REMESSA PARA CONCERTO     
-            case 2102:
+            case 1916://RETORNO DE REMESSA PARA CONCERTO            
             case 5501:
                 boolean icms40 = Boolean.parseBoolean(System.getProperty("nfe.integracao.cfop5901.icms40", "true"));
                 if (icms40) {
