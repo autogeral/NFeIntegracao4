@@ -1407,7 +1407,11 @@ public class IntegracaoNfe extends Servico {
             case 5659:
             case 6659:
             case 5661: {
-                atribuiIcms60(icms, item, origem, st);
+                if (item.getSituacaoTributaria() == 10) {
+                    atribuiIcms10(icms, item, origem, st);
+                } else {
+                    atribuiIcms60(icms, item, origem, st);
+                }
             }
             break;
             case 2411: //operacao interestadual
@@ -1851,6 +1855,7 @@ public class IntegracaoNfe extends Servico {
                 case 5111:
                 case 6556:
                 case 2102:
+                case 5661:
                 case 5922://VENDA DE REMESSA FUTURA
                     pisAliquota.setCST("01"); /// ALTERADO DE PISNT PARA PISALIQUOTA pois o código 01 refe-se ao CST do Pis Aliquota.
                     if (item.isDestacaDescontoNoCorpoDoDocumentoFiscal()) {
@@ -2141,6 +2146,7 @@ public class IntegracaoNfe extends Servico {
                 case 5111:
                 case 6556:
                 case 2102:
+                case 5661:
                 case 5922://VENDA DE REMESSA FUTURA
                     aliquota.setCST("01");
                     if (item.isDestacaDescontoNoCorpoDoDocumentoFiscal()) {
