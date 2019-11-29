@@ -27,6 +27,7 @@ import br.com.jcomputacao.model.NfePagamentoModel;
 import br.com.jcomputacao.model.NfePagamentoParcelaModel;
 import br.com.jcomputacao.model.NfeReferenciaModel;
 import br.com.jcomputacao.model.ProdutoDBFModel;
+import br.com.jcomputacao.model.ProdutoOrigem;
 import br.com.jcomputacao.model.beans.LojaBean;
 import br.com.jcomputacao.model.beans.ModoPagamentoBean;
 import br.com.jcomputacao.model.beans.MovimentoOperacaoBean;
@@ -1241,6 +1242,33 @@ public class IntegracaoNfe extends Servico {
                     prod.setComb(comb);
                 }
             }
+        }
+        
+        //Devemos replicar a informação do FCI das origens 3-5-8  das nossas 
+        //compras para as nossas vendas
+        if (item.getOrigem().equals(ProdutoOrigem.NACIONAL_CONTEUDO_IMPORTADO_MAIOR_40)
+                || item.getOrigem().equals(ProdutoOrigem.NACIONAL_CONTEUDO_IMPORTADO_MAIOR_70)
+                || item.getOrigem().equals(ProdutoOrigem.NACIONAL_CONTEUDO_IMPORTADO_MENOR_40)) {
+            ProdutoDBFModel produto = new ProdutoDBFModel();
+            List<CompraItemDBFModel> ultimasCompras = produto.getUltimasComprasDoItem(item.getProdutoCodigo(), 1);
+            CompraItemDBFModel itemFiltrado = null;
+            if (ultimasCompras != null && !ultimasCompras.isEmpty()) {
+                for (CompraItemDBFModel i : ultimasCompras) {
+                    if (i.getXmlUltimaCompraItem() != null
+                            && !i.getXmlUltimaCompraItem().isEmpty()) {
+                        itemFiltrado = i;
+                        break;
+                    }
+                }
+                String xml = itemFiltrado.getXmlUltimaCompraItem();
+                String xmlProduto = xml.substring(xml.indexOf("<cProd>"+itemFiltrado.getCodigoProdutoFornecedor()+"</cProd>"));
+                xmlProduto = xmlProduto.substring(0, xmlProduto.indexOf("</prod>"));
+                List<String> tagConteudo = XmlUtil.getTagConteudo(xmlProduto, "nFCI", false);
+                if(tagConteudo != null && !tagConteudo.isEmpty()) {                    
+                    prod.setNFCI(tagConteudo.get(0));
+                }
+            }
+            
         }
         
         return prod;
@@ -2548,7 +2576,7 @@ public class IntegracaoNfe extends Servico {
 
     private void atribuiIcms60(ICMS icms, NfeItemModel item, String origem, String st) throws DbfDatabaseException {
         ProdutoDBFModel produto = new ProdutoDBFModel();
-        List<CompraItemDBFModel> ultimasCompras = produto.getUltimasComprasParaICMS60(item.getProdutoCodigo());
+        List<CompraItemDBFModel> ultimasCompras = produto.getUltimasComprasDoItem(item.getProdutoCodigo(), 0);
         CompraItemDBFModel itemFiltrado=null;
         
         for(CompraItemDBFModel i: ultimasCompras){
