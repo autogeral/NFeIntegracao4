@@ -151,7 +151,8 @@ public class InutilizaNfe extends Servico {
                     nfe.setStatus(NFeStatus.INUTILIZADA);
                     nfe.setProtocoloStatus(rin.getInfInut().getCStat());
                     xml = xml.replaceAll("xmlns:ns2=\".+#\"\\s", "").replaceAll("ns2:", "");
-                    nfe.setNfeXmlCancelamento(xml);
+                    retorno = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" + retorno.replaceAll("ã", "a").replaceAll("ç", "c").replaceAll("ú", "u");
+                    nfe.setNfeXmlCancelamento(retorno);
                     nfe.setNfeXml(null);
                 } else {
                     throw new DbfException("Erro ao tentar inutilizar a NFe " + status + " " + rinf.getXMotivo());
