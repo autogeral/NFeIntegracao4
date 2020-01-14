@@ -1471,6 +1471,8 @@ public class IntegracaoNfe extends Servico {
                     atribuiIcms60(icms, item, origem, st);
                 } else if ("10".equals(st)) {
                     atribuiIcms10(icms, item, origem, st);
+                } else if ("20".equals(st)) {
+                    atribuiIcms20(icms, item, origem, st);
                 } else if ("40".equals(st)) {
                     atribuiIcms40(icms, origem, st);
                 } else if ("41".equals(st)) {
@@ -1492,6 +1494,8 @@ public class IntegracaoNfe extends Servico {
                     atribuiIcms60(icms, item, origem, st);
                 } else if ("40".equals(st) || "41".equals(st)) {
                     atribuiIcms40(icms, origem, st);
+                } else if("20".equals(st)) {
+                    atribuiIcms20(icms, item, origem, st);
                 }
             }
             break;
@@ -1788,7 +1792,7 @@ public class IntegracaoNfe extends Servico {
                 case 5413:
                 case 6411:
                 case 1949:
-                case 2949:
+                case 2949:                
                 case 5949:
                 case 6949:
                 case 5901:
@@ -1807,7 +1811,7 @@ public class IntegracaoNfe extends Servico {
                 case 5152:
                 case 5409:
                 case 5659:
-                case 6659:
+                case 6659:                
                 case 5557://TRANSFERENCIA MATERIAL DE USO/CONSUMO    
                 case 6501://REMESSA DE PRODUCAO DO ESTABELECIMENTO COM FIM ESPECIFICO DE EXPORTACAO
                 case 5552://TRANSFERENCIA DE BEM OU ATIVO IMOBILIZADO
@@ -1941,7 +1945,7 @@ public class IntegracaoNfe extends Servico {
                 case 5152:
                 case 5409:
                 case 5659:
-                case 6659:
+                case 6659:                
                 case 5557:
                 case 5552:
                     pisnt.setCST("08");
@@ -2080,7 +2084,7 @@ public class IntegracaoNfe extends Servico {
                 case 2949:
                 case 5410:
                 case 5411:
-                case 5413:
+                case 5413:                
                 case 5949:
                 case 6411:
                 case 6949:
@@ -2100,7 +2104,7 @@ public class IntegracaoNfe extends Servico {
                 case 5152:
                 case 5409:
                 case 5659:
-                case 6659:
+                case 6659:                
                 case 5557://TRANSFERENCIA MATERIAL DE USO/CONSUMO    
                 case 6501://REMESSA DE PRODUCAO DO ESTABELECIMENTO COM FIM ESPECIFICO DE EXPORTACAO                    
                 case 5552://TRANSFERENCIA DE BEM DO ATIVO IMOBILIZADO
@@ -2729,6 +2733,13 @@ public class IntegracaoNfe extends Servico {
         tributaICMS20.setVICMS(NumberUtil.decimalBanco(item.getIcmsValor()));
         if(item.getValorIcmsStPorcentagemReducaoPorcentagem() > 0) {
             tributaICMS20.setPRedBC(NumberUtil.decimalBanco(item.getValorIcmsStPorcentagemReducao()));
+        } else if(item.getBaseIcms() != 1 && (item.getBaseIcms() * 100) != 1) {
+            double baseIcms = item.getBaseIcms();
+            if(baseIcms < 1) {
+                baseIcms *= 100;
+            }
+            double reducao = 100 - baseIcms;
+            tributaICMS20.setPRedBC(NumberUtil.decimalBanco(reducao));
         } else {
             tributaICMS20.setPRedBC("0.00");
         }
