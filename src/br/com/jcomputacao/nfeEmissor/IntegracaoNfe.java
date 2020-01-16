@@ -148,6 +148,11 @@ public class IntegracaoNfe extends Servico {
     private boolean valorFCPSTRetido;
     private String informacaoAdicionalProduto = "";
     private final boolean nfeTributaDifal = Boolean.parseBoolean(System.getProperty("nfe.tributa.difal", "false"));    
+    /*
+        Contabilidade disse que temos que informar na OBS, que foi uma venda balcão
+        quando o cliente é de fora do estado mas fazemos venda com CFOP interno.
+    */
+    private boolean obsEntregaBalcaoClienteForaEstado = false;
 
     public Date getNotBefore() {
         return notBefore;
@@ -543,6 +548,11 @@ public class IntegracaoNfe extends Servico {
         inf.setEmit(emitente);
         Dest destinatario = criaDestinatario(nfeModel);
         inf.setDest(destinatario);
+        
+        if(!"SP".equals(destinatario.getEnderDest().getUF().toString())
+                && !nfeModel.getOperacao().getInterestadual()) {            
+            this.obsEntregaBalcaoClienteForaEstado = true;
+        }
         Pag pgto = criaPagamento(nfeModel);
         inf.setPag(pgto);
         if (nfeModel.getEntrega()) {
@@ -2419,6 +2429,9 @@ public class IntegracaoNfe extends Servico {
             if(nfeModel.getEntrega()) {
                 info += " ENTREGA: " + nfeModel.getEnderecoEntregaVenda();
             }
+        }
+        if(this.obsEntregaBalcaoClienteForaEstado) {
+            info += " VENDA BALCAO";     
         }
         infAdicionais.setInfCpl(StringUtil.noSpecialKeys(info, new String[]{".", ",", "$", "%"}));
         inf.setInfAdic(infAdicionais);
