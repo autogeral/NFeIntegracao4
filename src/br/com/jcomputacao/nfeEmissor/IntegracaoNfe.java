@@ -1439,6 +1439,7 @@ public class IntegracaoNfe extends Servico {
                 break;
             case 5405:            
             case 1661:
+            case 1662:
             case 1411: //1411 dados tributarios sao iguais a 5405            
             case 5409:
             case 5656:            
@@ -1779,7 +1780,8 @@ public class IntegracaoNfe extends Servico {
                 case 6652:
                 case 6653:
                 case 5656:
-                case 1661: // devolucacao de 5656
+                case 1661: // devolucacao de 5661
+                case 1662: // devolucacao de 5656
                 case 6656:
                 case 6403:
                 case 6404:
@@ -1882,7 +1884,8 @@ public class IntegracaoNfe extends Servico {
                 case 5411:
                 case 5413:
                 case 5656:
-                case 1661: // devolucacao de 5656
+                case 1661: // devolucacao de 5661
+                case 1662: // devolucacao de 5656
                 case 6656:
                 case 5929:
                 case 6929:
@@ -2070,7 +2073,8 @@ public class IntegracaoNfe extends Servico {
                 case 6652:
                 case 6653:
                 case 5656:
-                case 1661: // devolucacao de 5656
+                case 1661: // devolucacao de 5661
+                case 1662: // devolucacao de 5656                    
                 case 6656:
                 case 5929:
                 case 6929:
@@ -2173,7 +2177,8 @@ public class IntegracaoNfe extends Servico {
                 case 5411:
                 case 5413:
                 case 5656:
-                case 1661: // devolucacao de 5656
+                case 1661: // devolucacao de 5661
+                case 1662: // devolucacao de 5656                    
                 case 6656:
                 case 5929:
                 case 6929:
