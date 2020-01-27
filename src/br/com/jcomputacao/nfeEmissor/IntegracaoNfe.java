@@ -1383,9 +1383,9 @@ public class IntegracaoNfe extends Servico {
             case 5918://RETORNO DE CONSIGNACAO
             case 5410:
             case 5552: {
-                if ("90".equals(st)) {
-                    atribuiIcms90(icms, item, origem, st);
-                } else if("51".equals(st)) {
+                if ("41".equals(st)) {
+                    atribuiIcms40(icms, origem, st);
+                }  else if("51".equals(st)) {
                     ICMS51 tributacaoIcms51 = new ICMS51();
                     tributacaoIcms51.setCST(st);
                     tributacaoIcms51.setOrig(origem);
