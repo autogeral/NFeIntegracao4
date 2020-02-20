@@ -1405,8 +1405,7 @@ public class IntegracaoNfe extends Servico {
                 atribuiIcms10(icms, item, origem, st);
                 break;
             case 5908:
-            case 6915:
-            case 5915:
+            case 6915:            
             case 1101:
             case 1551://COMPRA DE ATIVO
             case 6916://RETORNO DE MERCADORIA OU BEM RECEBIDO PARA CONSERTO OU REPARO
@@ -1477,6 +1476,7 @@ public class IntegracaoNfe extends Servico {
             case 5117://REMESSA DE VENDA PARA ENTREGA FUTURA         
             case 5551: // VENDA DE IMOBILIZADO
             case 6656://Venda de combustível ou lubrificante adquirido ou recebido de terceiros destinado a consumidor ou usuário final
+            case 5915:
             case 6949: {
                 if ("60".equals(st)) {
                     atribuiIcms60(icms, item, origem, st);
@@ -1899,7 +1899,7 @@ public class IntegracaoNfe extends Servico {
                 case 2411:
                 case 5111:
                 case 6556:
-                case 2102:
+                case 2102:                
                 case 5661:
                 case 5922://VENDA DE REMESSA FUTURA
                     pisAliquota.setCST("01"); /// ALTERADO DE PISNT PARA PISALIQUOTA pois o cÃ³digo 01 refe-se ao CST do Pis Aliquota.
@@ -1940,7 +1940,7 @@ public class IntegracaoNfe extends Servico {
                     pisAliquota.setPPIS(NumberUtil.decimalBanco(aliquotaPis));
                     pisAliquota.setVPIS(NumberUtil.decimalBanco(valorPis));
                     pis.setPISAliq(pisAliquota);
-                    break;
+                    break;                
                 case 5602:
                 case 5605:
                 case 1949:
@@ -1948,7 +1948,6 @@ public class IntegracaoNfe extends Servico {
                 case 6949:
                 case 6915:
                 case 6916:
-                case 5915:
                 case 5901:
                 case 5902:
                 case 5919:
@@ -1961,6 +1960,7 @@ public class IntegracaoNfe extends Servico {
                 case 6659:                
                 case 5557:
                 case 5552:
+                case 5915:
                     pisnt.setCST("08");
                     pis.setPISNT(pisnt);
                     break;
@@ -2243,8 +2243,7 @@ public class IntegracaoNfe extends Servico {
                 case 5901:
                 case 5902:
                 case 6915:
-                case 6916:
-                case 5915:
+                case 6916:                
                 case 5919:
                     cofinsnt.setCST("07");
                     cofins.setCOFINSNT(cofinsnt);
@@ -2254,6 +2253,7 @@ public class IntegracaoNfe extends Servico {
                 case 5659:
                 case 6659:
                 case 5557:
+                case 5915:
                 case 5552:
                     cofinsnt.setCST("08");
                     cofins.setCOFINSNT(cofinsnt);
