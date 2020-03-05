@@ -1804,8 +1804,7 @@ public class IntegracaoNfe extends Servico {
                 case 5413:
                 case 6411:
                 case 1949:
-                case 2949:                
-                case 5949:
+                case 2949:                                
                 case 6949:
                 case 5901:
                 case 5902:
@@ -1828,6 +1827,10 @@ public class IntegracaoNfe extends Servico {
                 case 6501://REMESSA DE PRODUCAO DO ESTABELECIMENTO COM FIM ESPECIFICO DE EXPORTACAO
                 case 5552://TRANSFERENCIA DE BEM OU ATIVO IMOBILIZADO
                     pisnt.setCST("08");
+                    pis.setPISNT(pisnt);
+                    break;
+                case 5949:
+                    pisnt.setCST("49");
                     pis.setPISNT(pisnt);
                     break;
                 case 6551:
@@ -2098,8 +2101,7 @@ public class IntegracaoNfe extends Servico {
                 case 2949:
                 case 5410:
                 case 5411:
-                case 5413:                
-                case 5949:
+                case 5413:                                
                 case 6411:
                 case 6949:
                 case 6915:
@@ -2123,6 +2125,10 @@ public class IntegracaoNfe extends Servico {
                 case 6501://REMESSA DE PRODUCAO DO ESTABELECIMENTO COM FIM ESPECIFICO DE EXPORTACAO                    
                 case 5552://TRANSFERENCIA DE BEM DO ATIVO IMOBILIZADO
                     cofinsnt.setCST("08");
+                    cofins.setCOFINSNT(cofinsnt);
+                    break;
+                case 5949:
+                    cofinsnt.setCST("49");
                     cofins.setCOFINSNT(cofinsnt);
                     break;
                 case 5601:
