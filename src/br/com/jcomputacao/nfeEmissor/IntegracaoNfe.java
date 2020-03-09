@@ -1324,7 +1324,7 @@ public class IntegracaoNfe extends Servico {
         Imposto imp = new Imposto();
 
         imp.getContent().add(new ObjectFactory().createTNFeInfNFeDetImpostoICMS(icms(item)));        
-        if (!simples) {
+        if (this.tributaIpi && !simples) {
             imp.getContent().add(new ObjectFactory().createTNFeInfNFeDetImpostoIPI(ipi(item)));
         }
         imp.getContent().add(new ObjectFactory().createTNFeInfNFeDetImpostoPIS(pis(item)));
@@ -2362,7 +2362,7 @@ public class IntegracaoNfe extends Servico {
             } else {
                 IPINT ipint = new IPINT();
                 ipi.setIPINT(ipint);
-                ipint.setCST("99");
+                ipint.setCST("53");
             }
         }
         if(this.tributaIpi && item.getIpiSt() == 55) {
