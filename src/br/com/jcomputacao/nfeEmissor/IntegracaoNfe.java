@@ -1815,6 +1815,7 @@ public class IntegracaoNfe extends Servico {
                 case 1916://RETORNO DE REMESSA PARA CONCERTO
                 case 2102:
                 case 5501:
+                case 5949:
                 case 6109://VENDA INTERESTADUAL ZONA FRANCA
                     pisnt.setCST("07");
                     pis.setPISNT(pisnt);
@@ -1828,11 +1829,7 @@ public class IntegracaoNfe extends Servico {
                 case 5552://TRANSFERENCIA DE BEM OU ATIVO IMOBILIZADO
                     pisnt.setCST("08");
                     pis.setPISNT(pisnt);
-                    break;
-                case 5949:
-                    pisnt.setCST("49");
-                    pis.setPISNT(pisnt);
-                    break;
+                    break;                
                 case 6551:
                 case 5908:
                 case 5551: //VENDA DE IMOBILIZADO
@@ -2113,6 +2110,7 @@ public class IntegracaoNfe extends Servico {
                 case 1916: //RETORNO DE REMESSA PARA CONCERTO
                 case 2102:
                 case 5501:
+                case 5949:
                 case 6109://VENDA INTERESTADUAL ZONA FRANCA
                     cofinsnt.setCST("07");
                     cofins.setCOFINSNT(cofinsnt);
@@ -2126,11 +2124,7 @@ public class IntegracaoNfe extends Servico {
                 case 5552://TRANSFERENCIA DE BEM DO ATIVO IMOBILIZADO
                     cofinsnt.setCST("08");
                     cofins.setCOFINSNT(cofinsnt);
-                    break;
-                case 5949:
-                    cofinsnt.setCST("49");
-                    cofins.setCOFINSNT(cofinsnt);
-                    break;
+                    break;                
                 case 5601:
                 case 5603:
                 case 5604:
