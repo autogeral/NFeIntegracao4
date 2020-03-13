@@ -1445,10 +1445,16 @@ public class IntegracaoNfe extends Servico {
             case 5659:
             case 6659:
             case 5661: {
-                if (item.getSituacaoTributaria() == 10) {
-                    atribuiIcms10(icms, item, origem, st);
-                } else {
-                    atribuiIcms60(icms, item, origem, st);
+                switch (item.getSituacaoTributaria()) {
+                    case 10:
+                        atribuiIcms10(icms, item, origem, st);
+                        break;
+                    case 60:
+                        atribuiIcms60(icms, item, origem, st);
+                        break;
+                    default:
+                        atribuiIcms00(icms, item, origem, st);
+                        break;
                 }
             }
             break;
