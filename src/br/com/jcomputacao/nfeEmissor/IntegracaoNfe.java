@@ -1,5 +1,8 @@
 package br.com.jcomputacao.nfeEmissor;
 
+import br.com.autogeral.emissorfiscal.cliente.EmissorFiscalClienteDocumentoFiscal;
+import br.com.autogeral.emissorfiscal.cliente.EmissorFiscalClienteFactory;
+import br.com.autogeral.emissorfiscal.dto.DocumentoFiscalDTO;
 import br.com.jcomputacao.exception.DbfDatabaseException;
 import br.com.jcomputacao.exception.DbfException;
 import br.com.jcomputacao.model.AnpModel;
@@ -115,11 +118,10 @@ import java.io.UnsupportedEncodingException;
 import java.rmi.RemoteException;
 import java.text.MessageFormat;
 import java.text.NumberFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.function.Predicate;
+import java.util.Optional;
 import java.util.logging.Level;
 import javax.swing.JOptionPane;
 import javax.xml.bind.JAXBException;
@@ -147,7 +149,12 @@ public class IntegracaoNfe extends Servico {
     private Date notAfter;
     private boolean valorFCPSTRetido;
     private String informacaoAdicionalProduto = "";
-    private final boolean nfeTributaDifal = Boolean.parseBoolean(System.getProperty("nfe.tributa.difal", "false"));    
+    private final boolean nfeTributaDifal = Boolean.parseBoolean(System.getProperty("nfe.tributa.difal", "false"));
+    private final EmissorFiscalClienteDocumentoFiscal efClienteDocFiscal = (EmissorFiscalClienteDocumentoFiscal) EmissorFiscalClienteFactory.getCliente(NfeModel.class);
+//    private final boolean isUsingEmissorFiscal = Boolean.parseBoolean(System.getProperty("emissor-fiscal.ativo","true"));
+    // Deverá ser usada da forma que está abaixo
+    private final boolean isUsingEmissorFiscal = Boolean.parseBoolean(System.getProperty("emissor-fiscal.ativo","false"));
+
     /*
         Contabilidade disse que temos que informar na OBS, que foi uma venda balcão
         quando o cliente é de fora do estado mas fazemos venda com CFOP interno.
@@ -268,7 +275,7 @@ public class IntegracaoNfe extends Servico {
         return status;
     }
 
-    public int enviar(NfeModel nfe) throws DbfException {
+    public int enviar(NfeModel nfe) throws DbfException, IOException {
         NfeLote lote;
         cnpj = obtemCnpjEmitente(nfe);
         WsConnectionConfig.setProperties(cnpj);
@@ -305,7 +312,7 @@ public class IntegracaoNfe extends Servico {
         return status;
     }
 
-    private NfeLote enviarLote(NfeModel nfe) throws DbfException {
+    private NfeLote enviarLote(NfeModel nfe) throws DbfException, IOException {
         String xml = converterEAssinar(nfe);
         validar(xml);
 
@@ -493,8 +500,24 @@ public class IntegracaoNfe extends Servico {
         return rcr;
     }
 
-    public String converterEAssinar(NfeModel nfe) throws DbfException {
-        return assinar(converter(nfe));
+    public String converterEAssinar(NfeModel nfe) throws DbfException, IOException {
+        String xml;
+        if (isUsingEmissorFiscal) {
+            // Pesquisar (PREENCHIMENTO DO documento) no emissor fiscal 
+            // Criar uma classe de teste para enviar a nota
+            // Criar um DTO para converter o NFEModel para JSON (e ai sim enviar para o emissor-fiscal)
+                // Para o ITEM tbm, nome do pacote --> "br.com.jcomputacao.fiscal"
+            DocumentoFiscalDTO docFiscalDto = new DocumentoFiscalDTO(nfe);
+            Optional<DocumentoFiscalDTO> opDocFiscalDto = efClienteDocFiscal.buscaCalculoFederal(docFiscalDto);
+            if (opDocFiscalDto.isPresent()) {
+                // O Ideal é setar SOMENTE os VALORES referentes ao IMPOSTO FEDERAL (ao menos nesse momento de "implantação do PIS/COFINS")
+                nfe = docFiscalDto.converteParaNfeModel(nfe, opDocFiscalDto.get());
+            }
+            xml = converter(nfe);
+        }else {
+            xml = converter(nfe);
+        }
+        return assinar(xml);
     }
 
     public String converter(NfeModel nfe) throws DbfException {
@@ -890,6 +913,11 @@ public class IntegracaoNfe extends Servico {
                 icms.setVPIS(NumberUtil.decimalBanco(0d));
                 icms.setVCOFINS(NumberUtil.decimalBanco(0d));
             } else {
+                if (isUsingEmissorFiscal) {
+                    icms.setVPIS(NumberUtil.decimalBanco(nota.getPisValor()));
+                    icms.setVCOFINS(NumberUtil.decimalBanco(nota.getCofinsValor()));
+                    return icms;
+                }
                 double valorPis = nota.getTotalNaoIsento() * porcentagemPis;
                 icms.setVPIS(NumberUtil.decimalBanco(valorPis));
 
@@ -1761,6 +1789,13 @@ public class IntegracaoNfe extends Servico {
 
         // O valor e verdadeiro quando o produto for isento
         if (item.getPisCofins()) {
+            if (isUsingEmissorFiscal) {
+                if (isPisNt(item)) {
+                    return setPisNt(item);
+                }
+                // No caso de CST 99 - "Outras Operações", que seja o "PISNT"
+                return setPis(item);
+            }
             switch (item.getCfop()) {
                 case 5929:
                 case 6929:
@@ -1870,6 +1905,13 @@ public class IntegracaoNfe extends Servico {
         } else {
 //            ProdutoTributacaoModel tributacao = ProdutoTributacaoBean.getTributacao(item.getTributacaoCodigo());
 //            tributacao.
+            if (isUsingEmissorFiscal) {
+                //Se for PIS NÃO tributado
+                if (isPisNt(item)) {
+                    return setPisNt(item);
+                }
+                return setPis(item);
+            }
             switch (item.getCfop()) {
                 case 5101:
                 case 5102:
@@ -2002,6 +2044,50 @@ public class IntegracaoNfe extends Servico {
         return pis;
     }
 
+    private boolean isPisNt(NfeItemModel item) {
+        return item.getPisSt() == 4 || item.getPisSt() == 6 || 
+               item.getPisSt() == 7 || item.getPisSt() == 8 ||
+               item.getPisSt() == 9;  
+    }
+    
+    private PIS setPisNt(NfeItemModel item) {
+        PISNT pisnt = new PISNT();
+        PIS pis = new PIS();
+        
+        pisnt.setCST(Integer.toString(item.getPisSt()));
+        pis.setPISNT(pisnt);
+        return pis;
+    }
+    
+    private PIS setPis(NfeItemModel item) {
+        PISAliq pisAliquota = new PISAliq();
+        PISNT pisnt = new PISNT();
+        PIS pis = new PIS();
+        double aliquotaPis = item.getPisAliquota() * 100;
+        double valorPis;
+        
+//        pisAliquota.setCST(Integer.toString(item.getPisSt()));
+        if (item.isDestacaDescontoNoCorpoDoDocumentoFiscal()) {
+        // PS pegar do que foi retornado do EMISSOR FISCAL ? como funciona quando tem que destacar o desconto 
+        // pisAliquota.setVBC(NumberUtil.decimalBanco(item.getValorTotal() - item.getDescontoValor()));
+            pisAliquota.setVBC(NumberUtil.decimalBanco(item.getPisBase() - item.getDescontoValor()));
+            valorPis = (item.getPisBase() - item.getDescontoValor()) * item.getPisAliquota();
+        } else {
+            pisAliquota.setVBC(NumberUtil.decimalBanco(item.getPisBase()));
+            valorPis = item.getPisValor();
+        }
+        pisAliquota.setCST(Integer.toString(item.getPisSt()));
+        pisAliquota.setPPIS(NumberUtil.decimalBanco(aliquotaPis));
+        pisAliquota.setVPIS(NumberUtil.decimalBanco(valorPis));
+        pis.setPISAliq(pisAliquota);
+        if(item.getPisSt() == 99) {
+            pisnt.setCST(NumberUtil.decimalBanco(item.getPisSt()));
+            pis.setPISNT(pisnt);
+        }
+        return pis;
+    }
+            
+    
     private PISST pisSt(NfeItemModel item) {
         return null;
     }
@@ -2056,6 +2142,13 @@ public class IntegracaoNfe extends Servico {
 
         // O valor e verdadeiro quando o produto for isento
         if (item.getPisCofins()) {
+            if (isUsingEmissorFiscal) {
+                if(isCofinsNt(item)) {
+                    return setCofinsNt(item);
+                }
+                // NO caso de CST 99 - "Outras Operações", que seja o "COFINSNT"
+                return setCofins(item);
+            }
             switch (item.getCfop()) {
                 case 5101:
                 case 5102:
@@ -2163,6 +2256,13 @@ public class IntegracaoNfe extends Servico {
                     break;
             }
         } else {
+            if (isUsingEmissorFiscal) {
+                if(isCofinsNt(item)) {
+                    return setCofinsNt(item);
+                }
+                // NO caso de CST 99 - "Outras Operações", que seja o "COFINSNT"
+                return setCofins(item);
+            }
             switch (item.getCfop()) {
                 case 5101:
                 case 5102:
@@ -2299,6 +2399,46 @@ public class IntegracaoNfe extends Servico {
 
     }
 
+    private boolean isCofinsNt(NfeItemModel item) {
+        return item.getCofinsSt() == 4 || item.getCofinsSt() == 6 || 
+               item.getCofinsSt() == 7 || item.getCofinsSt() == 8 ||
+               item.getCofinsSt() == 9;  
+    }
+    
+    private COFINS setCofinsNt(NfeItemModel item) {
+        COFINSNT cofinsnt = new COFINSNT();
+        COFINS cofins = new COFINS();
+        
+        cofinsnt.setCST(NumberUtil.decimalBanco(item.getCofinsSt()));
+        cofins.setCOFINSNT(cofinsnt);
+        return cofins;
+    }
+    
+    private COFINS setCofins(NfeItemModel item) {
+        COFINSAliq cofinsAliquota = new COFINSAliq();
+        COFINSNT cofinsnt = new COFINSNT();
+        COFINS cofins = new COFINS();
+        double aliquotaCofins = item.getCofinsAliquota() * 100;
+        double valorCofins;
+        
+        if (item.isDestacaDescontoNoCorpoDoDocumentoFiscal()) {
+            cofinsAliquota.setVBC(NumberUtil.decimalBanco(item.getCofinsBase() - item.getDescontoValor()));
+            valorCofins = (item.getCofinsBase() - item.getDescontoValor()) * item.getCofinsAliquota();
+        } else {
+            cofinsAliquota.setVCOFINS(NumberUtil.decimalBanco(item.getCofinsBase()));
+            valorCofins = item.getCofinsValor();
+        }
+        cofinsAliquota.setCST(NumberUtil.decimalBanco(item.getCofinsSt()));
+        cofinsAliquota.setPCOFINS(NumberUtil.decimalBanco(aliquotaCofins));
+        cofinsAliquota.setVCOFINS(NumberUtil.decimalBanco(valorCofins));
+        cofins.setCOFINSAliq(cofinsAliquota);
+        if (item.getCofinsSt() == 99) {
+            cofinsnt.setCST(NumberUtil.decimalBanco(item.getCofinsSt()));
+            cofins.setCOFINSNT(cofinsnt);
+        }
+        return cofins;
+    }
+    
     private COFINSST cofinsSt(NfeItemModel item) {
         return null;
     }
