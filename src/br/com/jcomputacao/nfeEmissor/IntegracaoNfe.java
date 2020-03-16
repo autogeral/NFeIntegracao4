@@ -1288,6 +1288,8 @@ public class IntegracaoNfe extends Servico {
                 || item.getOrigem().equals(ProdutoOrigem.NACIONAL_CONTEUDO_IMPORTADO_MAIOR_70)
                 || item.getOrigem().equals(ProdutoOrigem.NACIONAL_CONTEUDO_IMPORTADO_MENOR_40)) {
             ProdutoDBFModel produto = new ProdutoDBFModel();
+            //TODO o ideal vai ser procurar em todas as lojas, pois nem tudo mais ta vindo direto 
+            //para matriz
             List<CompraItemDBFModel> ultimasCompras = produto.getUltimasComprasDoItem(item.getProdutoCodigo(), 1);
             CompraItemDBFModel itemFiltrado = null;
             if (ultimasCompras != null && !ultimasCompras.isEmpty()) {
@@ -1298,12 +1300,14 @@ public class IntegracaoNfe extends Servico {
                         break;
                     }
                 }
-                String xml = itemFiltrado.getXmlUltimaCompraItem();
-                String xmlProduto = xml.substring(xml.indexOf("<cProd>"+itemFiltrado.getCodigoProdutoFornecedor()+"</cProd>"));
-                xmlProduto = xmlProduto.substring(0, xmlProduto.indexOf("</prod>"));
-                List<String> tagConteudo = XmlUtil.getTagConteudo(xmlProduto, "nFCI", false);
-                if(tagConteudo != null && !tagConteudo.isEmpty()) {                    
-                    prod.setNFCI(tagConteudo.get(0));
+                if (itemFiltrado != null) {
+                    String xml = itemFiltrado.getXmlUltimaCompraItem();
+                    String xmlProduto = xml.substring(xml.indexOf("<cProd>" + itemFiltrado.getCodigoProdutoFornecedor() + "</cProd>"));
+                    xmlProduto = xmlProduto.substring(0, xmlProduto.indexOf("</prod>"));
+                    List<String> tagConteudo = XmlUtil.getTagConteudo(xmlProduto, "nFCI", false);
+                    if (tagConteudo != null && !tagConteudo.isEmpty()) {
+                        prod.setNFCI(tagConteudo.get(0));
+                    }
                 }
             }
             
