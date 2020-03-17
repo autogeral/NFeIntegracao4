@@ -1535,9 +1535,11 @@ public class IntegracaoNfe extends Servico {
             break;
             case 5556://devolucao de material de consumo
                 if("20".equals(st)) {
-                  atribuiIcms20(icms, item, origem, st);  
+                    atribuiIcms20(icms, item, origem, st);
+                } else {
+                    atribuiIcms00(icms, item, origem, st);
                 }
-            break;
+                break;
             case 5557: { //transferencia material uso/consumo
                 if ("60".equals(st)) {
                     atribuiIcms60(icms, item, origem, st);
@@ -1868,7 +1870,8 @@ public class IntegracaoNfe extends Servico {
                 case 5152:
                 case 5409:
                 case 5659:
-                case 6659:                
+                case 6659: 
+                case 5556://DEVOLUCAO DE MERCADORIA DE CONSUMO
                 case 5557://TRANSFERENCIA MATERIAL DE USO/CONSUMO    
                 case 6501://REMESSA DE PRODUCAO DO ESTABELECIMENTO COM FIM ESPECIFICO DE EXPORTACAO
                 case 5552://TRANSFERENCIA DE BEM OU ATIVO IMOBILIZADO
@@ -1882,7 +1885,6 @@ public class IntegracaoNfe extends Servico {
                 case 1551://COMPRA DE ATIVO
                 case 5913://RETORNO DE REMESSA PARA DEMONSTRACAO                
                 case 5925://RETORNO DE MERCADORIA PARA INDUSTRIALIZACAO, PARA O ADQUIRENTE POR NAO TER TRANSITADO A MESMA, NO ESTABELECIMENTO DO ADQUIRENTE
-                case 5556://DEVOLUCAO DE MERCADORIA DE CONSUMO
                 case 5117://REMESSA DE VENDA PARA ENTREGA FUTURA         
                 case 6911://REMESSA DE AMOSTRA GRATIS FORA DO ESTADO
                 case 5911://REMESSA DE AMOSTRA GRATIS DENTRO DO ESTADO
@@ -2013,6 +2015,7 @@ public class IntegracaoNfe extends Servico {
                 case 5557:
                 case 5552:
                 case 5915:
+                case 5556://DEVOLUCAO DE MERCADORIA DE CONSUMO 
                     pisnt.setCST("08");
                     pis.setPISNT(pisnt);
                     break;
@@ -2030,8 +2033,7 @@ public class IntegracaoNfe extends Servico {
                     pis.setPISAliq(pisAliquota);
                     pis.setPISNT(pisnt);
                     break;
-                case 5908:
-                case 5556://DEVOLUCAO DE MERCADORIA DE CONSUMO                                             
+                case 5908:                                            
                 case 5117://REMESSA DE VENDA PARA ENTREGA FUTURA     
                 case 6911://REMESSA DE AMOSTRA GRATIS FORA DO ESTADO
                 case 5911://REMESSA DE AMOSTRA GRATIS DENTRO DO ESTADO
@@ -2221,7 +2223,8 @@ public class IntegracaoNfe extends Servico {
                 case 5152:
                 case 5409:
                 case 5659:
-                case 6659:                
+                case 6659: 
+                case 5556://DEVOLUCAO DE MERCADORIA PARA CONSUMO  
                 case 5557://TRANSFERENCIA MATERIAL DE USO/CONSUMO    
                 case 6501://REMESSA DE PRODUCAO DO ESTABELECIMENTO COM FIM ESPECIFICO DE EXPORTACAO                    
                 case 5552://TRANSFERENCIA DE BEM DO ATIVO IMOBILIZADO
@@ -2245,8 +2248,7 @@ public class IntegracaoNfe extends Servico {
                 case 1101:
                 case 1551://COMPRA DE ATIVO
                 case 5913://RETORNO DE REMESSA PARA DEMONSTRACAO                
-                case 5925://RETORNO DE MERCADORIA PARA INDUSTRIALIZACAO, PARA O ADQUIRENTE POR NAO TER TRANSITADO A MESMA, NO ESTABELECIMENTO DO ADQUIRENTE
-                case 5556://DEVOLUCAO DE MERCADORIA PARA CONSUMO       
+                case 5925://RETORNO DE MERCADORIA PARA INDUSTRIALIZACAO, PARA O ADQUIRENTE POR NAO TER TRANSITADO A MESMA, NO ESTABELECIMENTO DO ADQUIRENTE     
                 case 5117://REMESSA DE VENDA PARA ENTREGA FUTURA           
                 case 6911://REMESSA DE AMOSTRA GRATIS FORA DO ESTADO
                 case 5911://REMESSA DE AMOSTRA GRATIS DENTRO DO ESTADO
@@ -2365,6 +2367,7 @@ public class IntegracaoNfe extends Servico {
                 case 5557:
                 case 5915:
                 case 5552:
+                case 5556://DEVOLUCAO DE MATERIAL DE CONSUMO 
                     cofinsnt.setCST("08");
                     cofins.setCOFINSNT(cofinsnt);
                     break;
@@ -2384,8 +2387,7 @@ public class IntegracaoNfe extends Servico {
                     cofins.setCOFINSAliq(aliquota);
                     break;
                 case 5908:
-                case 6551:
-                case 5556://DEVOLUCAO DE MATERIAL DE CONSUMO    
+                case 6551:   
                 case 5117://REMESSA DE VENDA PARA ENTREGA FUTURA          
                 case 6911://REMESSA DE AMOSTRA GRATIS FORA DO ESTADO
                 case 5911://REMESSA DE AMOSTRA GRATIS DENTRO DO ESTADO
