@@ -154,7 +154,7 @@ public class IntegracaoNfe extends Servico {
 //    private final boolean isUsingEmissorFiscal = Boolean.parseBoolean(System.getProperty("emissor-fiscal.ativo","true"));
     // Deverá ser usada da forma que está abaixo
     private final boolean isUsingEmissorFiscal = Boolean.parseBoolean(System.getProperty("emissor-fiscal.ativo","false"));
-
+    private final IntegracaoNfeEmissorFiscal nfeEmissorFiscal = new IntegracaoNfeEmissorFiscal();
     /*
         Contabilidade disse que temos que informar na OBS, que foi uma venda balcão
         quando o cliente é de fora do estado mas fazemos venda com CFOP interno.
@@ -2452,6 +2452,12 @@ public class IntegracaoNfe extends Servico {
     private TIpi ipi(NfeItemModel item) throws DbfDatabaseException {             
         TIpi ipi = new TIpi();
         if (this.tributaIpi) {
+            if (isUsingEmissorFiscal) {
+                if(nfeEmissorFiscal.isIpiNt(item)) {
+                    return nfeEmissorFiscal.setIpiNt(item, cnpj);
+                }
+                return nfeEmissorFiscal.setIpi(item, cnpj);
+            }
             ipi.setCNPJProd(cnpj);
             if (item.getIpiSt() == 0) {
                 if (item.getIpiValor() == 0) {
