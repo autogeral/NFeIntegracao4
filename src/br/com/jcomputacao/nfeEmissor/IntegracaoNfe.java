@@ -511,7 +511,7 @@ public class IntegracaoNfe extends Servico {
             Optional<DocumentoFiscalDTO> opDocFiscalDto = efClienteDocFiscal.buscaCalculoFederal(docFiscalDto);
             if (opDocFiscalDto.isPresent()) {
                 // O Ideal é setar SOMENTE os VALORES referentes ao IMPOSTO FEDERAL (ao menos nesse momento de "implantação do PIS/COFINS")
-                nfe = docFiscalDto.converteParaNfeModel(nfe, opDocFiscalDto.get());
+                nfe = docFiscalDto.converteParaNfeOrSatModel(nfe, opDocFiscalDto.get());
             }
             xml = converter(nfe);
         }else {
