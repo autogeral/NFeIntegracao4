@@ -1586,6 +1586,11 @@ public class IntegracaoNfe extends Servico {
                     tributacaoIcms90.setVBC("0.00");
                     tributacaoIcms90.setPICMS("0.00");
                     tributacaoIcms90.setVICMS("0.00");
+                } else if(item.getIcmsValor() > 0) {                    
+                    tributacaoIcms90.setModBC("3");
+                    tributacaoIcms90.setVBC("0.00");
+                    tributacaoIcms90.setPICMS("0.00");
+                    tributacaoIcms90.setVICMS(NumberUtil.decimalBanco(item.getIcmsValor()));
                 }
                 icms.setICMS90(tributacaoIcms90);
             }
