@@ -189,7 +189,7 @@ public class Servico {
         // 2 Complementar
         // 3 De ajuste
         // 4 Devolucao de mercadoria
-        ide.setFinNFe(operacao.isDevolucao() ? "4" : operacao.isComplementoImposto() || operacao.isComplementoValor() ? "2" : "1");
+        ide.setFinNFe(operacao.isDevolucao() ? "4" : operacao.isComplementoImposto() || operacao.isComplementoValor() ? "2" : operacao.isTransferenciaIcms() ? "3" : "1");
 
         //Tipo de impressao da danfe
         //1 - retrato
