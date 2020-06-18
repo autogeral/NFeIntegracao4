@@ -501,27 +501,21 @@ public class IntegracaoNfe extends Servico {
     }
 
     public String converterEAssinar(NfeModel nfe) throws DbfException, IOException {
+        return assinar(converter(nfe));
+    }
+        
+    public String converter(NfeModel nfe) throws DbfException, IOException {
         String xml;
         if (isUsingEmissorFiscal) {
             // Pesquisar (PREENCHIMENTO DO documento) no emissor fiscal 
-            // Criar uma classe de teste para enviar a nota
             // Criar um DTO para converter o NFEModel para JSON (e ai sim enviar para o emissor-fiscal)
-                // Para o ITEM tbm, nome do pacote --> "br.com.jcomputacao.fiscal"
             DocumentoFiscalDTO docFiscalDto = new DocumentoFiscalDTO(nfe);
             Optional<DocumentoFiscalDTO> opDocFiscalDto = efClienteDocFiscal.buscaCalculoFederal(docFiscalDto);
             if (opDocFiscalDto.isPresent()) {
                 // O Ideal é setar SOMENTE os VALORES referentes ao IMPOSTO FEDERAL (ao menos nesse momento de "implantação do PIS/COFINS")
                 nfe = docFiscalDto.converteParaNfeOrSatModel(nfe, opDocFiscalDto.get());
             }
-            xml = converter(nfe);
-        }else {
-            xml = converter(nfe);
         }
-        return assinar(xml);
-    }
-
-    public String converter(NfeModel nfe) throws DbfException {
-        String xml;
         try {
             xml = exportarString(nfe);
             xml = xml.replaceAll("xmlns:ns2=\".+#\"\\s", "").replaceAll("ns2:", "");
@@ -1384,6 +1378,12 @@ public class IntegracaoNfe extends Servico {
         String st = Integer.toString(item.getSituacaoTributaria() % 100);
         st = StringUtil.ajusta(st, 2, StringUtil.ALINHAMENTO_DIREITA, '0');
 
+//        if (isUsingEmissorFiscal) {
+            // BASICAMENTE DENTRO DESSE MÈTODOS IREI DECIDIR:
+            // QUAL Atribuição de ICMS irei chamar
+            
+//            return IntegracaoNfeEmissorFiscal.atribuiIcms(icms, item);
+//        }
         switch (item.getCfop()) {            
             case 5201: {
                 if ("90".equals(st)) {
