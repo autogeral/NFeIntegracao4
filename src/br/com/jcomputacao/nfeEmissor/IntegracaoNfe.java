@@ -118,11 +118,15 @@ import java.io.UnsupportedEncodingException;
 import java.rmi.RemoteException;
 import java.text.MessageFormat;
 import java.text.NumberFormat;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -161,6 +165,34 @@ public class IntegracaoNfe extends Servico {
     */
     private boolean obsEntregaBalcaoClienteForaEstado = false;
 
+    
+    // Método que deverá ser usado na implantanção da API do emissor-fiscal (PIS/COFINS), 
+    // no periodo aproximadamente 1 mês, após isso retirar
+    private boolean hojeUsaOEmissorFiscal() {
+        LocalDate hoje = LocalDate.now();
+        LocalTime horaAgora = LocalTime.now();
+        
+        try {
+            if (LojaBean.getLojaAtual().getCodigo() != 1) {
+                return false;
+            }
+        } catch (DbfDatabaseException ex) {
+            Logger.getLogger(IntegracaoNfe.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        DayOfWeek dayOfWeek = hoje.getDayOfWeek();
+        if (dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY) {
+            return false;
+        }
+        
+        if (horaAgora.isAfter(LocalTime.of(12, 50)) && horaAgora.isBefore(LocalTime.of(18, 20))) {
+            return true;
+        }
+        return false;
+    }
+    // ===================================================================================
+    
+    
     public Date getNotBefore() {
         return notBefore;
     }
@@ -506,7 +538,7 @@ public class IntegracaoNfe extends Servico {
         
     public String converter(NfeModel nfe) throws DbfException, IOException {
         String xml;
-        if (isUsingEmissorFiscal) {
+        if (isUsingEmissorFiscal && hojeUsaOEmissorFiscal()) {
             // Pesquisar (PREENCHIMENTO DO documento) no emissor fiscal 
             // Criar um DTO para converter o NFEModel para JSON (e ai sim enviar para o emissor-fiscal)
             DocumentoFiscalDTO docFiscalDto = new DocumentoFiscalDTO(nfe);
@@ -907,7 +939,7 @@ public class IntegracaoNfe extends Servico {
                 icms.setVPIS(NumberUtil.decimalBanco(0d));
                 icms.setVCOFINS(NumberUtil.decimalBanco(0d));
             } else {
-                if (isUsingEmissorFiscal) {
+                if (isUsingEmissorFiscal && hojeUsaOEmissorFiscal()) {
                     icms.setVPIS(NumberUtil.decimalBanco(nota.getPisValor()));
                     icms.setVCOFINS(NumberUtil.decimalBanco(nota.getCofinsValor()));
                     return icms;
@@ -1800,7 +1832,7 @@ public class IntegracaoNfe extends Servico {
 
         // O valor e verdadeiro quando o produto for isento
         if (item.getPisCofins()) {
-            if (isUsingEmissorFiscal) {
+            if (isUsingEmissorFiscal &&  hojeUsaOEmissorFiscal()) {
                 if (nfeEmissorFiscal.isPisNt(item)) {
                     return nfeEmissorFiscal.setPisNt(item);
                 }
@@ -1916,7 +1948,7 @@ public class IntegracaoNfe extends Servico {
         } else {
 //            ProdutoTributacaoModel tributacao = ProdutoTributacaoBean.getTributacao(item.getTributacaoCodigo());
 //            tributacao.
-            if (isUsingEmissorFiscal) {
+            if (isUsingEmissorFiscal &&  hojeUsaOEmissorFiscal()) {
                 //Se for PIS NÃO tributado
                 if (nfeEmissorFiscal.isPisNt(item)) {
                     return nfeEmissorFiscal.setPisNt(item);
@@ -2109,7 +2141,7 @@ public class IntegracaoNfe extends Servico {
 
         // O valor e verdadeiro quando o produto for isento
         if (item.getPisCofins()) {
-            if (isUsingEmissorFiscal) {
+            if (isUsingEmissorFiscal &&  hojeUsaOEmissorFiscal()) {
                 if(nfeEmissorFiscal.isCofinsNt(item)) {
                     return nfeEmissorFiscal.setCofinsNt(item);
                 }
@@ -2223,7 +2255,7 @@ public class IntegracaoNfe extends Servico {
                     break;
             }
         } else {
-            if (isUsingEmissorFiscal) {
+            if (isUsingEmissorFiscal &&  hojeUsaOEmissorFiscal()) {
                 if(nfeEmissorFiscal.isCofinsNt(item)) {
                     return nfeEmissorFiscal.setCofinsNt(item);
                 }
@@ -2373,7 +2405,7 @@ public class IntegracaoNfe extends Servico {
     private TIpi ipi(NfeItemModel item) throws DbfDatabaseException {             
         TIpi ipi = new TIpi();
         if (this.tributaIpi) {
-            if (isUsingEmissorFiscal) {
+            if (isUsingEmissorFiscal &&  hojeUsaOEmissorFiscal()) {
                 if(nfeEmissorFiscal.isIpiNt(item)) {
                     return nfeEmissorFiscal.setIpiNt(item, cnpj);
                 }
