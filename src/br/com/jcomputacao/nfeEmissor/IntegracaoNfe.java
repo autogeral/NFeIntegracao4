@@ -155,9 +155,9 @@ public class IntegracaoNfe extends Servico {
     private String informacaoAdicionalProduto = "";
     private final boolean nfeTributaDifal = Boolean.parseBoolean(System.getProperty("nfe.tributa.difal", "false"));
     private final EmissorFiscalClienteDocumentoFiscal efClienteDocFiscal = (EmissorFiscalClienteDocumentoFiscal) EmissorFiscalClienteFactory.getCliente(NfeModel.class);
-//    private final boolean isUsingEmissorFiscal = Boolean.parseBoolean(System.getProperty("emissor-fiscal.ativo","true"));
+//    private boolean isUsingEmissorFiscal = Boolean.parseBoolean(System.getProperty("emissor-fiscal.ativo","true"));
     // Deverá ser usada da forma que está abaixo
-    private final boolean isUsingEmissorFiscal = Boolean.parseBoolean(System.getProperty("emissor-fiscal.ativo","false"));
+    private boolean isUsingEmissorFiscal = Boolean.parseBoolean(System.getProperty("emissor-fiscal.ativo","false"));
     private final IntegracaoNfeEmissorFiscal nfeEmissorFiscal = new IntegracaoNfeEmissorFiscal();
     /*
         Contabilidade disse que temos que informar na OBS, que foi uma venda balcão
@@ -181,11 +181,11 @@ public class IntegracaoNfe extends Servico {
         }
         
         DayOfWeek dayOfWeek = hoje.getDayOfWeek();
-        if (dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY) {
+        if (dayOfWeek == DayOfWeek.FRIDAY || dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY) {
             return false;
         }
         
-        if (horaAgora.isAfter(LocalTime.of(12, 50)) && horaAgora.isBefore(LocalTime.of(18, 20))) {
+        if (horaAgora.isAfter(LocalTime.of(12, 30)) && horaAgora.isBefore(LocalTime.of(17, 30))) {
             return true;
         }
         return false;
@@ -539,6 +539,7 @@ public class IntegracaoNfe extends Servico {
     public String converter(NfeModel nfe) throws DbfException, IOException {
         String xml;
         if (isUsingEmissorFiscal && hojeUsaOEmissorFiscal()) {
+            System.out.println("USANDO O EMISSOR-FISCAL! ");
             // Pesquisar (PREENCHIMENTO DO documento) no emissor fiscal 
             // Criar um DTO para converter o NFEModel para JSON (e ai sim enviar para o emissor-fiscal)
             DocumentoFiscalDTO docFiscalDto = new DocumentoFiscalDTO(nfe);
@@ -546,6 +547,8 @@ public class IntegracaoNfe extends Servico {
             if (opDocFiscalDto.isPresent()) {
                 // O Ideal é setar SOMENTE os VALORES referentes ao IMPOSTO FEDERAL (ao menos nesse momento de "implantação do PIS/COFINS")
                 nfe = docFiscalDto.converteParaNfeOrSatModel(nfe, opDocFiscalDto.get());
+            } else {
+                isUsingEmissorFiscal = false;
             }
         }
         try {
