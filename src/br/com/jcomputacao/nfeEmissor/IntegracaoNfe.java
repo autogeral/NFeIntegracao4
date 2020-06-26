@@ -186,8 +186,8 @@ public class IntegracaoNfe extends Servico {
         }
         
         if (horaAgora.isAfter(LocalTime.of(12, 30)) && horaAgora.isBefore(LocalTime.of(17, 30))) {
-            return true;
-        }
+        return true;
+    }
         return false;
     }
     // ===================================================================================
@@ -1836,12 +1836,9 @@ public class IntegracaoNfe extends Servico {
         // O valor e verdadeiro quando o produto for isento
         if (item.getPisCofins()) {
             if (isUsingEmissorFiscal &&  hojeUsaOEmissorFiscal()) {
-                if (nfeEmissorFiscal.isPisNt(item)) {
-                    return nfeEmissorFiscal.setPisNt(item);
-                }
-                // No caso de CST 99 - "Outras Operações", que seja o "PISNT"
-                return nfeEmissorFiscal.setPis(item);
+                return nfeEmissorFiscal.atribuiPis(item);
             }
+
             switch (item.getCfop()) {
                 case 5929:
                 case 6929:
@@ -1952,11 +1949,7 @@ public class IntegracaoNfe extends Servico {
 //            ProdutoTributacaoModel tributacao = ProdutoTributacaoBean.getTributacao(item.getTributacaoCodigo());
 //            tributacao.
             if (isUsingEmissorFiscal &&  hojeUsaOEmissorFiscal()) {
-                //Se for PIS NÃO tributado
-                if (nfeEmissorFiscal.isPisNt(item)) {
-                    return nfeEmissorFiscal.setPisNt(item);
-                }
-                return nfeEmissorFiscal.setPis(item);
+                return nfeEmissorFiscal.atribuiPis(item);
             }
             switch (item.getCfop()) {
                 case 5101:
@@ -2145,12 +2138,9 @@ public class IntegracaoNfe extends Servico {
         // O valor e verdadeiro quando o produto for isento
         if (item.getPisCofins()) {
             if (isUsingEmissorFiscal &&  hojeUsaOEmissorFiscal()) {
-                if(nfeEmissorFiscal.isCofinsNt(item)) {
-                    return nfeEmissorFiscal.setCofinsNt(item);
-                }
-                // NO caso de CST 99 - "Outras Operações", que seja o "COFINSNT"
-                return nfeEmissorFiscal.setCofins(item);
+                return nfeEmissorFiscal.atribuiCofins(item);
             }
+            
             switch (item.getCfop()) {
                 case 5101:
                 case 5102:
@@ -2259,11 +2249,7 @@ public class IntegracaoNfe extends Servico {
             }
         } else {
             if (isUsingEmissorFiscal &&  hojeUsaOEmissorFiscal()) {
-                if(nfeEmissorFiscal.isCofinsNt(item)) {
-                    return nfeEmissorFiscal.setCofinsNt(item);
-                }
-                // NO caso de CST 99 - "Outras Operações", que seja o "COFINSNT"
-                return nfeEmissorFiscal.setCofins(item);
+                return nfeEmissorFiscal.atribuiCofins(item);
             }
             switch (item.getCfop()) {
                 case 5101:

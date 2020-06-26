@@ -25,13 +25,19 @@ import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICM
 import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMSSN500;
 import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMSSN900;
 import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMSUFDest;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 /**
  *
  * @author robson.costa
  */
 public class IntegracaoNfeEmissorFiscal {
 
-
+    Set<Integer> cstsPisCofinsOutr = new HashSet<Integer>();
+    Set<Integer> cstsPisCofinsNt = new HashSet<Integer>();
+    
 //    private static final boolean nfeTributaDifal = Boolean.parseBoolean(System.getProperty("nfe.tributa.difal", "false"));
 //    private String informacaoAdicionalProduto = "";
 //
@@ -43,15 +49,30 @@ public class IntegracaoNfeEmissorFiscal {
 //        this.informacaoAdicionalProduto = informacaoAdicionalProduto;
 //    }
 //    
-    
-    // ================================= PIS ===================================
-    public boolean isPisNt(NfeItemModel item) {
-        return item.getPisSt() == 4 || item.getPisSt() == 6 || 
-            item.getPisSt() == 7 || item.getPisSt() == 8 ||
-            item.getPisSt() == 9;  
+    public IntegracaoNfeEmissorFiscal() {
+        List<Integer> listCstsPisCofinsOutr = Arrays.asList(49 ,50 ,51 ,52 ,53 ,54 ,55 ,56 ,60 ,61 ,62 ,63 ,64 ,65 ,66 ,67 ,70 ,71 ,72 ,73 ,74 ,75 ,98 ,99);
+        cstsPisCofinsOutr.addAll(listCstsPisCofinsOutr);
+        
+        List<Integer> listCstsPisCofinsNt = Arrays.asList(4, 5 , 6 , 7 , 8 , 9);
+        cstsPisCofinsNt.addAll(listCstsPisCofinsNt);
     }
     
-    public PIS setPisNt(NfeItemModel item) {
+    // ================================= PIS ===================================
+
+    public PIS atribuiPis(NfeItemModel item) {
+        PIS pis = new PIS();
+
+        if (isPisAliq(item)) {
+            pis = setPisAliq(item);
+        } else if (cstsPisCofinsNt.contains(item.getPisSt())) {
+            pis = setPisNt(item);
+        } else if (this.cstsPisCofinsOutr.contains(item.getPisSt())) {
+            pis = setPisOutr(item);
+        }
+        return pis;
+    }
+    
+    private PIS setPisNt(NfeItemModel item) {
         PISNT pisnt = new PISNT();
         PIS pis = new PIS();
         
@@ -60,10 +81,25 @@ public class IntegracaoNfeEmissorFiscal {
         return pis;
     }
     
-    public PIS setPis(NfeItemModel item) {
-        PISAliq pisAliquota = new PISAliq();
+    private PIS setPisOutr(NfeItemModel item) {
+        PIS pis = new PIS();
         PIS.PISOutr pisOutr = new PIS.PISOutr();
-        PISNT pisnt = new PISNT();
+        double aliquotaPis = item.getPisAliquota() * 100;
+
+        pisOutr.setCST(Integer.toString(item.getPisSt()));
+        pisOutr.setVBC(NumberUtil.decimalBanco(item.getPisBase()));
+        pisOutr.setPPIS(NumberUtil.decimalBanco(aliquotaPis));
+        pisOutr.setVPIS(NumberUtil.decimalBanco(item.getPisValor()));
+        pis.setPISOutr(pisOutr);
+        return pis;
+    }
+    
+    private boolean isPisAliq(NfeItemModel item) {
+        return item.getPisSt() == 01 || item.getPisSt() == 02;
+    }
+    
+    private PIS setPisAliq(NfeItemModel item) {
+        PISAliq pisAliquota = new PISAliq();
         PIS pis = new PIS();
         double aliquotaPis = item.getPisAliquota() * 100;
         double valorPis;
@@ -82,26 +118,26 @@ public class IntegracaoNfeEmissorFiscal {
         pisAliquota.setPPIS(NumberUtil.decimalBanco(aliquotaPis));
         pisAliquota.setVPIS(NumberUtil.decimalBanco(valorPis));
         pis.setPISAliq(pisAliquota);
-        // ============================== PIS OUTROS ============================
-        if(item.getPisSt() == 99 || item.getPisSt() == 49) {
-            pisOutr.setCST(Integer.toString(item.getPisSt()));
-            pisOutr.setVBC(NumberUtil.decimalBanco(item.getPisBase()));
-            pisOutr.setPPIS(NumberUtil.decimalBanco(aliquotaPis));
-            pisOutr.setVPIS(NumberUtil.decimalBanco(item.getPisValor()));
-            pis.setPISOutr(pisOutr);
-        }
+        
         return pis;
     }
     
     // ================================ COFINS =================================
 
-    public boolean isCofinsNt(NfeItemModel item) {
-        return item.getCofinsSt() == 4 || item.getCofinsSt() == 6 || 
-               item.getCofinsSt() == 7 || item.getCofinsSt() == 8 ||
-               item.getCofinsSt() == 9;  
+    public COFINS atribuiCofins(NfeItemModel item) {
+        COFINS cofins = new COFINS();
+
+        if (isCofinsAliq(item)) {
+            cofins = setCofinsAliq(item);
+        } else if (cstsPisCofinsNt.contains(item.getCofinsSt())) {
+            cofins = setCofinsNt(item);
+        } else if (this.cstsPisCofinsOutr.contains(item.getCofinsSt())) {
+            cofins = setCofinsOutr(item);
+        }
+        return cofins;
     }
     
-    public COFINS setCofinsNt(NfeItemModel item) {
+    private COFINS setCofinsNt(NfeItemModel item) {
         COFINSNT cofinsnt = new COFINSNT();
         COFINS cofins = new COFINS();
         
@@ -110,10 +146,25 @@ public class IntegracaoNfeEmissorFiscal {
         return cofins;
     }
     
-    public COFINS setCofins(NfeItemModel item) {
-        COFINSAliq cofinsAliquota = new COFINSAliq();
+    private COFINS setCofinsOutr(NfeItemModel item) {
+        COFINS cofins = new COFINS();
         COFINS.COFINSOutr cofinsOutr = new COFINS.COFINSOutr();
-        COFINSNT cofinsnt = new COFINSNT();
+        double aliquotaCofins = item.getCofinsAliquota() * 100;
+
+        cofinsOutr.setCST(Integer.toString(item.getCofinsSt()));
+        cofinsOutr.setVBC(NumberUtil.decimal(item.getPisBase()));
+        cofinsOutr.setVCOFINS(NumberUtil.decimalBanco(item.getCofinsValor()));
+        cofinsOutr.setPCOFINS(NumberUtil.decimalBanco(aliquotaCofins));
+        cofins.setCOFINSOutr(cofinsOutr);
+        return cofins;
+    }
+    
+    private boolean isCofinsAliq(NfeItemModel item) {
+       return item.getCofinsSt() == 01 || item.getCofinsSt() == 02;
+    }
+    
+    private COFINS setCofinsAliq(NfeItemModel item) {
+        COFINSAliq cofinsAliquota = new COFINSAliq();
         COFINS cofins = new COFINS();
         double aliquotaCofins = item.getCofinsAliquota() * 100;
         double valorCofins;
@@ -129,16 +180,13 @@ public class IntegracaoNfeEmissorFiscal {
         cofinsAliquota.setPCOFINS(NumberUtil.decimalBanco(aliquotaCofins));
         cofinsAliquota.setVCOFINS(NumberUtil.decimalBanco(valorCofins));
         cofins.setCOFINSAliq(cofinsAliquota);
-        // ================== COFINS OUTROS ====================================
-        if (item.getCofinsSt() == 99 || item.getPisSt() == 49) {
-            cofinsOutr.setCST(Integer.toString(item.getCofinsSt()));
-            cofinsOutr.setVBC(NumberUtil.decimal(item.getPisBase()));
-            cofinsOutr.setVCOFINS(NumberUtil.decimalBanco(item.getCofinsValor()));
-            cofinsOutr.setPCOFINS(NumberUtil.decimalBanco(aliquotaCofins));
-            cofins.setCOFINSOutr(cofinsOutr);
-        }
         return cofins;
     }
+    
+    
+    
+    
+    
     
     // ================================= IPI ===================================
     public boolean isIpiNt(NfeItemModel item) {
