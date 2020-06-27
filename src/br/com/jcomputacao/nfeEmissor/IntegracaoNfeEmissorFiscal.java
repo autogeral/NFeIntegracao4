@@ -87,9 +87,12 @@ public class IntegracaoNfeEmissorFiscal {
         double aliquotaPis = item.getPisAliquota() * 100;
 
         pisOutr.setCST(Integer.toString(item.getPisSt()));
-        pisOutr.setVBC(NumberUtil.decimalBanco(item.getPisBase()));
-        pisOutr.setPPIS(NumberUtil.decimalBanco(aliquotaPis));
-        pisOutr.setVPIS(NumberUtil.decimalBanco(item.getPisValor()));
+//        pisOutr.setVBC(NumberUtil.decimalBanco(item.getPisBase()));
+//        pisOutr.setPPIS(NumberUtil.decimalBanco(aliquotaPis));
+//        pisOutr.setVPIS(NumberUtil.decimalBanco(item.getPisValor()));
+        pisOutr.setQBCProd("0.0000");
+        pisOutr.setVAliqProd("0.0000");
+        pisOutr.setVPIS("0.00");
         pis.setPISOutr(pisOutr);
         return pis;
     }
@@ -114,7 +117,7 @@ public class IntegracaoNfeEmissorFiscal {
             pisAliquota.setVBC(NumberUtil.decimalBanco(item.getPisBase()));
             valorPis = item.getPisValor();
         }
-        pisAliquota.setCST(Integer.toString(item.getPisSt()));
+        pisAliquota.setCST("0"+Integer.toString(item.getPisSt()));
         pisAliquota.setPPIS(NumberUtil.decimalBanco(aliquotaPis));
         pisAliquota.setVPIS(NumberUtil.decimalBanco(valorPis));
         pis.setPISAliq(pisAliquota);
@@ -152,9 +155,12 @@ public class IntegracaoNfeEmissorFiscal {
         double aliquotaCofins = item.getCofinsAliquota() * 100;
 
         cofinsOutr.setCST(Integer.toString(item.getCofinsSt()));
-        cofinsOutr.setVBC(NumberUtil.decimal(item.getPisBase()));
-        cofinsOutr.setVCOFINS(NumberUtil.decimalBanco(item.getCofinsValor()));
-        cofinsOutr.setPCOFINS(NumberUtil.decimalBanco(aliquotaCofins));
+//        cofinsOutr.setVBC(NumberUtil.decimal(item.getPisBase()));
+//        cofinsOutr.setVCOFINS(NumberUtil.decimalBanco(item.getCofinsValor()));
+//        cofinsOutr.setPCOFINS(NumberUtil.decimalBanco(aliquotaCofins));
+        cofinsOutr.setQBCProd("0.0000");
+        cofinsOutr.setVAliqProd("0.0000");
+        cofinsOutr.setVCOFINS("0.00");
         cofins.setCOFINSOutr(cofinsOutr);
         return cofins;
     }
@@ -173,10 +179,10 @@ public class IntegracaoNfeEmissorFiscal {
             cofinsAliquota.setVBC(NumberUtil.decimalBanco(item.getCofinsBase() - item.getDescontoValor()));
             valorCofins = (item.getCofinsBase() - item.getDescontoValor()) * item.getCofinsAliquota();
         } else {
-            cofinsAliquota.setVCOFINS(NumberUtil.decimalBanco(item.getCofinsBase()));
+            cofinsAliquota.setVBC(NumberUtil.decimalBanco(item.getCofinsBase()));
             valorCofins = item.getCofinsValor();
         }
-        cofinsAliquota.setCST(NumberUtil.decimalBanco(item.getCofinsSt()));
+        cofinsAliquota.setCST("0"+Integer.toString(item.getCofinsSt()));
         cofinsAliquota.setPCOFINS(NumberUtil.decimalBanco(aliquotaCofins));
         cofinsAliquota.setVCOFINS(NumberUtil.decimalBanco(valorCofins));
         cofins.setCOFINSAliq(cofinsAliquota);
