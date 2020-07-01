@@ -164,34 +164,6 @@ public class IntegracaoNfe extends Servico {
         quando o cliente é de fora do estado mas fazemos venda com CFOP interno.
     */
     private boolean obsEntregaBalcaoClienteForaEstado = false;
-
-    
-    // Método que deverá ser usado na implantanção da API do emissor-fiscal (PIS/COFINS), 
-    // no periodo aproximadamente 1 mês, após isso retirar
-    private boolean hojeUsaOEmissorFiscal() {
-        LocalDate hoje = LocalDate.now();
-        LocalTime horaAgora = LocalTime.now();
-        
-        try {
-            if (LojaBean.getLojaAtual().getCodigo() != 1) {
-                return false;
-            }
-        } catch (DbfDatabaseException ex) {
-            Logger.getLogger(IntegracaoNfe.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        DayOfWeek dayOfWeek = hoje.getDayOfWeek();
-        if (dayOfWeek == DayOfWeek.FRIDAY || dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY) {
-            return false;
-        }
-        
-        if (horaAgora.isAfter(LocalTime.of(12, 30)) && horaAgora.isBefore(LocalTime.of(17, 30))) {
-        return true;
-    }
-        return false;
-    }
-    // ===================================================================================
-    
     
     public Date getNotBefore() {
         return notBefore;
@@ -538,7 +510,7 @@ public class IntegracaoNfe extends Servico {
         
     public String converter(NfeModel nfe) throws DbfException, IOException {
         String xml;
-        if (isUsingEmissorFiscal && hojeUsaOEmissorFiscal()) {
+        if (isUsingEmissorFiscal) {
             System.out.println("USANDO O EMISSOR-FISCAL! ");
             // Pesquisar (PREENCHIMENTO DO documento) no emissor fiscal 
             // Criar um DTO para converter o NFEModel para JSON (e ai sim enviar para o emissor-fiscal)
@@ -942,7 +914,7 @@ public class IntegracaoNfe extends Servico {
                 icms.setVPIS(NumberUtil.decimalBanco(0d));
                 icms.setVCOFINS(NumberUtil.decimalBanco(0d));
             } else {
-                if (isUsingEmissorFiscal && hojeUsaOEmissorFiscal()) {
+                if (isUsingEmissorFiscal) {
                     icms.setVPIS(NumberUtil.decimalBanco(nota.getPisValor()));
                     icms.setVCOFINS(NumberUtil.decimalBanco(nota.getCofinsValor()));
                     return icms;
@@ -1835,7 +1807,7 @@ public class IntegracaoNfe extends Servico {
 
         // O valor e verdadeiro quando o produto for isento
         if (item.getPisCofins()) {
-            if (isUsingEmissorFiscal &&  hojeUsaOEmissorFiscal()) {
+            if (isUsingEmissorFiscal) {
                 return nfeEmissorFiscal.atribuiPis(item);
             }
 
@@ -1948,7 +1920,7 @@ public class IntegracaoNfe extends Servico {
         } else {
 //            ProdutoTributacaoModel tributacao = ProdutoTributacaoBean.getTributacao(item.getTributacaoCodigo());
 //            tributacao.
-            if (isUsingEmissorFiscal &&  hojeUsaOEmissorFiscal()) {
+            if (isUsingEmissorFiscal) {
                 return nfeEmissorFiscal.atribuiPis(item);
             }
             switch (item.getCfop()) {
@@ -2137,7 +2109,7 @@ public class IntegracaoNfe extends Servico {
 
         // O valor e verdadeiro quando o produto for isento
         if (item.getPisCofins()) {
-            if (isUsingEmissorFiscal &&  hojeUsaOEmissorFiscal()) {
+            if (isUsingEmissorFiscal) {
                 return nfeEmissorFiscal.atribuiCofins(item);
             }
             
@@ -2248,7 +2220,7 @@ public class IntegracaoNfe extends Servico {
                     break;
             }
         } else {
-            if (isUsingEmissorFiscal &&  hojeUsaOEmissorFiscal()) {
+            if (isUsingEmissorFiscal) {
                 return nfeEmissorFiscal.atribuiCofins(item);
             }
             switch (item.getCfop()) {
@@ -2394,7 +2366,7 @@ public class IntegracaoNfe extends Servico {
     private TIpi ipi(NfeItemModel item) throws DbfDatabaseException {             
         TIpi ipi = new TIpi();
         if (this.tributaIpi) {
-            if (isUsingEmissorFiscal &&  hojeUsaOEmissorFiscal()) {
+            if (isUsingEmissorFiscal) {
                 if(nfeEmissorFiscal.isIpiNt(item)) {
                     return nfeEmissorFiscal.setIpiNt(item, cnpj);
                 }
