@@ -233,7 +233,7 @@ public class IntegracaoNfeEmissorFiscal {
     }
     
     // ================================= ICMS ===================================
-//    
+    
 //    private String montaMsgInformacaoAdicionalProduto(ICMS icms, NfeItemModel item) {
 //        String msgAliquota = " (" + NumberUtil.decimalBanco(item.getIcmsIndicePobrezaAliquota()) + "%)";
 //        switch (item.getSituacaoTributaria()) {
@@ -265,108 +265,103 @@ public class IntegracaoNfeEmissorFiscal {
 //                return "";
 //        }
 //    }
-//    
+    
 //    private String getMsgBaseFcpAndValorFcp(String vBaseCalcFcp, String valorFcp, String aliquota) {
 //        return "Valor base calculo FCP R$ " +vBaseCalcFcp + "; "
 //                + " Valor FCP R$ " + valorFcp + aliquota + "; ";
 //    }
-//    
+    
 //    private String getMsgValorFcpSt(double valorFcpSt, String aliquota) {
 //        return " Valor FCP ST R$ " + valorFcpSt + aliquota + "; ";
 //    }
-//            
-//    public ICMS atribuiIcms(ICMS icms, NfeItemModel item, String origem) {
-//        switch(item.getSituacaoTributaria()) {
-//            case 0:
-//                return atribuiIcms00(icms, item, origem);
-//            case 10:
-//                return atribuiIcms10(icms, item, origem);
-//            case 20:
-//                return atribuiIcms20(icms, item, origem);
-//            case 40:
-//                return atribuiIcms40(icms, item, origem);
-//            case 60:
-////                return atribuiIcms60(icms, item, origem);
-//        }
-//        
-//        return null;
-//    }
-//    
-//    private ICMS atribuiIcms00(ICMS icms, NfeItemModel item, String origem) {
-//        ICMS00 tribuIcms00 = new ICMS00();
-//        tribuIcms00.setCST(Integer.toString(item.getSituacaoTributaria()));
-//        tribuIcms00.setOrig(origem);
-//        tribuIcms00.setModBC("3");
-//        tribuIcms00.setVBC(NumberUtil.decimalBanco(item.getBaseIcmsValor()));
-//        tribuIcms00.setPICMS(NumberUtil.decimalBanco(item.getIcmsAliquota() * 100));
-//        tribuIcms00.setVICMS(NumberUtil.decimalBanco(item.getIcmsValor()));
-//        icms.setICMS00(tribuIcms00);
-//        return  icms;
-//    }
-//    
-//    private ICMS atribuiIcms10(ICMS icms, NfeItemModel item, String origem) {
-//        ICMS10 tribuICMS10 = new ICMS10();
-//        tribuICMS10.setCST(Integer.toString(item.getSituacaoTributaria()));
-//        tribuICMS10.setOrig(origem);
-//        tribuICMS10.setModBC("3");
-//        tribuICMS10.setVBC(NumberUtil.decimalBanco(item.getBaseIcmsValor()));
-//        tribuICMS10.setPICMS(NumberUtil.decimalBanco(item.getIcmsAliquota() * 100));
-//        tribuICMS10.setVICMS(NumberUtil.decimalBanco(item.getIcmsValor()));
-//        tribuICMS10.setModBCST("4");
-//        // AGORA TENHO QUE VER COMO FUNCIONA A ST
-//        tribuICMS10.setVBCST(NumberUtil.decimalBanco(item.getBaseIcmsStValor()));
-//        tribuICMS10.setPMVAST(NumberUtil.decimalBanco(item.getIva()));
-//        
-//        tribuICMS10.setPICMSST(NumberUtil.decimalBanco(item.getIcmsAliquota() * 100));        
-//        tribuICMS10.setVICMSST(NumberUtil.decimalBanco(item.getValorIcmsSt()));
-//        
-//        if (item.getValorIcmsStPorcentagemReducao() > 0) {
-//            tribuICMS10.setPRedBCST(NumberUtil.decimalBanco(item.getValorIcmsStPorcentagemReducao()));
-//        }
-//        
-////  //       Essa parte (FCP e DIFAL) está sendo CALCULADA AQUI no ERP e não no EMISSOR-FISCAL 
-//// SEGUNDO a GABRIELA: FCP e DIFAL são emitidos com CST 00
-//
-////        if (nfeTributaDifal && item.getValorIcmsSt() > 0 && item.getIcmsIndicePobrezaAliquota() > 0
-////                && item.getValorIcmsUFDestino() == 0) { //ICMS UF Destino = 0, garante que a nota nao tenha DIFAL (nota para contribuite de ICMS)
-////            tribuICMS10.setVBCFCP(tribuICMS10.getVBC());
-////            tribuICMS10.setPFCP(NumberUtil.decimalBanco(item.getIcmsIndicePobrezaAliquota() * 100));
-////            tribuICMS10.setVFCP(NumberUtil.decimalBanco(item.getValorIcmsIndicePobreza()));
-////            tribuICMS10.setVBCFCPST(tribuICMS10.getVBCST());
-////            tribuICMS10.setPFCPST(NumberUtil.decimalBanco(item.getIcmsIndicePobrezaAliquota()));
-////            tribuICMS10.setVFCPST(NumberUtil.decimalBanco(item.getValorIcmsSTIndicePobrezaOperacaoInternaInterestadualST()));
-////            if (item.getValorIcmsIndicePobreza() > 0) {
-////                this.informacaoAdicionalProduto += montaMsgInformacaoAdicionalProduto(icms, item);
-////            }
-////            if (item.getValorIcmsSTIndicePobrezaOperacaoInternaInterestadualST() > 0) {
-////                this.informacaoAdicionalProduto += montaMsgInformacaoAdicionalProduto(icms, item);
-////            }
-////        }
-//        icms.setICMS10(tribuICMS10);
-//        return icms;
-//    }
-//    
-//    
-//    private ICMS atribuiIcms20(ICMS icms, NfeItemModel item, String origem) {
-//        ICMS20 tributaICMS20 = new ICMS20();
-//        tributaICMS20.setCST(Integer.toString(item.getSituacaoTributaria()));
-//        tributaICMS20.setOrig(origem);
-//        tributaICMS20.setModBC("3");
-//        tributaICMS20.setVBC(NumberUtil.decimal(item.getBaseIcmsValor()));
-//        tributaICMS20.setPICMS(NumberUtil.decimal(item.getIcmsAliquota() * 100));
-//        tributaICMS20.setVICMS(NumberUtil.decimal(item.getIcmsValor()));
-//        if (item.getValorIcmsStPorcentagemReducaoPorcentagem() > 0) {
-//            tributaICMS20.setPRedBC(NumberUtil.decimalBanco(item.getValorIcmsStPorcentagemReducao() * 100));
-//        } else {
-//            tributaICMS20.setPRedBC("0.00");
-//        }
-//        // TILL HERE is OK, without prolems (I think and i hope)
-//        // Seguindo a classe IntegracaoNfe, aqui teria o preenchimento referente ao FCP
-//        // Porém a Gabriela (contabilidade) disse que: DIFAL e FCP, é na CST 00
-//        
-//        icms.setICMS20(tributaICMS20); 
-//        return icms;
-//    }
+            
+    public ICMS atribuiIcms(ICMS icms, NfeItemModel item, String origem) {
+//        ICMS icms = null;
+        switch(item.getSituacaoTributaria()) {
+            case 0:
+                icms = atribuiIcms00(icms, item, origem);
+                break;
+            case 10:
+                icms = atribuiIcms10(icms, item, origem);
+                break;
+            case 20:
+                icms = atribuiIcms20(icms, item, origem);
+                break;
+            case 30:
+                icms = atribuiIcms30(icms, item, origem);
+            case 40:
+                return atribuiIcms40(icms, item, origem);
+            case 60:
+                icms = atribuiIcms60(icms, item, origem);
+                break;
+            case 70:
+                icms = atribuiIcms70(icms, item, origem);
+                break;
+            case 90:
+                icms = atribuiIcms90(icms, item, origem);
+                break;
+//            default:
+//                icms = new ICMS();
+        }
+        return icms;
+    }
+    
+    private ICMS atribuiIcms00(ICMS icms, NfeItemModel item, String origem) {
+        ICMS00 tribuIcms00 = new ICMS00();
+        tribuIcms00.setOrig(origem);
+        tribuIcms00.setCST("0" +Integer.toString(item.getSituacaoTributaria()));
+        tribuIcms00.setModBC("3");      // 3 Valor da Operacao
+        tribuIcms00.setVBC(NumberUtil.decimalBanco(item.getBaseIcmsValor()));
+        tribuIcms00.setPICMS(NumberUtil.decimalBanco(item.getIcmsAliquota() * 100));
+        tribuIcms00.setVICMS(NumberUtil.decimalBanco(item.getIcmsValor()));
+        icms.setICMS00(tribuIcms00);
+        return icms;
+    }
+    
+    private ICMS atribuiIcms10(ICMS icms, NfeItemModel item, String origem) {
+        ICMS10 tribuICMS10 = new ICMS10();
+        tribuICMS10.setOrig(origem);
+        tribuICMS10.setCST(Integer.toString(item.getSituacaoTributaria()));
+        tribuICMS10.setModBC("3");
+        tribuICMS10.setVBC(NumberUtil.decimalBanco(item.getBaseIcmsValor()));
+        tribuICMS10.setPICMS(NumberUtil.decimalBanco(item.getIcmsAliquota() * 100));
+        tribuICMS10.setVICMS(NumberUtil.decimalBanco(item.getIcmsValor()));
+        // ICMS ST
+        tribuICMS10.setModBCST("4");
+        tribuICMS10.setVBCST(NumberUtil.decimalBanco(item.getBaseIcmsStValor()));
+        tribuICMS10.setPMVAST(NumberUtil.decimalBanco(item.getIva() * 100));
+        tribuICMS10.setPICMSST(NumberUtil.decimalBanco(item.getIcmsStAliquota() * 100));        
+        tribuICMS10.setVICMSST(NumberUtil.decimalBanco(item.getValorIcmsSt()));
+        
+        if (item.getValorIcmsStPorcentagemReducao() > 0) {
+            tribuICMS10.setPRedBCST(NumberUtil.decimalBanco(item.getValorIcmsStPorcentagemReducao() * 100));
+        }
+        /* A parte relacionada ao FCP e DIFAl, que tem na classe "IntegracaoNfe", não foi colocado aqui, pois segundo Gabriela
+         * A autogeral usa ambos, apenas na CST 00: Na TAG -> (ICMSUFDest)
+         */
+        icms.setICMS10(tribuICMS10);
+        return icms;
+    }
+    
+    private ICMS atribuiIcms20(ICMS icms, NfeItemModel item, String origem) {
+        ICMS20 tributaICMS20 = new ICMS20();
+        tributaICMS20.setCST(Integer.toString(item.getSituacaoTributaria()));
+        tributaICMS20.setOrig(origem);
+        tributaICMS20.setModBC("3");
+        tributaICMS20.setVBC(NumberUtil.decimal(item.getBaseIcmsValor()));
+        tributaICMS20.setPICMS(NumberUtil.decimal(item.getIcmsAliquota() * 100));
+        tributaICMS20.setVICMS(NumberUtil.decimal(item.getIcmsValor()));
+        tributaICMS20.setPRedBC(NumberUtil.decimalBanco(item.getValorIcmsStPorcentagemReducao() * 100));
+        /* A parte relacionada ao FCP e DIFAl, que tem na classe "IntegracaoNfe", não foi colocado aqui, pois segundo Gabriela
+         * A autogeral usa ambos, apenas na CST 00: Na TAG -> (ICMSUFDest)
+         */
+        icms.setICMS20(tributaICMS20); 
+        return icms;
+    }
+    
+    // ACIMA ESTÁ OK
+
+    
 //    private ICMS atribuiIcms40(ICMS icms, NfeItemModel item, String origem) {
 //        ICMS40 tributaICMS40 = new ICMS40();
 //        tributaICMS40.setCST(Integer.toString(item.getSituacaoTributaria()));
