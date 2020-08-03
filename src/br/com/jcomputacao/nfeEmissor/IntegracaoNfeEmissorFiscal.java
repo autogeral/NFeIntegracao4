@@ -14,6 +14,7 @@ import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS;
 import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMS00;
 import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMS10;
 import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMS20;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMS30;
 import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMS40;
 import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMS51;
 import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMS60;
@@ -359,9 +360,48 @@ public class IntegracaoNfeEmissorFiscal {
         return icms;
     }
     
+    private ICMS atribuiIcms30(ICMS icms, NfeItemModel item, String origem) {
+        ICMS30 tributaICMS30 = new ICMS30();
+        tributaICMS30.setCST(Integer.toString(item.getSituacaoTributaria()));
+        tributaICMS30.setOrig(origem);
+        tributaICMS30.setModBCST("4");
+        tributaICMS30.setVBCST(NumberUtil.decimalBanco(item.getBaseIcmsStValor()));
+        tributaICMS30.setPMVAST(NumberUtil.decimalBanco(item.getIva() * 100));
+        tributaICMS30.setPRedBCST(NumberUtil.decimalBanco(item.getValorIcmsStPorcentagemReducao() * 100));
+        tributaICMS30.setPICMSST(NumberUtil.decimalBanco(item.getIcmsStAliquota() * 100));        
+        tributaICMS30.setVICMSST(NumberUtil.decimalBanco(item.getValorIcmsSt()));
+        icms.setICMS30(tributaICMS30);
+        return icms;
+    }
+    
+    private ICMS atribuiIcms40(ICMS icms, NfeItemModel item, String origem) {
+        ICMS40 tributaICMS40 = new ICMS40();
+        tributaICMS40.setCST(Integer.toString(item.getSituacaoTributaria()));
+        tributaICMS40.setOrig(origem);
+        icms.setICMS40(tributaICMS40);
+        return icms;
+    }
+
+//    atribuiIcms41
+//    atribuiIcms50
+//    atribuiIcms51
+
     // ACIMA ESTÁ OK
+    
+    private ICMS atribuiIcms60(ICMS icms, NfeItemModel item, String origem) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 
     
+    private ICMS atribuiIcms70(ICMS icms, NfeItemModel item, String origem) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    
+    private ICMS atribuiIcms90(ICMS icms, NfeItemModel item, String origem) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
 //    private ICMS atribuiIcms40(ICMS icms, NfeItemModel item, String origem) {
 //        ICMS40 tributaICMS40 = new ICMS40();
 //        tributaICMS40.setCST(Integer.toString(item.getSituacaoTributaria()));
@@ -386,6 +426,8 @@ public class IntegracaoNfeEmissorFiscal {
     
     // TENHO que montar o metodo de difaL; ICMSUfDest difal(item)
 
-    
+   
+ 
+
 
 }
