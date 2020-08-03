@@ -18,6 +18,7 @@ import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICM
 import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMS40;
 import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMS51;
 import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMS60;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMS70;
 import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMS90;
 import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMSSN101;
 import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMSSN102;
@@ -386,18 +387,43 @@ public class IntegracaoNfeEmissorFiscal {
 //    atribuiIcms50
 //    atribuiIcms51
 
-    // ACIMA ESTÁ OK
-    
     private ICMS atribuiIcms60(ICMS icms, NfeItemModel item, String origem) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ICMS60 tributaICMS60 = new ICMS60();
+        tributaICMS60.setCST(Integer.toString(item.getSituacaoTributaria()));
+        tributaICMS60.setOrig(origem);
+        tributaICMS60.setVBCSTRet(NumberUtil.decimalBanco(item.getIcmsStBaseRetido()));
+        tributaICMS60.setVICMSSTRet(NumberUtil.decimalBanco(item.getIcmsStValorRetido()));
+        tributaICMS60.setPST(NumberUtil.decimalBanco(item.getIcmsStAliquota() * 100));
+        tributaICMS60.setVICMSSubstituto(NumberUtil.decimal(item.getIcmsValor()));
+        /* A parte relacionada ao FCP ST RET, que tem na classe "IntegracaoNfe", não foi colocado aqui, pois segundo Gabriela
+         * É para um tipo de operação que a AutoGeral, NÃO usa
+         */
+        icms.setICMS60(tributaICMS60);
+        return icms;
     }
-
     
     private ICMS atribuiIcms70(ICMS icms, NfeItemModel item, String origem) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ICMS70 tributaICMS70 = new ICMS70();
+        tributaICMS70.setCST(Integer.toString(item.getSituacaoTributaria()));
+        tributaICMS70.setOrig(origem);
+        tributaICMS70.setModBC("3");
+        tributaICMS70.setVBC(NumberUtil.decimalBanco(item.getBaseIcmsValor()));
+        tributaICMS70.setPICMS(NumberUtil.decimalBanco(item.getIcmsAliquota() * 100));
+        tributaICMS70.setVICMS(NumberUtil.decimalBanco(item.getIcmsValor()));
+        tributaICMS70.setPRedBC(NumberUtil.decimalBanco(item.getValorIcmsStPorcentagemReducao() * 100));
+//        ICMS ST
+        tributaICMS70.setModBCST("4");
+        tributaICMS70.setVBCST(NumberUtil.decimalBanco(item.getBaseIcmsStValor()));
+        tributaICMS70.setPMVAST(NumberUtil.decimalBanco(item.getIva() * 100));
+        tributaICMS70.setPRedBCST(NumberUtil.decimalBanco(item.getValorIcmsStPorcentagemReducao() * 100));
+        tributaICMS70.setPICMSST(NumberUtil.decimalBanco(item.getIcmsStAliquota() * 100));        
+        tributaICMS70.setVICMSST(NumberUtil.decimalBanco(item.getValorIcmsSt()));
+        icms.setICMS70(tributaICMS70);
+        return icms;
     }
 
-    
+        // ACIMA ESTÁ OK
+
     private ICMS atribuiIcms90(ICMS icms, NfeItemModel item, String origem) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
