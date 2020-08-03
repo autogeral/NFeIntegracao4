@@ -422,34 +422,37 @@ public class IntegracaoNfeEmissorFiscal {
         return icms;
     }
 
-        // ACIMA ESTÁ OK
-
     private ICMS atribuiIcms90(ICMS icms, NfeItemModel item, String origem) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ICMS90 tributaICMS90 = new ICMS90();
+        tributaICMS90.setCST(Integer.toString(item.getSituacaoTributaria()));
+        tributaICMS90.setOrig(origem);
+        
+        if (item.getBaseIcmsValor() > 0) {
+            tributaICMS90.setModBC("3");
+            tributaICMS90.setPRedBC(NumberUtil.decimalBanco(item.getValorIcmsStPorcentagemReducao() * 100));
+            tributaICMS90.setVBC(NumberUtil.decimalBanco(item.getBaseIcmsValor()));
+            tributaICMS90.setPICMS(NumberUtil.decimalBanco(item.getIcmsAliquota() * 100));
+            tributaICMS90.setVICMS(NumberUtil.decimalBanco(item.getIcmsValor()));
+            /* A parte relacionada ao FCP, que tem na classe "IntegracaoNfe", não foi colocado aqui, pois segundo Gabriela
+            * A autogeral usa ambos, apenas na CST 00: Na TAG -> (ICMSUFDest)
+            */
+        }
+        
+        if (item.getBaseIcmsStValor() > 0) {
+            tributaICMS90.setModBCST("4");
+            tributaICMS90.setVBCST(NumberUtil.decimalBanco(item.getBaseIcmsStValor()));
+            tributaICMS90.setPMVAST(NumberUtil.decimalBanco(item.getIva() * 100));
+            tributaICMS90.setPRedBCST(NumberUtil.decimalBanco(item.getValorIcmsStPorcentagemReducao() * 100));
+            tributaICMS90.setPICMSST(NumberUtil.decimalBanco(item.getIcmsStAliquota() * 100));        
+            tributaICMS90.setVICMSST(NumberUtil.decimalBanco(item.getValorIcmsSt()));
+            
+        }
+        icms.setICMS90(tributaICMS90);
+        return icms;
     }
+    
+            // ACIMA ESTÁ OK
 
-//    private ICMS atribuiIcms40(ICMS icms, NfeItemModel item, String origem) {
-//        ICMS40 tributaICMS40 = new ICMS40();
-//        tributaICMS40.setCST(Integer.toString(item.getSituacaoTributaria()));
-//        tributaICMS40.setOrig(origem);
-//        icms.setICMS40(tributaICMS40);
-//        return icms;
-//    }
-    
-    
-    
-    
-    
-    
-//    private ICMS atribuiIcms60(ICMS icms, NfeItemModel item, String origem) {
-//        ICMS60 tribuataICMS60 = new ICMS60();
-////        tribuataICMS60
-//    }
-
-//    private ICMS atribuiIcms40(ICMS icms, NfeItemModel item, String origem) {
-//        
-//    }
-    
     // TENHO que montar o metodo de difaL; ICMSUfDest difal(item)
 
    
