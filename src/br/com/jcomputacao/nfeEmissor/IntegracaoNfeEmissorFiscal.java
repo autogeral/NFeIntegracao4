@@ -308,6 +308,29 @@ public class IntegracaoNfeEmissorFiscal {
         return icms;
     }
     
+    public ICMSUFDest difal(NfeItemModel item) {
+        ICMSUFDest difal = new ICMSUFDest();
+          if (item.isDestacaDescontoNoCorpoDoDocumentoFiscal()) {
+            // O IDEAL, é enviar para o "EMISSOR-FISCAL", quantos de DESCONTO, o item terá, fazer esse calculo LÁ
+            String vBUFDest = NumberUtil.decimalBanco(item.getBaseIcmsUFDestinoDifal() - item.getDescontoValor());
+            difal.setVBCUFDest(vBUFDest);
+            difal.setVBCFCPUFDest(vBUFDest);
+        } else {
+            String vBUFDest = NumberUtil.decimalBanco(item.getBaseIcmsUFDestinoDifal());
+            difal.setVBCUFDest(vBUFDest);
+            difal.setVBCFCPUFDest(vBUFDest);
+        }
+        difal.setPFCPUFDest(NumberUtil.decimalBanco(item.getIcmsIndicePobrezaAliquota() * 100));
+        difal.setPICMSUFDest(NumberUtil.decimalBanco(item.getIcmsInternaUFDestinoAliquota() * 100));
+        difal.setPICMSInter(NumberUtil.decimalBanco(item.getIcmsAliquota() * 100));  
+        difal.setPICMSInterPart("100.00");
+        // FCP
+        difal.setVFCPUFDest(NumberUtil.decimalBanco(item.getValorIcmsIndicePobreza()));
+        difal.setVICMSUFDest(NumberUtil.decimalBanco(item.getValorIcmsUFDestino()));
+        difal.setVICMSUFRemet(NumberUtil.decimalBanco(item.getValorIcmsUFRemetente()));
+        return difal;
+    }
+            
     private ICMS atribuiIcms00(ICMS icms, NfeItemModel item, String origem) {
         ICMS00 tribuIcms00 = new ICMS00();
         tribuIcms00.setOrig(origem);
@@ -450,13 +473,5 @@ public class IntegracaoNfeEmissorFiscal {
         icms.setICMS90(tributaICMS90);
         return icms;
     }
-    
-            // ACIMA ESTÁ OK
-
-    // TENHO que montar o metodo de difaL; ICMSUfDest difal(item)
-
-   
- 
-
 
 }
