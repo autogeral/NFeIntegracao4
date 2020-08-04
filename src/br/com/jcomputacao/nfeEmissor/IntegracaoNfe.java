@@ -31,6 +31,7 @@ import br.com.jcomputacao.model.NfePagamentoParcelaModel;
 import br.com.jcomputacao.model.NfeReferenciaModel;
 import br.com.jcomputacao.model.ProdutoDBFModel;
 import br.com.jcomputacao.model.ProdutoOrigem;
+import br.com.jcomputacao.model.VendaTipo;
 import br.com.jcomputacao.model.beans.LojaBean;
 import br.com.jcomputacao.model.beans.ModoPagamentoBean;
 import br.com.jcomputacao.model.beans.MovimentoOperacaoBean;
@@ -2520,6 +2521,9 @@ public class IntegracaoNfe extends Servico {
         if(this.obsEntregaBalcaoClienteForaEstado) {
             info += " VENDA BALCAO";     
         }
+        if(nfeModel.getOrigemTipo() != null && nfeModel.getOrigemTipo().equals(VendaTipo.ROMANEIO)) {
+            info += "Cod. Painel " + formataNumeroPainel(String.valueOf(nfeModel.getOrigemCodigo()));
+        }
         infAdicionais.setInfCpl(StringUtil.noSpecialKeys(info, new String[]{".", ",", "$", "%"}));
         inf.setInfAdic(infAdicionais);
 
@@ -3000,4 +3004,12 @@ public class IntegracaoNfe extends Servico {
         } 
         return ncm;
     }    
+    
+    private String formataNumeroPainel(String numero) {
+        if (numero.length() > 4) {
+            return numero.substring(numero.length() - 5, numero.length());
+        }
+
+        return numero;
+    }
 }
