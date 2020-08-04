@@ -1,9 +1,15 @@
 package br.com.jcomputacao.nfeEmissor;
 
+import br.com.jcomputacao.exception.DbfDatabaseException;
+import br.com.jcomputacao.exception.DbfException;
+import br.com.jcomputacao.model.MovimentoOperacaoModel;
 import br.com.jcomputacao.model.NfeItemModel;
+import br.com.jcomputacao.model.NfeModel;
+import br.com.jcomputacao.model.beans.MovimentoOperacaoBean;
 import br.com.jcomputacao.util.NumberUtil;
 import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TIpi;
 import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TIpi.IPINT;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe;
 import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.COFINS;
 import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.COFINS.COFINSAliq;
 import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.COFINS.COFINSNT;
@@ -27,6 +33,7 @@ import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICM
 import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMSSN500;
 import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMSSN900;
 import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMSUFDest;
+import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Total.ICMSTot;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -40,7 +47,7 @@ public class IntegracaoNfeEmissorFiscal {
     Set<Integer> cstsPisCofinsOutr = new HashSet<Integer>();
     Set<Integer> cstsPisCofinsNt = new HashSet<Integer>();
     
-//    private static final boolean nfeTributaDifal = Boolean.parseBoolean(System.getProperty("nfe.tributa.difal", "false"));
+//    private static final boolean nfeTributaDifal = Boolean.parseBoolean(System.getProperty("nfe.tributa.atribuiDifal", "false"));
 //    private String informacaoAdicionalProduto = "";
 //
 //    public String getInformacaoAdicionalProduto() {
@@ -276,6 +283,68 @@ public class IntegracaoNfeEmissorFiscal {
 //    private String getMsgValorFcpSt(double valorFcpSt, String aliquota) {
 //        return " Valor FCP ST R$ " + valorFcpSt + aliquota + "; ";
 //    }
+    
+    /**
+     * Criando o campo "total", referente ao DocumentoFiscal.
+     * Assim como os outros métodos, referentes aos tributos IPI/PIS/COFINS e ICMS, NÃO está setando os valores, para a empresa
+     * do SIMPLES NACIONAL, (EX.: WFB), por isso se a propertie do emissor-fiscal, estiver desabilitada, usará os métodos
+     * da classe IntegracaoNfe (lá monta esses campos para o SIMPLES nacional)
+     * 
+     * @param nota
+     * @return
+     * @throws DbfDatabaseException
+     * @throws DbfException 
+     */
+    public ICMSTot atribuiTotalIcms(NfeModel nota) throws DbfDatabaseException, DbfException {
+        ICMSTot icmsTot = new ICMSTot();
+
+        icmsTot.setVBC(NumberUtil.decimalBanco((nota.getIcmsBase())));
+        icmsTot.setVICMS(NumberUtil.decimalBanco((nota.getIcmsValor())));
+        if (nota.getIcmsValor() > 0
+                || (nota.getOperacao().isComplementoImposto() && nota.getIcmsStBase() > 0)) {
+            icmsTot.setVBCST(NumberUtil.decimalBanco(nota.getIcmsStBase()));
+        } else {
+            icmsTot.setVBCST(NumberUtil.decimalBanco(0));
+        }
+        icmsTot.setVICMSDeson(NumberUtil.decimalBanco(0));
+        
+        // ATEH ACIMA OK 
+        if(nota.getValorIcmsUFDestino() > 0) {
+            icmsTot.setVFCPUFDest(NumberUtil.decimal(nota.getValorIcmsIndicePobreza()).replace(",", "."));
+            icmsTot.setVICMSUFDest(NumberUtil.decimal(nota.getValorIcmsUFDestino()).replace(",", "."));
+            icmsTot.setVICMSUFRemet("0.00");
+        }
+        icmsTot.setVFCP("0.00");
+        icmsTot.setVFCPST("0.00");
+        icmsTot.setVFCPSTRet("0.00");
+
+        icmsTot.setVST(NumberUtil.decimalBanco(nota.getIcmsStValor()));
+        icmsTot.setVProd(NumberUtil.decimalBanco(nota.getValorProdutos()));
+        icmsTot.setVFrete(NumberUtil.decimalBanco(nota.getValorFrete()));
+        icmsTot.setVSeg(NumberUtil.decimalBanco(nota.getValorSeguro()));     
+        
+        if(nota.isDestacaDescontoNoCorpoDoDocumentoFiscal() && nota.getDescontoValor() > 0) {
+            icmsTot.setVDesc(NumberUtil.decimalBanco(nota.getDescontoValor()));
+        } else {
+            icmsTot.setVDesc("0.00");
+        }
+        
+        icmsTot.setVII("0.00");
+//        icms.setVIPI(this.tributaIpi ? NumberUtil.decimalBanco(nota.getValorIpi()) : "0.00");
+//        icms.setVIPIDevol(!this.tributaIpi ? NumberUtil.decimalBanco(nota.getValorIpi()) : "0.00");
+        icmsTot.setVOutro(NumberUtil.decimalBanco(nota.getOutrasDespesas()));
+        icmsTot.setVNF(NumberUtil.decimalBanco(nota.getValorTotal()));      // Tenho que ver se está sendo calculado no emissor
+        
+        MovimentoOperacaoModel operacao = MovimentoOperacaoBean.getMovimentoPorCodigo(nota.getOperacaoCodigo());
+        if (operacao == null) {
+            throw new DbfException("Nao foi encontrada operacao para a nfe " + nota.getNumero() + "." + nota.getLoja());
+        }
+        
+        icmsTot.setVPIS(NumberUtil.decimalBanco(nota.getPisValor()));
+        icmsTot.setVCOFINS(NumberUtil.decimalBanco(nota.getCofinsValor()));
+        
+        return icmsTot;
+    }
             
     public ICMS atribuiIcms(ICMS icms, NfeItemModel item, String origem) {
 //        ICMS icms = null;
@@ -291,8 +360,10 @@ public class IntegracaoNfeEmissorFiscal {
                 break;
             case 30:
                 icms = atribuiIcms30(icms, item, origem);
+                break;
             case 40:
-                return atribuiIcms40(icms, item, origem);
+                icms = atribuiIcms40(icms, item, origem);
+                break;
             case 60:
                 icms = atribuiIcms60(icms, item, origem);
                 break;
@@ -308,7 +379,7 @@ public class IntegracaoNfeEmissorFiscal {
         return icms;
     }
     
-    public ICMSUFDest difal(NfeItemModel item) {
+    public ICMSUFDest atribuiDifal(NfeItemModel item) {
         ICMSUFDest difal = new ICMSUFDest();
           if (item.isDestacaDescontoNoCorpoDoDocumentoFiscal()) {
             // O IDEAL, é enviar para o "EMISSOR-FISCAL", quantos de DESCONTO, o item terá, fazer esse calculo LÁ
