@@ -1490,6 +1490,7 @@ public class IntegracaoNfe extends Servico {
             case 5656:            
             case 5659:
             case 6659:
+            case 2556://devolucao interestadual com icms
             case 5661: {
                 switch (item.getSituacaoTributaria()) {
                     case 10:
@@ -1767,6 +1768,7 @@ public class IntegracaoNfe extends Servico {
     private PIS pis(NfeItemModel item) {
         PISAliq pisAliquota = new PISAliq();
         PISNT pisnt = new PISNT();
+        PIS.PISOutr pisOutr = new PIS.PISOutr();
         PIS pis = new PIS();
 
         if (simples) {
@@ -1774,8 +1776,7 @@ public class IntegracaoNfe extends Servico {
                     System.getProperty("destaca.impostos.corpoNota", "false"));
             if (item.getSituacaoTributaria() == 41
                     || item.getSituacaoTributaria() == 20 || item.getSituacaoTributaria() == 201
-                    || item.getSituacaoTributaria() == 102 || item.getSituacaoTributaria() == 101) {
-                PIS.PISOutr pisOutr = new PIS.PISOutr();
+                    || item.getSituacaoTributaria() == 102 || item.getSituacaoTributaria() == 101) {                
                 pisOutr.setCST("99");
                 pisOutr.setVBC("0.00");
                 pisOutr.setPPIS("0.00");
@@ -1785,15 +1786,13 @@ public class IntegracaoNfe extends Servico {
                     && destacaImpostoCorpoNotaParaSimplesNacional && !item.getPisCofins()) {
                 pis.setPISAliq(aplicaPisParaSimplesIcmsSn900(pisAliquota, item));
             } else if (item.getSituacaoTributaria() == 900
-                    && (!destacaImpostoCorpoNotaParaSimplesNacional || item.getPisCofins())) {
-                PIS.PISOutr pisOutr = new PIS.PISOutr();
+                    && (!destacaImpostoCorpoNotaParaSimplesNacional || item.getPisCofins())) {                
                 pisOutr.setCST("99");
                 pisOutr.setVBC("0.00");
                 pisOutr.setPPIS("0.00");
                 pisOutr.setVPIS("0.00");
                 pis.setPISOutr(pisOutr);
-            } else if(item.getSituacaoTributaria() == 400 && item.getPisCofins()) {
-                PIS.PISOutr pisOutr = new PIS.PISOutr();
+            } else if(item.getSituacaoTributaria() == 400 && item.getPisCofins()) {                
                 pisOutr.setCST("99");
                 pisOutr.setVBC("0.00");
                 pisOutr.setPPIS("0.00");
@@ -1830,8 +1829,7 @@ public class IntegracaoNfe extends Servico {
                 case 6202:
                 case 6201:
                 case 1201:
-                case 1202: //devolucao do 5102
-                case 2202:
+                case 1202: //devolucao do 5102                
                 case 5401:
                 case 6401:
                 case 2410://devolucao do 6401
@@ -1890,9 +1888,16 @@ public class IntegracaoNfe extends Servico {
                 case 5556://DEVOLUCAO DE MERCADORIA DE CONSUMO
                 case 5557://TRANSFERENCIA MATERIAL DE USO/CONSUMO    
                 case 6501://REMESSA DE PRODUCAO DO ESTABELECIMENTO COM FIM ESPECIFICO DE EXPORTACAO
-                case 5552://TRANSFERENCIA DE BEM OU ATIVO IMOBILIZADO
+                case 5552://TRANSFERENCIA DE BEM OU ATIVO IMOBILIZADO                
                     pisnt.setCST("08");
                     pis.setPISNT(pisnt);
+                    break;                
+                case 2202:                                        
+                    pisOutr.setCST("70");
+                    pisOutr.setVBC("0.00");                    
+                    pisOutr.setPPIS("0.00");
+                    pisOutr.setVPIS("0.00");
+                    pis.setPISOutr(pisOutr);
                     break;                
                 case 6551:
                 case 5908:
@@ -1904,8 +1909,7 @@ public class IntegracaoNfe extends Servico {
                 case 5117://REMESSA DE VENDA PARA ENTREGA FUTURA         
                 case 6911://REMESSA DE AMOSTRA GRATIS FORA DO ESTADO
                 case 5911://REMESSA DE AMOSTRA GRATIS DENTRO DO ESTADO
-                case 5918://RETORNO DE CONSIGNACAO                    
-                    PIS.PISOutr pisOutr = new PIS.PISOutr();
+                case 5918://RETORNO DE CONSIGNACAO                                        
                     pisOutr.setCST("99");
                     pisOutr.setQBCProd("0.0000");
                     pisOutr.setVAliqProd("0.0000");
@@ -2049,8 +2053,7 @@ public class IntegracaoNfe extends Servico {
                 case 5117://REMESSA DE VENDA PARA ENTREGA FUTURA     
                 case 6911://REMESSA DE AMOSTRA GRATIS FORA DO ESTADO
                 case 5911://REMESSA DE AMOSTRA GRATIS DENTRO DO ESTADO
-                case 5918://RETORNO DE CONSIGNACAO                    
-                    PIS.PISOutr pisOutr = new PIS.PISOutr();
+                case 5918://RETORNO DE CONSIGNACAO                                        
                     pisOutr.setCST("99");
                     pisOutr.setQBCProd("0.0000");
                     pisOutr.setVAliqProd("0.0000");
@@ -2070,14 +2073,14 @@ public class IntegracaoNfe extends Servico {
         COFINS cofins = new COFINS();
         COFINSAliq aliquota = new COFINSAliq();
         COFINSNT cofinsnt = new COFINSNT();
+        COFINS.COFINSOutr cofinsOutr = new COFINS.COFINSOutr();
 
         if (simples) {
             boolean destacaImpostoCorpoNotaParaSimplesNacional = Boolean.parseBoolean(
                     System.getProperty("destaca.impostos.corpoNota", "false"));
             if (item.getSituacaoTributaria() == 41
                     || item.getSituacaoTributaria() == 20 || item.getSituacaoTributaria() == 201
-                    || item.getSituacaoTributaria() == 102 || item.getSituacaoTributaria() == 101) {
-                COFINS.COFINSOutr cofinsOutr = new COFINS.COFINSOutr();
+                    || item.getSituacaoTributaria() == 102 || item.getSituacaoTributaria() == 101) {                
                 cofinsOutr.setCST("99");
                 cofinsOutr.setVBC("0.00");
                 cofinsOutr.setVCOFINS("0.00");
@@ -2087,15 +2090,13 @@ public class IntegracaoNfe extends Servico {
                     && destacaImpostoCorpoNotaParaSimplesNacional && !item.getPisCofins()) {
                 cofins.setCOFINSAliq(aplicaCofinsParaSimplesIcmsSn900(aliquota, item));
             } else if (item.getSituacaoTributaria() == 900
-                    && (!destacaImpostoCorpoNotaParaSimplesNacional || !item.getPisCofins())) {
-                COFINS.COFINSOutr cofinsOutr = new COFINS.COFINSOutr();
+                    && (!destacaImpostoCorpoNotaParaSimplesNacional || !item.getPisCofins())) {                
                 cofinsOutr.setCST("99");
                 cofinsOutr.setVBC("0.00");
                 cofinsOutr.setVCOFINS("0.00");
                 cofinsOutr.setPCOFINS("0.00");
                 cofins.setCOFINSOutr(cofinsOutr);
-            } else if(item.getSituacaoTributaria() == 400 && item.getPisCofins()) { 
-                COFINS.COFINSOutr cofinsOutr = new COFINS.COFINSOutr();
+            } else if(item.getSituacaoTributaria() == 400 && item.getPisCofins()) {                 
                 cofinsOutr.setCST("99");
                 cofinsOutr.setVBC("0.00");
                 cofinsOutr.setVCOFINS("0.00");
@@ -2131,7 +2132,6 @@ public class IntegracaoNfe extends Servico {
                 case 6201:
                 case 1201:
                 case 1202:
-                case 2202:
                 case 5401:
                 case 6401:
                 case 2410:
@@ -2192,10 +2192,17 @@ public class IntegracaoNfe extends Servico {
                 case 5556://DEVOLUCAO DE MERCADORIA PARA CONSUMO  
                 case 5557://TRANSFERENCIA MATERIAL DE USO/CONSUMO    
                 case 6501://REMESSA DE PRODUCAO DO ESTABELECIMENTO COM FIM ESPECIFICO DE EXPORTACAO                    
-                case 5552://TRANSFERENCIA DE BEM DO ATIVO IMOBILIZADO
+                case 5552://TRANSFERENCIA DE BEM DO ATIVO IMOBILIZADO                
                     cofinsnt.setCST("08");
                     cofins.setCOFINSNT(cofinsnt);
                     break;                
+                case 2202://DEVOLUCAO DE VENDA INTERESTADUAL PARA MONOFASICO
+                    cofinsOutr.setCST("70");
+                    cofinsOutr.setVBC("0.00");                    
+                    cofinsOutr.setPCOFINS("0.00");
+                    cofinsOutr.setVCOFINS("0.00");
+                    cofins.setCOFINSOutr(cofinsOutr);
+                    break;
                 case 5601:
                 case 5603:
                 case 5604:
@@ -2217,8 +2224,7 @@ public class IntegracaoNfe extends Servico {
                 case 5117://REMESSA DE VENDA PARA ENTREGA FUTURA           
                 case 6911://REMESSA DE AMOSTRA GRATIS FORA DO ESTADO
                 case 5911://REMESSA DE AMOSTRA GRATIS DENTRO DO ESTADO
-                case 5918://RETORNO DE CONSIGNACAO
-                    COFINS.COFINSOutr cofinsOutr = new COFINS.COFINSOutr();
+                case 5918://RETORNO DE CONSIGNACAO                    
                     cofinsOutr.setCST("99");
                     cofinsOutr.setQBCProd("0.0000");
                     cofinsOutr.setVAliqProd("0.0000");
@@ -2352,8 +2358,7 @@ public class IntegracaoNfe extends Servico {
                 case 5117://REMESSA DE VENDA PARA ENTREGA FUTURA          
                 case 6911://REMESSA DE AMOSTRA GRATIS FORA DO ESTADO
                 case 5911://REMESSA DE AMOSTRA GRATIS DENTRO DO ESTADO
-                case 5918://RETORNO DE CONSIGNACAO                    
-                    COFINS.COFINSOutr cofinsOutr = new COFINS.COFINSOutr();
+                case 5918://RETORNO DE CONSIGNACAO                                        
                     cofinsOutr.setCST("99");
                     cofinsOutr.setQBCProd("0.0000");
                     cofinsOutr.setVAliqProd("0.0000");
