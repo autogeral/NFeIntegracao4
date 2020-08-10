@@ -1199,20 +1199,26 @@ public class IntegracaoNfe extends Servico {
         prod.setCEAN(item.getCodigoBarras() != null && !item.getCodigoBarras().isEmpty() ? item.getCodigoBarras() : "SEM GTIN");
 
 
-        CestNcmModel ncm = buscarExistenciaCodigoCestParaItem(item);
-        if (item.getCEST() != null) {
-            String cest = StringUtil.somenteNumeros(ncm.buscaCest());
-            prod.setCEST(cest);
+        if (isUsingEmissorFiscal) {
+            prod.setCFOP(Integer.toString(item.getCfop()));
+            prod.setCEST(Integer.toString(item.getCEST()));
         } else {
-            //Cest para os produtos onde o ncm não está relacionado a nenhum 
-            //item da lista de cests.
-            //Apenas para alguns segmentos existe esta opcao de outros
-            String cest = System.getProperty("codigo.cest.outros");
-            if(cest != null) {
-                prod.setCEST(cest);
+            prod.setCFOP(Integer.toString(item.getCfop()));
+            CestNcmModel ncm = buscarExistenciaCodigoCestParaItem(item);
+            if (item.getCEST() != null) {
+                  String cest = StringUtil.somenteNumeros(ncm.buscaCest());
+                  prod.setCEST(cest);
+            } else {
+                  //Cest para os produtos onde o ncm não está relacionado a nenhum 
+                  //item da lista de cests.
+                  //Apenas para alguns segmentos existe esta opcao de outros
+                  String cest = System.getProperty("codigo.cest.outros");
+                  if(cest != null) {
+                      prod.setCEST(cest);
+                  }
             }
         }
-
+      
         boolean descricaoSimples = Boolean.parseBoolean(System.getProperty("nfe.descricao.simples", "true"));
         String descricao = null;
         if (descricaoSimples) {
@@ -1233,7 +1239,6 @@ public class IntegracaoNfe extends Servico {
 //        }
         prod.setIndTot(null);
         prod.setEXTIPI(null);
-        prod.setCFOP(Integer.toString(item.getCfop()));
         prod.setNCM(("".equals(item.getClasseFiscal()) ? null : StringUtil.somenteNumeros(item.getClasseFiscal())));
 
 //        item
