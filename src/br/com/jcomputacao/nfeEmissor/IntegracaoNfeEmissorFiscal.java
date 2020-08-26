@@ -45,6 +45,7 @@ import java.util.Set;
 public class IntegracaoNfeEmissorFiscal {
 
     Set<Integer> cstsPisCofinsOutr = new HashSet<Integer>();
+    Set<Integer> cstsPisCofinsOutrTribPercentual = new HashSet<Integer>();
     Set<Integer> cstsPisCofinsNt = new HashSet<Integer>();
     
 //    private static final boolean nfeTributaDifal = Boolean.parseBoolean(System.getProperty("nfe.tributa.atribuiDifal", "false"));
@@ -59,8 +60,11 @@ public class IntegracaoNfeEmissorFiscal {
 //    }
 //    
     public IntegracaoNfeEmissorFiscal() {
-        List<Integer> listCstsPisCofinsOutr = Arrays.asList(49 ,50 ,51 ,52 ,53 ,54 ,55 ,56 ,60 ,61 ,62 ,63 ,64 ,65 ,66 ,67 ,70 ,71 ,72 ,73 ,74 ,75 ,98 ,99);
+        List<Integer> listCstsPisCofinsOutr = Arrays.asList(49, 51 ,52 ,53 ,54 ,55 ,56 ,60 ,61 ,62 ,63 ,64 ,65 ,66 ,67 ,70 ,71 ,72 ,73 ,74 ,75 ,98 ,99);
         cstsPisCofinsOutr.addAll(listCstsPisCofinsOutr);
+        
+        List<Integer> listCstsPisCofinsOutrTribEmPercentual = Arrays.asList(50);
+        cstsPisCofinsOutrTribPercentual.addAll(listCstsPisCofinsOutrTribEmPercentual);
         
         List<Integer> listCstsPisCofinsNt = Arrays.asList(4, 5 , 6 , 7 , 8 , 9);
         cstsPisCofinsNt.addAll(listCstsPisCofinsNt);
@@ -77,6 +81,8 @@ public class IntegracaoNfeEmissorFiscal {
             pis = setPisNt(item);
         } else if (this.cstsPisCofinsOutr.contains(item.getPisSt())) {
             pis = setPisOutr(item);
+        } else if (this.cstsPisCofinsOutrTribPercentual.contains(item.getPisSt())) {
+            pis = setPisOutrPercentual(item);
         }
         return pis;
     }
@@ -103,6 +109,36 @@ public class IntegracaoNfeEmissorFiscal {
         pisOutr.setVAliqProd("0.0000");
         pisOutr.setVPIS("0.00");
         pis.setPISOutr(pisOutr);
+        return pis;
+    }
+    
+      
+    /**
+     * Calculo do PIS em percentual
+     * @param item
+     * @return 
+     */
+    private PIS setPisOutrPercentual(NfeItemModel item) {
+        PIS pis = new PIS();
+        PIS.PISOutr pisOutr = new PIS.PISOutr();
+        double aliquotaPis = item.getPisAliquota() * 100;
+        double valorPis;
+
+        if (item.isDestacaDescontoNoCorpoDoDocumentoFiscal()) {
+        // PS pegar do que foi retornado do EMISSOR FISCAL ? como funciona quando tem que destacar o desconto 
+        // pisAliquota.setVBC(NumberUtil.decimalBanco(item.getValorTotal() - item.getDescontoValor()));
+            pisOutr.setVBC(NumberUtil.decimalBanco(item.getPisBase() - item.getDescontoValor()));
+            valorPis = (item.getPisBase() - item.getDescontoValor()) * item.getPisAliquota();
+        } else {
+            pisOutr.setVBC(NumberUtil.decimalBanco(item.getPisBase()));
+            valorPis = item.getPisValor();
+        }
+        //        pisOutr.setVBC(NumberUtil.decimalBanco(item.getPisBase()));
+        pisOutr.setCST(Integer.toString(item.getPisSt()));
+        pisOutr.setPPIS(NumberUtil.decimalBanco(aliquotaPis));
+        pisOutr.setVPIS(NumberUtil.decimalBanco(valorPis));
+        pis.setPISOutr(pisOutr);
+        
         return pis;
     }
     
@@ -145,6 +181,8 @@ public class IntegracaoNfeEmissorFiscal {
             cofins = setCofinsNt(item);
         } else if (this.cstsPisCofinsOutr.contains(item.getCofinsSt())) {
             cofins = setCofinsOutr(item);
+        } else if (this.cstsPisCofinsOutrTribPercentual.contains(item.getCofinsSt())) {
+            cofins = setCofinsOutrPercentual(item);
         }
         return cofins;
     }
@@ -174,6 +212,38 @@ public class IntegracaoNfeEmissorFiscal {
         return cofins;
     }
     
+    /**
+     * Calculo do COFINS em percentual
+     * @param item
+     * @return 
+     */
+    private COFINS setCofinsOutrPercentual(NfeItemModel item) {
+        COFINS cofins = new COFINS();
+        COFINS.COFINSOutr cofinsOutr = new COFINS.COFINSOutr();
+        double aliquotaCofins = item.getCofinsAliquota() * 100;
+        
+        double valorCofins;
+
+          if (item.isDestacaDescontoNoCorpoDoDocumentoFiscal()) {
+        // PS pegar do que foi retornado do EMISSOR FISCAL ? como funciona quando tem que destacar o desconto 
+        // pisAliquota.setVBC(NumberUtil.decimalBanco(item.getValorTotal() - item.getDescontoValor()));
+            cofinsOutr.setVBC(NumberUtil.decimalBanco(item.getCofinsBase() - item.getDescontoValor()));
+            valorCofins = (item.getCofinsBase() - item.getDescontoValor()) * item.getCofinsAliquota();
+        } else {
+            cofinsOutr.setVBC(NumberUtil.decimalBanco(item.getCofinsBase()));
+            valorCofins = item.getCofinsValor();
+        }
+        cofinsOutr.setCST(Integer.toString(item.getCofinsSt()));
+
+        cofinsOutr.setVBC(NumberUtil.decimalBanco(item.getCofinsBase()));
+        cofinsOutr.setPCOFINS(NumberUtil.decimalBanco(aliquotaCofins));
+        cofinsOutr.setVCOFINS(NumberUtil.decimalBanco(valorCofins));
+        
+        cofins.setCOFINSOutr(cofinsOutr);
+        
+        return cofins;
+    }
+        
     private boolean isCofinsAliq(NfeItemModel item) {
        return item.getCofinsSt() == 01 || item.getCofinsSt() == 02;
     }
