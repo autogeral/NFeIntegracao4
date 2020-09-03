@@ -511,7 +511,7 @@ public class IntegracaoNfe extends Servico {
         
     public String converter(NfeModel nfe) throws DbfException, IOException {
         String xml;
-        if (isUsingEmissorFiscal) {
+        if (isUsingEmissorFiscal && !nfe.isDevolucao()) {
             System.out.println("USANDO O EMISSOR-FISCAL! ");
             // Pesquisar (PREENCHIMENTO DO documento) no emissor fiscal 
             // Criar um DTO para converter o NFEModel para JSON (e ai sim enviar para o emissor-fiscal)
