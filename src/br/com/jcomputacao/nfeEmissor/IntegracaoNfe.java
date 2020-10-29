@@ -1538,6 +1538,7 @@ public class IntegracaoNfe extends Servico {
             case 5551: // VENDA DE IMOBILIZADO
             case 6656://Venda de combustível ou lubrificante adquirido ou recebido de terceiros destinado a consumidor ou usuário final
             case 5915:
+            case 1407://COMPRA DE MATERIAL PARA CONSUMO QUANDO FORNECEDOR É MEI
             case 6949: {
                 if ("60".equals(st)) {
                     atribuiIcms60(icms, item, origem, st);
@@ -1935,6 +1936,13 @@ public class IntegracaoNfe extends Servico {
                     pis.setPISAliq(pisAliquota);
                     pis.setPISNT(pisnt);
                     break;
+                case 1407:
+                    pisOutr.setCST("98");
+                    pisOutr.setQBCProd("0.0000");
+                    pisOutr.setVAliqProd("0.0000");
+                    pisOutr.setVPIS("0.00");
+                    pis.setPISOutr(pisOutr);
+                    break;
             }
         } else {
 //            ProdutoTributacaoModel tributacao = ProdutoTributacaoBean.getTributacao(item.getTributacaoCodigo());
@@ -2234,6 +2242,13 @@ public class IntegracaoNfe extends Servico {
                 case 5911://REMESSA DE AMOSTRA GRATIS DENTRO DO ESTADO
                 case 5918://RETORNO DE CONSIGNACAO                    
                     cofinsOutr.setCST("99");
+                    cofinsOutr.setQBCProd("0.0000");
+                    cofinsOutr.setVAliqProd("0.0000");
+                    cofinsOutr.setVCOFINS("0.00");
+                    cofins.setCOFINSOutr(cofinsOutr);
+                    break;
+                case 1407://RETORNO DE CONSIGNACAO                    
+                    cofinsOutr.setCST("98");
                     cofinsOutr.setQBCProd("0.0000");
                     cofinsOutr.setVAliqProd("0.0000");
                     cofinsOutr.setVCOFINS("0.00");
