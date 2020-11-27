@@ -1460,8 +1460,7 @@ public class IntegracaoNfe extends Servico {
                 break;
             case 5908:
             case 6915:            
-            case 1101:
-            case 1551://COMPRA DE ATIVO
+            case 1101:            
             case 6916://RETORNO DE MERCADORIA OU BEM RECEBIDO PARA CONSERTO OU REPARO
             case 6911://REMESSA DE AMOSTRA GRATIS FORA DO ESTADO
             case 5911://REMESSA DE AMOSTRA GRATIS DENTRO DO ESTADO
@@ -1538,6 +1537,7 @@ public class IntegracaoNfe extends Servico {
             case 5551: // VENDA DE IMOBILIZADO
             case 6656://Venda de combustível ou lubrificante adquirido ou recebido de terceiros destinado a consumidor ou usuário final
             case 5915:
+            case 1551://COMPRA DE ATIVO
             case 1407://COMPRA DE MATERIAL PARA CONSUMO QUANDO FORNECEDOR É MEI
             case 6949: {
                 if ("60".equals(st)) {
@@ -1901,7 +1901,8 @@ public class IntegracaoNfe extends Servico {
                     pisnt.setCST("08");
                     pis.setPISNT(pisnt);
                     break;                
-                case 2202:                                        
+                case 2202:                   
+                case 1551://COMPRA DE ATIVO
                     pisOutr.setCST("70");
                     pisOutr.setVBC("0.00");                    
                     pisOutr.setPPIS("0.00");
@@ -1911,8 +1912,7 @@ public class IntegracaoNfe extends Servico {
                 case 6551:
                 case 5908:
                 case 5551: //VENDA DE IMOBILIZADO
-                case 1101:
-                case 1551://COMPRA DE ATIVO
+                case 1101:                
                 case 5913://RETORNO DE REMESSA PARA DEMONSTRACAO                
                 case 5925://RETORNO DE MERCADORIA PARA INDUSTRIALIZACAO, PARA O ADQUIRENTE POR NAO TER TRANSITADO A MESMA, NO ESTABELECIMENTO DO ADQUIRENTE
                 case 5117://REMESSA DE VENDA PARA ENTREGA FUTURA         
@@ -2211,7 +2211,8 @@ public class IntegracaoNfe extends Servico {
                 case 5552://TRANSFERENCIA DE BEM DO ATIVO IMOBILIZADO                
                     cofinsnt.setCST("08");
                     cofins.setCOFINSNT(cofinsnt);
-                    break;                
+                    break;              
+                case 1551://COMPRA DE ATIVO
                 case 2202://DEVOLUCAO DE VENDA INTERESTADUAL PARA MONOFASICO
                     cofinsOutr.setCST("70");
                     cofinsOutr.setVBC("0.00");                    
@@ -2233,8 +2234,7 @@ public class IntegracaoNfe extends Servico {
                 case 5908:
                 case 6551:
                 case 5551:// VENDA DE IMOBILIZADO    
-                case 1101:
-                case 1551://COMPRA DE ATIVO
+                case 1101:                
                 case 5913://RETORNO DE REMESSA PARA DEMONSTRACAO                
                 case 5925://RETORNO DE MERCADORIA PARA INDUSTRIALIZACAO, PARA O ADQUIRENTE POR NAO TER TRANSITADO A MESMA, NO ESTABELECIMENTO DO ADQUIRENTE     
                 case 5117://REMESSA DE VENDA PARA ENTREGA FUTURA           
