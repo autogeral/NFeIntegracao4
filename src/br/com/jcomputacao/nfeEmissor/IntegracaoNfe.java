@@ -516,8 +516,8 @@ public class IntegracaoNfe extends Servico {
             // Pesquisar (PREENCHIMENTO DO documento) no emissor fiscal 
             // Criar um DTO para converter o NFEModel para JSON (e ai sim enviar para o emissor-fiscal)
             DocumentoFiscalDTO docFiscalDto = new DocumentoFiscalDTO(nfe);
-            Optional<DocumentoFiscalDTO> opDocFiscalDto = efClienteDocFiscal.buscaCalculoFederal(docFiscalDto);
-//            Optional<DocumentoFiscalDTO> opDocFiscalDto = efClienteDocFiscal.save(docFiscalDto);
+//            Optional<DocumentoFiscalDTO> opDocFiscalDto = efClienteDocFiscal.buscaCalculoFederal(docFiscalDto);
+            Optional<DocumentoFiscalDTO> opDocFiscalDto = efClienteDocFiscal.save(docFiscalDto);
             if (opDocFiscalDto.isPresent()) {
                 // O Ideal é setar SOMENTE os VALORES referentes ao IMPOSTO FEDERAL (ao menos nesse momento de "implantação do PIS/COFINS")
                 nfe = docFiscalDto.converteParaNfeOrSatModel(nfe, opDocFiscalDto.get());
@@ -827,12 +827,12 @@ public class IntegracaoNfe extends Servico {
 
     private ICMSTot criaTotalIcms(NfeModel nota) throws DbfDatabaseException, DbfException {
         // DESCOMENTAR DEPOIS que CADASTRAR as TRIBUTACOES DE ICMS
-//        if (isUsingEmissorFiscal) {
-//            ICMSTot icms = nfeEmissorFiscal.atribuiTotalIcms(nota);
-//            icms.setVIPI(this.tributaIpi ? NumberUtil.decimalBanco(nota.getValorIpi()) : "0.00");
-//            icms.setVIPIDevol(!this.tributaIpi ? NumberUtil.decimalBanco(nota.getValorIpi()) : "0.00");
-//            return icms;
-//        }
+        if (isUsingEmissorFiscal) {
+            ICMSTot icms = nfeEmissorFiscal.atribuiTotalIcms(nota);
+            icms.setVIPI(this.tributaIpi ? NumberUtil.decimalBanco(nota.getValorIpi()) : "0.00");
+            icms.setVIPIDevol(!this.tributaIpi ? NumberUtil.decimalBanco(nota.getValorIpi()) : "0.00");
+            return icms;
+        }
         
         ICMSTot icms = new ICMSTot();
         boolean destacaImpostoCorpoNotaParaSimplesNacional = Boolean.parseBoolean(
@@ -1201,10 +1201,11 @@ public class IntegracaoNfe extends Servico {
 
 
         // DESCOMENTAR DEPOIS que CADASTRAR as TRIBUTACOES DE ICMS
-//        if (isUsingEmissorFiscal) {
-//            prod.setCFOP(Integer.toString(item.getCfop()));
-//            prod.setCEST(Integer.toString(item.getCEST()));
-//        } else {
+        if (isUsingEmissorFiscal) {
+            prod.setCFOP(Integer.toString(item.getCfop()));
+            String cestFormatado = CestNcmModel.formataCest(item.getCEST());
+            prod.setCEST(StringUtil.somenteNumeros(cestFormatado));
+        } else {
             prod.setCFOP(Integer.toString(item.getCfop()));
             CestNcmModel ncm = buscarExistenciaCodigoCestParaItem(item);
             if (item.getCEST() != null) {
@@ -1218,7 +1219,7 @@ public class IntegracaoNfe extends Servico {
                   if(cest != null) {
                       prod.setCEST(cest);
                   }
-//            }             // DESCOMENTAR DEPOIS que CADASTRAR as TRIBUTACOES DE ICMS
+            }             // DESCOMENTAR DEPOIS que CADASTRAR as TRIBUTACOES DE ICMS
         }
       
         boolean descricaoSimples = Boolean.parseBoolean(System.getProperty("nfe.descricao.simples", "true"));
@@ -1402,9 +1403,9 @@ public class IntegracaoNfe extends Servico {
         st = StringUtil.ajusta(st, 2, StringUtil.ALINHAMENTO_DIREITA, '0');
 
         // DESCOMENTAR DEPOIS que CADASTRAR as TRIBUTACOES DE ICMS
-//        if (isUsingEmissorFiscal) {
-//            return nfeEmissorFiscal.atribuiIcms(icms, item, origem);
-//        }
+        if (isUsingEmissorFiscal) {
+            return nfeEmissorFiscal.atribuiIcms(icms, item, origem);
+        }
         
         switch (item.getCfop()) {            
             case 5201: {
@@ -2476,9 +2477,9 @@ public class IntegracaoNfe extends Servico {
 
     private ICMSUFDest difal(NfeItemModel item) {
         // DESCOMENTAR DEPOIS que CADASTRAR as TRIBUTACOES DE ICMS
-//        if (isUsingEmissorFiscal) {
-//            return nfeEmissorFiscal.atribuiDifal(item);
-//        }
+        if (isUsingEmissorFiscal) {
+            return nfeEmissorFiscal.atribuiDifal(item);
+        }
         
         ICMSUFDest difal = new ICMSUFDest();
         if (item.isDestacaDescontoNoCorpoDoDocumentoFiscal()) {
