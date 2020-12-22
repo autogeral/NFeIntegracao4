@@ -31,6 +31,7 @@ import br.com.jcomputacao.model.NfePagamentoParcelaModel;
 import br.com.jcomputacao.model.NfeReferenciaModel;
 import br.com.jcomputacao.model.ProdutoDBFModel;
 import br.com.jcomputacao.model.ProdutoOrigem;
+import br.com.jcomputacao.model.VendaItemModel;
 import br.com.jcomputacao.model.VendaTipo;
 import br.com.jcomputacao.model.beans.LojaBean;
 import br.com.jcomputacao.model.beans.ModoPagamentoBean;
@@ -516,11 +517,14 @@ public class IntegracaoNfe extends Servico {
             // Pesquisar (PREENCHIMENTO DO documento) no emissor fiscal 
             // Criar um DTO para converter o NFEModel para JSON (e ai sim enviar para o emissor-fiscal)
             DocumentoFiscalDTO docFiscalDto = new DocumentoFiscalDTO(nfe);
+            // Metodo abaixo seta os VALORES referentes ao IMPOSTO FEDERAL (Usava isso quando implantou o PIS/COFINS)
 //            Optional<DocumentoFiscalDTO> opDocFiscalDto = efClienteDocFiscal.buscaCalculoFederal(docFiscalDto);
             Optional<DocumentoFiscalDTO> opDocFiscalDto = efClienteDocFiscal.save(docFiscalDto);
             if (opDocFiscalDto.isPresent()) {
-                // O Ideal é setar SOMENTE os VALORES referentes ao IMPOSTO FEDERAL (ao menos nesse momento de "implantação do PIS/COFINS")
+                // Seto para true, para não recalcular NADA. Depois volto para false, pois é uma VARIAVEL da CLASSE
+                VendaItemModel.FOI_CALCULADO_EMISSOR_FISCAL = true;
                 nfe = docFiscalDto.converteParaNfeOrSatModel(nfe, opDocFiscalDto.get());
+                VendaItemModel.FOI_CALCULADO_EMISSOR_FISCAL = false;
             } else {
                 isUsingEmissorFiscal = false;
             }
@@ -1209,7 +1213,12 @@ public class IntegracaoNfe extends Servico {
             prod.setCFOP(Integer.toString(item.getCfop()));
             CestNcmModel ncm = buscarExistenciaCodigoCestParaItem(item);
             if (item.getCEST() != null) {
-                  String cest = StringUtil.somenteNumeros(ncm.buscaCest());
+                String cest = "0199900";
+                try {
+                    cest = StringUtil.somenteNumeros(ncm.buscaCest());
+                } catch (NullPointerException ex) {
+                    System.err.println("Erro ao tentar atribuir cest ::: " +ex.getStackTrace());
+                }
                   prod.setCEST(cest);
             } else {
                   //Cest para os produtos onde o ncm não está relacionado a nenhum 
