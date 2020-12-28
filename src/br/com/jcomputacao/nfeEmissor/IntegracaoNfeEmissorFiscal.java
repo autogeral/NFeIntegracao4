@@ -557,11 +557,10 @@ public class IntegracaoNfeEmissorFiscal {
         tributaICMS60.setOrig(origem);
         tributaICMS60.setVBCSTRet(NumberUtil.decimalBanco(item.getIcmsStBaseRetido()));
         tributaICMS60.setVICMSSTRet(NumberUtil.decimalBanco(item.getIcmsStValorRetido()));
-//        tributaICMS60.setPST(NumberUtil.decimalBanco(item.getIcmsStAliquota() * 100));
+        tributaICMS60.setPST(NumberUtil.decimalBanco(item.getIcmsStAliquota() * 100));
 //        tributaICMS60.setVICMSSubstituto(NumberUtil.decimal(item.getIcmsValor()));
-        tributaICMS60.setPST(NumberUtil.decimalBanco(item.getIcmsAliquota() * 100));
         // Aparentemente esse campo não eh usado
-        tributaICMS60.setVICMSSubstituto(NumberUtil.decimalBanco(item.getIcmsValor()));
+        tributaICMS60.setVICMSSubstituto(NumberUtil.decimalBanco(item.getIcmsStValorRetido()));
         /* A parte relacionada ao FCP ST RET, que tem na classe "IntegracaoNfe", não foi colocado aqui, pois segundo Gabriela
          * É para um tipo de operação que a AutoGeral, NÃO usa
          */
