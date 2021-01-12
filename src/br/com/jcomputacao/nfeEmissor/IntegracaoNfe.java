@@ -160,6 +160,7 @@ public class IntegracaoNfe extends Servico {
 //    private boolean isUsingEmissorFiscal = Boolean.parseBoolean(System.getProperty("emissor-fiscal.ativo","true"));
     // Deverá ser usada da forma que está abaixo
     private boolean isUsingEmissorFiscal = Boolean.parseBoolean(System.getProperty("emissor-fiscal.ativo","false"));
+    private DocumentoFiscalDTO docFiscalDto;
     private final IntegracaoNfeEmissorFiscal nfeEmissorFiscal = new IntegracaoNfeEmissorFiscal();
     /*
         Contabilidade disse que temos que informar na OBS, que foi uma venda balcão
@@ -180,6 +181,7 @@ public class IntegracaoNfe extends Servico {
         nfeLoteRetorno.setLote(idLote);
         nfeLoteRetorno.setXml(recibo);
         int status = 0;
+        boolean isNfeUpdated = false;
         String chaveAcessoAntes = nfe.getNfeChaveAcesso();
 
         try {
@@ -256,7 +258,8 @@ public class IntegracaoNfe extends Servico {
                             }
                             nfe.setNfeXml(null);
                         }
-                        logger.log(Level.FINE, "NFe salva {0}", nfe.update());
+                        isNfeUpdated = nfe.update();
+                        logger.log(Level.FINE, "NFe salva {0}", isNfeUpdated);
                         if (100 != status && 105 != status && 302 != status && 110 != status && 301 != status) {
                             String msg = infProt.getCStat() + " " + infProt.getXMotivo();
                             throw new DbfException(msg);
@@ -275,9 +278,18 @@ public class IntegracaoNfe extends Servico {
         } finally {
             nfeLoteRetorno.store();
             if (nfe.isUpdateble()) {
-                logger.log(Level.FINE, "NFe {0}.{1} salva {2}", new Object[]{nfe.getNumero(), nfe.getLoja(), nfe.update()});
+                isNfeUpdated = nfe.update();
+                logger.log(Level.FINE, "NFe {0}.{1} salva {2}", new Object[]{nfe.getNumero(), nfe.getLoja(), isNfeUpdated });
             }
         }
+        
+        /* Atualizando a CHAVE DE ACESSO e STATUS, no EMISSOR-FISCAL */ 
+        if (isNfeUpdated && isUsingEmissorFiscal && !nfe.getOperacao().isDevolucao() && this.docFiscalDto != null) {
+            this.docFiscalDto.setNfeChaveAcesso(nfe.getNfeChaveAcesso());
+            this.docFiscalDto.setStatus(nfe.getStatus());
+            efClienteDocFiscal.update(docFiscalDto);
+        }
+        
         return status;
     }
 
@@ -512,15 +524,13 @@ public class IntegracaoNfe extends Servico {
         
     public String converter(NfeModel nfe) throws DbfException, IOException {
         String xml;
-        if (isUsingEmissorFiscal && !nfe.isDevolucao()) {
+        if (isUsingEmissorFiscal && !nfe.getOperacao().isDevolucao()) {
             System.out.println("USANDO O EMISSOR-FISCAL! ");
-            // Pesquisar (PREENCHIMENTO DO documento) no emissor fiscal 
             // Criar um DTO para converter o NFEModel para JSON (e ai sim enviar para o emissor-fiscal)
-            DocumentoFiscalDTO docFiscalDto = new DocumentoFiscalDTO(nfe);
-            // Metodo abaixo seta os VALORES referentes ao IMPOSTO FEDERAL (Usava isso quando implantou o PIS/COFINS)
-//            Optional<DocumentoFiscalDTO> opDocFiscalDto = efClienteDocFiscal.buscaCalculoFederal(docFiscalDto);
+            this.docFiscalDto = new DocumentoFiscalDTO(nfe);
             Optional<DocumentoFiscalDTO> opDocFiscalDto = efClienteDocFiscal.save(docFiscalDto);
             if (opDocFiscalDto.isPresent()) {
+                this.docFiscalDto = opDocFiscalDto.get();
                 // Seto para true, para não recalcular NADA. Depois volto para false, pois é uma VARIAVEL da CLASSE
                 VendaItemModel.FOI_CALCULADO_EMISSOR_FISCAL = true;
                 nfe = docFiscalDto.converteParaNfeOrSatModel(nfe, opDocFiscalDto.get());
@@ -528,7 +538,10 @@ public class IntegracaoNfe extends Servico {
             } else {
                 isUsingEmissorFiscal = false;
             }
-        }
+        } else {
+            isUsingEmissorFiscal = false;
+        } 
+        
         try {
             xml = exportarString(nfe);
             xml = xml.replaceAll("xmlns:ns2=\".+#\"\\s", "").replaceAll("ns2:", "");
@@ -1207,7 +1220,7 @@ public class IntegracaoNfe extends Servico {
         // DESCOMENTAR DEPOIS que CADASTRAR as TRIBUTACOES DE ICMS
         if (isUsingEmissorFiscal) {
             prod.setCFOP(Integer.toString(item.getCfop()));
-            String cestFormatado = CestNcmModel.formataCest(item.getCEST());
+            String cestFormatado = CestNcmModel.formataCest(item.getCEST() == null ? 199900 : item.getCEST());
             prod.setCEST(StringUtil.somenteNumeros(cestFormatado));
         } else {
             prod.setCFOP(Integer.toString(item.getCfop()));
