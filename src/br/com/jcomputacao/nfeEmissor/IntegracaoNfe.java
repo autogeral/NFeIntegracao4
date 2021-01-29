@@ -1454,6 +1454,8 @@ public class IntegracaoNfe extends Servico {
                     tributacaoIcms51.setCST(st);
                     tributacaoIcms51.setOrig(origem);
                     icms.setICMS51(tributacaoIcms51);
+                } if("10".equals(st)) {
+                    atribuiIcms10(icms, item, origem, st);
                 } else {
                     atribuiIcms00(icms, item, origem, st);
                 }
