@@ -937,7 +937,7 @@ public class IntegracaoNfe extends Servico {
             if (operacao == null) {
                 throw new DbfException("Nao foi encontrada operacao para a nfe " + nota.getNumero() + "." + nota.getLoja());
             }
-            if (operacao.isTransferencia()) {
+            if (operacao.isTransferencia() || nota.getOperacao().getCodigo() == 79) {
                 icms.setVPIS(NumberUtil.decimalBanco(0d));
                 icms.setVCOFINS(NumberUtil.decimalBanco(0d));
             } else {
@@ -1430,7 +1430,9 @@ public class IntegracaoNfe extends Servico {
         }
         
         switch (item.getCfop()) {            
-            case 5201: {
+            case 5201: 
+            case 5927: 
+            {
                 if ("90".equals(st)) {
                     atribuiIcms90(icms, item, origem, st);
                 } else {
@@ -1918,6 +1920,7 @@ public class IntegracaoNfe extends Servico {
                 case 5152:
                 case 5409:
                 case 5659:
+                case 5927:
                 case 6659: 
                 case 5556://DEVOLUCAO DE MERCADORIA DE CONSUMO
                 case 5557://TRANSFERENCIA MATERIAL DE USO/CONSUMO    
@@ -2067,6 +2070,7 @@ public class IntegracaoNfe extends Servico {
                     break;
                 case 5152:
                 case 5409:
+                case 5927:
                 case 5659:
                 case 6659:                
                 case 5557:
@@ -2228,6 +2232,7 @@ public class IntegracaoNfe extends Servico {
                     break;
                 case 5152:
                 case 5409:
+                case 5927:
                 case 5659:
                 case 6659: 
                 case 5556://DEVOLUCAO DE MERCADORIA PARA CONSUMO  
@@ -2377,6 +2382,7 @@ public class IntegracaoNfe extends Servico {
                     break;
                 case 5152:
                 case 5409:
+                case 5927:
                 case 5659:
                 case 6659:
                 case 5557:
