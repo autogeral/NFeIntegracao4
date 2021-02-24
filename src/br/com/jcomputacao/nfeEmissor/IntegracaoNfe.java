@@ -17,6 +17,7 @@ import br.com.jcomputacao.model.EmpresaTributacao;
 import br.com.jcomputacao.model.Entidade;
 import br.com.jcomputacao.model.EntidadeEndereco;
 import br.com.jcomputacao.model.EntidadeTelefone;
+import br.com.jcomputacao.model.IndicadorPagamento;
 import br.com.jcomputacao.model.LojaModel;
 import br.com.jcomputacao.model.ModoPagamentoDBFModel;
 import br.com.jcomputacao.model.MovimentoOperacaoModel;
@@ -287,6 +288,7 @@ public class IntegracaoNfe extends Servico {
         if (isNfeUpdated && isUsingEmissorFiscal && !nfe.getOperacao().isDevolucao() && this.docFiscalDto != null) {
             this.docFiscalDto.setNfeChaveAcesso(nfe.getNfeChaveAcesso());
             this.docFiscalDto.setStatus(nfe.getStatus());
+            this.docFiscalDto.setIndicadorPagamento(nfe.getIndicadorPagamento());
             efClienteDocFiscal.update(docFiscalDto);
         }
         
@@ -1082,13 +1084,14 @@ public class IntegracaoNfe extends Servico {
         Pag pag = new Pag();
         for (NfePagamentoModel pagamento : nfeModel.getPagamentos()) {
             DetPag detPag = new DetPag();        
-            
+            IndicadorPagamento indicadorPagamento;
             if(!operacao.isVenda()) {
                 //Para as notas com finalidade de Ajuste ou Devolução o
                 //campo Meio de Pagamento deve ser preenchido com 90=Sem Pagamento
                 detPag.setTPag("90");
                 detPag.setVPag("0.00");
                 pag.getDetPag().add(detPag);
+                indicadorPagamento = IndicadorPagamento.OUTROS;
                 break;
             } else {
                 //01=Dinheiro
@@ -1108,7 +1111,9 @@ public class IntegracaoNfe extends Servico {
                 detPag.setTPag(Ambiente.ajusta(Integer.toString(codigoNfePagamento), 2, Ambiente.ALINHAMENTO_DIREITA, '0'));  
                 detPag.setVPag(NumberUtil.decimalBanco(pagamento.getValorPagamento()));
                 //0= Pagamento à Vista 1= Pagamento à Prazo
-                detPag.setIndPag(codigoNfePagamento == 1 || codigoNfePagamento == 4 ? "0" : "1");
+                indicadorPagamento = codigoNfePagamento == 1 || codigoNfePagamento == 4 ? IndicadorPagamento.A_VISTA : IndicadorPagamento.A_PRAZO;
+                
+                detPag.setIndPag(indicadorPagamento.getIndicadorPagamento());
                 if(codigoNfePagamento == 3 || codigoNfePagamento == 4) {
                     Card card = new Card();
                     //1 = Pagamento integrado com o sistema de automação da
@@ -1133,7 +1138,8 @@ public class IntegracaoNfe extends Servico {
                     //card.setCAut();   
                     detPag.setCard(card);
                 }
-            }                                    
+            }
+            nfeModel.setIndicadorPagamento(indicadorPagamento);
             pag.getDetPag().add(detPag);
         }        
         return pag;
