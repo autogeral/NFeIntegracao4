@@ -123,6 +123,7 @@ import java.text.NumberFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -1891,6 +1892,15 @@ public class IntegracaoNfe extends Servico {
                 case 5661:                
                 case 5919:// RETORNO DE CONSIGNADO PARA FORNECEDOR
                 case 5922://VENDA DE REMESSA FUTURA
+                    boolean iscfopDevolucao = cfopsEntradaDevolucao().contains(item.getCfop());
+                    if (iscfopDevolucao) {
+                        pisOutr.setCST("70");
+                        pisOutr.setVBC("0");
+                        pisOutr.setPPIS("0");
+                        pisOutr.setVPIS("0");
+                        pis.setPISOutr(pisOutr);
+                        break;
+                    }
                     pisnt.setCST("04");
                     pis.setPISNT(pisnt);
                     break;
@@ -2016,6 +2026,7 @@ public class IntegracaoNfe extends Servico {
                 case 2102:                
                 case 5661:
                 case 5922://VENDA DE REMESSA FUTURA
+                    boolean iscfopDevolucao = cfopsEntradaDevolucao().contains(item.getCfop());
                     pisAliquota.setCST("01"); /// ALTERADO DE PISNT PARA PISALIQUOTA pois o cÃ³digo 01 refe-se ao CST do Pis Aliquota.
                     if (item.isDestacaDescontoNoCorpoDoDocumentoFiscal()) {
                         pisAliquota.setVBC(NumberUtil.decimalBanco(item.getValorTotal() - item.getDescontoValor()));
@@ -2110,6 +2121,19 @@ public class IntegracaoNfe extends Servico {
         return pis;
     }
 
+    /**
+     * Caso seja o CFOP de DEVOLUÇÃO entrada. (Ou seja, nós que emitimos a NFE pelo cliente GERALMENTE PF)
+     * Segundo a Gabi, o correto é sair com as CST de PIS/COFINS de entrada, já que é uma NFE de entrada;
+     * CST PIS/COFINS saida                     entrada
+     * 01 - Tributado (1,65% e 7,60)        50 - Tributado (1,65% e 7,60)        
+     * 04 - Monofásico                      70 - Monofasico
+     * @return 
+     */
+    private List<Integer> cfopsEntradaDevolucao() {
+        List<Integer> cfopEntrDevo = Arrays.asList(1202, 1410, 1411, 1661, 1662, 2410);
+        return cfopEntrDevo;
+    }
+    
     private PISST pisSt(NfeItemModel item) {
         return null;
     }
@@ -2204,6 +2228,15 @@ public class IntegracaoNfe extends Servico {
                 case 5661:
                 case 5919:
                 case 5922://VENDA DE REMESSA FUTURA
+                    boolean iscfopDevolucao = cfopsEntradaDevolucao().contains(item.getCfop());
+                    if (iscfopDevolucao) {
+                        cofinsOutr.setCST("70");
+                        cofinsOutr.setVBC("0");
+                        cofinsOutr.setPCOFINS("0");
+                        cofinsOutr.setVCOFINS("0");
+                        cofins.setCOFINSOutr(cofinsOutr);
+                        break;
+                    }
                     cofinsnt.setCST("04");
                     cofins.setCOFINSNT(cofinsnt);
                     break;
@@ -2327,6 +2360,17 @@ public class IntegracaoNfe extends Servico {
                 case 2102:
                 case 5661:
                 case 5922://VENDA DE REMESSA FUTURA
+                    boolean iscfopDevolucao = cfopsEntradaDevolucao().contains(item.getCfop());
+                    // APARENTEMENTE é da mesma forma da cst 70 tributada porém, 
+                    // terei que passar os valores que iremos ter de crédito
+//                    if (iscfopDevolucao) {
+//                        cofinsOutr.setCST("70");
+//                        cofinsOutr.setVBC("0");
+//                        cofinsOutr.setPCOFINS("0");
+//                        cofinsOutr.setVCOFINS("0");
+//                        cofins.setCOFINSOutr(cofinsOutr);
+//                        break;
+//                    }
                     aliquota.setCST("01");
                     if (item.isDestacaDescontoNoCorpoDoDocumentoFiscal()) {
                         aliquota.setVBC(NumberUtil.decimalBanco(item.getValorTotal() - item.getDescontoValor()));
