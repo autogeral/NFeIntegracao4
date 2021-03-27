@@ -17,6 +17,7 @@ import br.com.jcomputacao.model.EmpresaTributacao;
 import br.com.jcomputacao.model.Entidade;
 import br.com.jcomputacao.model.EntidadeEndereco;
 import br.com.jcomputacao.model.EntidadeTelefone;
+import br.com.jcomputacao.model.IndicadorPagamento;
 import br.com.jcomputacao.model.LojaModel;
 import br.com.jcomputacao.model.ModoPagamentoDBFModel;
 import br.com.jcomputacao.model.MovimentoOperacaoModel;
@@ -120,15 +121,11 @@ import java.io.UnsupportedEncodingException;
 import java.rmi.RemoteException;
 import java.text.MessageFormat;
 import java.text.NumberFormat;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -156,7 +153,7 @@ public class IntegracaoNfe extends Servico {
     private boolean valorFCPSTRetido;
     private String informacaoAdicionalProduto = "";
     private final boolean nfeTributaDifal = Boolean.parseBoolean(System.getProperty("nfe.tributa.difal", "false"));
-    private final EmissorFiscalClienteDocumentoFiscal efClienteDocFiscal = (EmissorFiscalClienteDocumentoFiscal) EmissorFiscalClienteFactory.getCliente(NfeModel.class);
+    private final EmissorFiscalClienteDocumentoFiscal efClienteDocFiscal = (EmissorFiscalClienteDocumentoFiscal) EmissorFiscalClienteFactory.getCliente(DocumentoFiscalDTO.class);
 //    private boolean isUsingEmissorFiscal = Boolean.parseBoolean(System.getProperty("emissor-fiscal.ativo","true"));
     // Deverá ser usada da forma que está abaixo
     private boolean isUsingEmissorFiscal = Boolean.parseBoolean(System.getProperty("emissor-fiscal.ativo","false"));
@@ -287,6 +284,7 @@ public class IntegracaoNfe extends Servico {
         if (isNfeUpdated && isUsingEmissorFiscal && !nfe.getOperacao().isDevolucao() && this.docFiscalDto != null) {
             this.docFiscalDto.setNfeChaveAcesso(nfe.getNfeChaveAcesso());
             this.docFiscalDto.setStatus(nfe.getStatus());
+            this.docFiscalDto.setIndicadorPagamento(nfe.getIndicadorPagamento());
             efClienteDocFiscal.update(docFiscalDto);
         }
         
@@ -1088,13 +1086,14 @@ public class IntegracaoNfe extends Servico {
         Pag pag = new Pag();
         for (NfePagamentoModel pagamento : nfeModel.getPagamentos()) {
             DetPag detPag = new DetPag();        
-            
+            IndicadorPagamento indicadorPagamento;
             if(!operacao.isVenda()) {
                 //Para as notas com finalidade de Ajuste ou Devolução o
                 //campo Meio de Pagamento deve ser preenchido com 90=Sem Pagamento
                 detPag.setTPag("90");
                 detPag.setVPag("0.00");
                 pag.getDetPag().add(detPag);
+                indicadorPagamento = IndicadorPagamento.OUTROS;
                 break;
             } else {
                 //01=Dinheiro
@@ -1114,7 +1113,9 @@ public class IntegracaoNfe extends Servico {
                 detPag.setTPag(Ambiente.ajusta(Integer.toString(codigoNfePagamento), 2, Ambiente.ALINHAMENTO_DIREITA, '0'));  
                 detPag.setVPag(NumberUtil.decimalBanco(pagamento.getValorPagamento()));
                 //0= Pagamento à Vista 1= Pagamento à Prazo
-                detPag.setIndPag(codigoNfePagamento == 1 || codigoNfePagamento == 4 ? "0" : "1");
+                indicadorPagamento = codigoNfePagamento == 1 || codigoNfePagamento == 4 ? IndicadorPagamento.A_VISTA : IndicadorPagamento.A_PRAZO;
+                
+                detPag.setIndPag(indicadorPagamento.getIndicadorPagamento());
                 if(codigoNfePagamento == 3 || codigoNfePagamento == 4) {
                     Card card = new Card();
                     //1 = Pagamento integrado com o sistema de automação da
@@ -1139,7 +1140,8 @@ public class IntegracaoNfe extends Servico {
                     //card.setCAut();   
                     detPag.setCard(card);
                 }
-            }                                    
+            }
+            nfeModel.setIndicadorPagamento(indicadorPagamento);
             pag.getDetPag().add(detPag);
         }        
         return pag;
