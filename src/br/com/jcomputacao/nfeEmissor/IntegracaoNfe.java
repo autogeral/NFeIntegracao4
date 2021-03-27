@@ -303,7 +303,13 @@ public class IntegracaoNfe extends Servico {
         } else if (nfe.getStatus() == NFeStatus.PROCESSAMENTO) {
             lote = new NfeLote();
             if (!lote.retrieve(Integer.toString(nfe.getLoja()), nfe.getNfeLote())) {
-                throw new DbfException("Nfe ja transmitida mas lote nao encontrado " + nfe.getNfeLote(), false);
+                nfe.setStatus(NFeStatus.DIGITACAO);
+                nfe.setProtocoloStatus("0");
+                if (nfe.update()) {
+                    lote = enviarLote(nfe);
+                } else {
+                    throw new DbfException("Nfe ja transmitida mas lote nao encontrado " + nfe.getNfeLote(), false);
+                }
             }
         } else {
             throw new DbfException("Nfe ja transmitida e processada", false);
