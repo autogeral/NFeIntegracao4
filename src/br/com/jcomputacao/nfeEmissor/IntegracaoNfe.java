@@ -124,6 +124,7 @@ import java.text.NumberFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -1897,6 +1898,15 @@ public class IntegracaoNfe extends Servico {
                 case 5661:                
                 case 5919:// RETORNO DE CONSIGNADO PARA FORNECEDOR
                 case 5922://VENDA DE REMESSA FUTURA
+                    boolean isCfopDevolucao = cfopsEntradaDevolucao().contains(item.getCfop());
+                    if (isCfopDevolucao) {
+                        pisOutr.setCST("70");
+                        pisOutr.setVBC("0.00");
+                        pisOutr.setPPIS("0.00");
+                        pisOutr.setVPIS("0.00");
+                        pis.setPISOutr(pisOutr);
+                        break;
+                    }
                     pisnt.setCST("04");
                     pis.setPISNT(pisnt);
                     break;
@@ -2023,10 +2033,13 @@ public class IntegracaoNfe extends Servico {
                 case 5661:
                 case 5922://VENDA DE REMESSA FUTURA
                     pisAliquota.setCST("01"); /// ALTERADO DE PISNT PARA PISALIQUOTA pois o cÃ³digo 01 refe-se ao CST do Pis Aliquota.
+                    double pisBase = 0;
                     if (item.isDestacaDescontoNoCorpoDoDocumentoFiscal()) {
-                        pisAliquota.setVBC(NumberUtil.decimalBanco(item.getValorTotal() - item.getDescontoValor()));
+                        pisBase = item.getValorTotal() - item.getDescontoValor();
+                        pisAliquota.setVBC(NumberUtil.decimalBanco(pisBase));
                     } else {
-                        pisAliquota.setVBC(NumberUtil.decimalBanco(item.getValorTotal()));
+                        pisBase = item.getValorTotal();
+                        pisAliquota.setVBC(NumberUtil.decimalBanco(pisBase));
                     }
                     aliquotaPis = Double.parseDouble(System.getProperty("nfe.pis.aliquota", "1.65"));
                     porcentagemPis = aliquotaPis / 100;
@@ -2038,6 +2051,19 @@ public class IntegracaoNfe extends Servico {
                     pisAliquota.setPPIS(NumberUtil.decimalBanco(aliquotaPis));
                     pisAliquota.setVPIS(NumberUtil.decimalBanco(valorPis));
                     pis.setPISAliq(pisAliquota);
+                    
+                    // CASO SEJA UMA CFOP de DEVOLUCAO, emite com CST de ENTRADA
+                    boolean isCfopDevolucao = cfopsEntradaDevolucao().contains(item.getCfop());
+                    if (isCfopDevolucao) {
+                        pisOutr.setCST("50");
+                        pisOutr.setVBC(NumberUtil.decimalBanco(pisBase));
+                        pisOutr.setPPIS(NumberUtil.decimalBanco(aliquotaPis));
+                        pisOutr.setVPIS(NumberUtil.decimalBanco(valorPis));
+                        pis.setPISOutr(pisOutr);
+                        // Setando para null a tag de pis emitida na saida
+                        pis.setPISAliq(null);
+                        break;
+                    }
                     break;
                 case 6401:
                 case 6101:
@@ -2116,6 +2142,19 @@ public class IntegracaoNfe extends Servico {
         return pis;
     }
 
+    /**
+     * Caso seja o CFOP de DEVOLUÇÃO entrada. (Ou seja, nós que emitimos a NFE pelo cliente GERALMENTE PF)
+     * Segundo a Gabi, o correto é sair com as CST de PIS/COFINS de entrada, já que é uma NFE de entrada;
+     * CST PIS/COFINS saida                     entrada
+     * 01 - Tributado (1,65% e 7,60)        50 - Tributado (1,65% e 7,60)        
+     * 04 - Monofásico                      70 - Monofasico
+     * @return 
+     */
+    private List<Integer> cfopsEntradaDevolucao() {
+        List<Integer> cfopEntrDevo = Arrays.asList(1202, 1410, 1411, 1661, 1662, 2410);
+        return cfopEntrDevo;
+    }
+    
     private PISST pisSt(NfeItemModel item) {
         return null;
     }
@@ -2210,6 +2249,15 @@ public class IntegracaoNfe extends Servico {
                 case 5661:
                 case 5919:
                 case 5922://VENDA DE REMESSA FUTURA
+                    boolean isCfopDevolucao = cfopsEntradaDevolucao().contains(item.getCfop());
+                    if (isCfopDevolucao) {
+                        cofinsOutr.setCST("70");
+                        cofinsOutr.setVBC("0.00");
+                        cofinsOutr.setPCOFINS("0.00");
+                        cofinsOutr.setVCOFINS("0.00");
+                        cofins.setCOFINSOutr(cofinsOutr);
+                        break;
+                    }
                     cofinsnt.setCST("04");
                     cofins.setCOFINSNT(cofinsnt);
                     break;
@@ -2334,10 +2382,13 @@ public class IntegracaoNfe extends Servico {
                 case 5661:
                 case 5922://VENDA DE REMESSA FUTURA
                     aliquota.setCST("01");
+                    double cofinsBase = 0;
                     if (item.isDestacaDescontoNoCorpoDoDocumentoFiscal()) {
-                        aliquota.setVBC(NumberUtil.decimalBanco(item.getValorTotal() - item.getDescontoValor()));
+                        cofinsBase = item.getValorTotal() - item.getDescontoValor();
+                        aliquota.setVBC(NumberUtil.decimalBanco(cofinsBase));
                     } else {
-                        aliquota.setVBC(NumberUtil.decimalBanco(item.getValorTotal()));
+                        cofinsBase = item.getValorTotal();
+                        aliquota.setVBC(NumberUtil.decimalBanco(cofinsBase));
                     }
                     aliquotaCofins = Double.parseDouble(System.getProperty("nfe.cofins.aliquota", "6.0"));
                     porcentagemCofins = aliquotaCofins / 100;
@@ -2349,6 +2400,18 @@ public class IntegracaoNfe extends Servico {
                     aliquota.setPCOFINS(NumberUtil.decimalBanco(aliquotaCofins));
                     aliquota.setVCOFINS(NumberUtil.decimalBanco(valorCofins));
                     cofins.setCOFINSAliq(aliquota);
+                     // CASO SEJA UMA CFOP de DEVOLUCAO, será emitida com uma CST de ENTRADA
+                    boolean isCfopDevolucao = cfopsEntradaDevolucao().contains(item.getCfop());
+                    if (isCfopDevolucao) {
+                        cofinsOutr.setCST("50");
+                        cofinsOutr.setVBC(NumberUtil.decimalBanco(cofinsBase));
+                        cofinsOutr.setPCOFINS(NumberUtil.decimalBanco(aliquotaCofins));
+                        cofinsOutr.setVCOFINS(NumberUtil.decimalBanco(valorCofins));
+                        cofins.setCOFINSOutr(cofinsOutr);
+                        // Setando para null a tag de cofins emitida na saida
+                        cofins.setCOFINSAliq(null);
+                        break;
+                    }
                     break;
                 case 6401:
                 case 5401:
