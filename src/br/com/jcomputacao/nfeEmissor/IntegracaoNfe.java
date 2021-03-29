@@ -121,16 +121,12 @@ import java.io.UnsupportedEncodingException;
 import java.rmi.RemoteException;
 import java.text.MessageFormat;
 import java.text.NumberFormat;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -306,7 +302,13 @@ public class IntegracaoNfe extends Servico {
         } else if (nfe.getStatus() == NFeStatus.PROCESSAMENTO) {
             lote = new NfeLote();
             if (!lote.retrieve(Integer.toString(nfe.getLoja()), nfe.getNfeLote())) {
-                throw new DbfException("Nfe ja transmitida mas lote nao encontrado " + nfe.getNfeLote(), false);
+                nfe.setStatus(NFeStatus.DIGITACAO);
+                nfe.setProtocoloStatus("0");
+                if (nfe.update()) {
+                    lote = enviarLote(nfe);
+                } else {
+                    throw new DbfException("Nfe ja transmitida mas lote nao encontrado " + nfe.getNfeLote(), false);
+                }
             }
         } else {
             throw new DbfException("Nfe ja transmitida e processada", false);
