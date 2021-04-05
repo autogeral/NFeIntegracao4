@@ -283,10 +283,8 @@ public class IntegracaoNfe extends Servico {
         
         /* Atualizando a CHAVE DE ACESSO e STATUS, no EMISSOR-FISCAL */ 
         if (isNfeUpdated && isUsingEmissorFiscal && !nfe.getOperacao().isDevolucao() && this.docFiscalDto != null) {
-            this.docFiscalDto.setNfeChaveAcesso(nfe.getNfeChaveAcesso());
-            this.docFiscalDto.setStatus(nfe.getStatus());
-            this.docFiscalDto.setIndicadorPagamento(nfe.getIndicadorPagamento());
-            efClienteDocFiscal.update(docFiscalDto);
+            DocumentoFiscalDTO docFiscalDTO = new DocumentoFiscalDTO(nfe);
+            efClienteDocFiscal.update(docFiscalDTO);
         }
         
         return status;
