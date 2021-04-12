@@ -934,7 +934,8 @@ public class IntegracaoNfe extends Servico {
             if (operacao == null) {
                 throw new DbfException("Nao foi encontrada operacao para a nfe " + nota.getNumero() + "." + nota.getLoja());
             }
-            if (operacao.isTransferencia() || nota.getOperacao().getCodigo() == 79) {
+            List<Integer> operacoesPisCofinsZerado = Arrays.asList(24, 25, 79);
+            if (operacao.isTransferencia() || operacoesPisCofinsZerado.contains(nota.getOperacao().getCodigo())) {
                 icms.setVPIS(NumberUtil.decimalBanco(0d));
                 icms.setVCOFINS(NumberUtil.decimalBanco(0d));
             } else {
@@ -2011,8 +2012,6 @@ public class IntegracaoNfe extends Servico {
                 case 1661: // devolucacao de 5661
                 case 1662: // devolucacao de 5656
                 case 6656:
-                case 5929:
-                case 6929:
                 case 6403:
                 case 6404:
                 case 6108:
@@ -2059,6 +2058,14 @@ public class IntegracaoNfe extends Servico {
                         break;
                     }
                     break;
+                case 5929: // CFOPs referente a venda efetuada anteriormente por SAT e virou nota
+                case 6929:    
+                   pisAliquota.setCST("01");
+                   pisAliquota.setVBC("0.00");
+                   pisAliquota.setPPIS("0.00");
+                   pisAliquota.setVPIS("0.00");
+                   pis.setPISAliq(pisAliquota);
+                   break;    
                 case 6401:
                 case 6101:
                 case 5401:
@@ -2360,8 +2367,6 @@ public class IntegracaoNfe extends Servico {
                 case 1661: // devolucacao de 5661
                 case 1662: // devolucacao de 5656                    
                 case 6656:
-                case 5929:
-                case 6929:
                 case 6403:
                 case 6404:
                 case 6411:
@@ -2407,6 +2412,14 @@ public class IntegracaoNfe extends Servico {
                         break;
                     }
                     break;
+                case 5929: // CFOPs referente a venda efetuada anteriormente por SAT e virou nota
+                case 6929:    
+                   aliquota.setCST("01");
+                   aliquota.setVBC("0.00");
+                   aliquota.setPCOFINS("0.00");
+                   aliquota.setVCOFINS("0.00");
+                   cofins.setCOFINSAliq(aliquota);
+                   break;
                 case 6401:
                 case 5401:
                 case 6101:
