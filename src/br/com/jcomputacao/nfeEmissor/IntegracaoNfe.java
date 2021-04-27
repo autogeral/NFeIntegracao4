@@ -2786,6 +2786,8 @@ public class IntegracaoNfe extends Servico {
             }
             JOptionPane.showInternalMessageDialog(Ambiente.getDesktop(), avisos.toString(), "Lei 12.741/2012", JOptionPane.WARNING_MESSAGE);
         }
+        nfeModel.setInfoAdicionalFisco(infAdicionais.getInfAdFisco() == null ? "" : infAdicionais.getInfAdFisco());
+        nfeModel.setInfoComplementar(infAdicionais.getInfCpl() == null ? "" : infAdicionais.getInfCpl());
     }
     
     private boolean cstComMensagemCreditoDeIcms(int cst) {
