@@ -455,11 +455,11 @@ public class IntegracaoNfeEmissorFiscal {
             // O IDEAL, é enviar para o "EMISSOR-FISCAL", quantos de DESCONTO, o item terá, fazer esse calculo LÁ
             String vBUFDest = NumberUtil.decimalBanco(item.getBaseIcmsUFDestinoDifal() - item.getDescontoValor());
             difal.setVBCUFDest(vBUFDest);
-            difal.setVBCFCPUFDest(vBUFDest);
+            difal.setVBCFCPUFDest(item.getIcmsIndicePobrezaAliquota() > 0 ? vBUFDest : "0.00" );
         } else {
             String vBUFDest = NumberUtil.decimalBanco(item.getBaseIcmsUFDestinoDifal());
             difal.setVBCUFDest(vBUFDest);
-            difal.setVBCFCPUFDest(vBUFDest);
+            difal.setVBCFCPUFDest(item.getIcmsIndicePobrezaAliquota() > 0 ? vBUFDest : "0.00" );
         }
         difal.setPFCPUFDest(NumberUtil.decimalBanco(item.getIcmsIndicePobrezaAliquota() * 100));
         difal.setPICMSUFDest(NumberUtil.decimalBanco(item.getIcmsInternaUFDestinoAliquota() * 100));
@@ -468,7 +468,8 @@ public class IntegracaoNfeEmissorFiscal {
         // FCP
         difal.setVFCPUFDest(NumberUtil.decimalBanco(item.getValorIcmsIndicePobreza()));
         difal.setVICMSUFDest(NumberUtil.decimalBanco(item.getValorIcmsUFDestino()));
-        difal.setVICMSUFRemet(NumberUtil.decimalBanco(item.getValorIcmsUFRemetente()));
+        // Está zerado pois desde de 2019, fica 100% para o Destinatário
+        difal.setVICMSUFRemet("0.00");
         return difal;
     }
             
