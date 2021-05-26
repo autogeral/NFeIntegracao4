@@ -432,6 +432,8 @@ public class IntegracaoNfeEmissorFiscal {
                 icms = atribuiIcms30(icms, item, origem);
                 break;
             case 40:
+            case 41:
+            case 50:
                 icms = atribuiIcms40(icms, item, origem);
                 break;
             case 60:
