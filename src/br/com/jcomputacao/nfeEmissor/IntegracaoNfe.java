@@ -1022,7 +1022,8 @@ public class IntegracaoNfe extends Servico {
             //Caso for informado a IE do Cliente e esteja marcado como ?Contribuinte ICMS?, o resultado será ?1 = Contribuinte ICMS?.
             //Caso NÃO for informado a IE do Cliente e esteja marcado como ?Contribuinte ICMS?, o resultado será ?2 = Contribuinte Isento?.
             //Caso NÃO esteja marcado como ?Contribuinte ICMS?, o resultado será ?9 = Não Contribuinte?.
-            dest.setIndIEDest((StringUtil.isNull(ent.getRgIe())) && cm.getTributacaoCodigo() == 0 ? "2" : (StringUtil.isNotNull(ent.getRgIe())) && cm.getTributacaoCodigo() == 0 ? "1" : "9");
+            String indicadorIEDest = (StringUtil.isNull(ent.getRgIe())) && cm.getTributacaoCodigo() == 0 ? "2" : (StringUtil.isNotNull(ent.getRgIe())) && cm.getTributacaoCodigo() == 0 ? "1" : "9";
+            dest.setIndIEDest(nfeModel.getOperacaoCodigo() == 2 ? "1" : indicadorIEDest);
             if (StringUtil.isNotNull(ent.getRgIe())) {
                 dest.setIE(ent.getRgIe());
             }
