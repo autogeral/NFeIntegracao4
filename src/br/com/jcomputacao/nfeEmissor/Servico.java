@@ -18,7 +18,7 @@ import br.com.jcomputacao.nfe.NFeUtil;
 import br.com.jcomputacao.nfe.validacao.Validador;
 import br.com.jcomputacao.nfe.validacao.ValidadorListener;
 import br.com.jcomputacao.util.StringUtil;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Ide;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Ide;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -47,7 +47,7 @@ public class Servico {
 
     static {
         try {
-            context = JAXBContext.newInstance("br.inf.portalfiscal.nfe.xml.pl009v4.nfes");
+            context = JAXBContext.newInstance("br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes");
         } catch (JAXBException ex) {
             logger.log(Level.SEVERE, "Erro ao criar o contexto do JAXB", ex);
         }
@@ -176,6 +176,18 @@ public class Servico {
         ide.setIndPres(nfeModel.getVendedorNome().toUpperCase().contains("ECOMMERCE") ? "2" : operacao.isComplementoImposto() || operacao.isComplementoValor() ? "0" : "1");
         ide.setTpNF(nfeModel.getSaida() ? "1" : "0");
 
+        
+        // Quando NÃO presencial e exigir intermediador ENTRARA na validação abaixo
+        if (!ide.getIndPres().equals("0") && !ide.getIndPres().equals("1")  
+                && !ide.getIndPres().equals("5") && !ide.getIndPres().equals("9")) {
+            /**
+             * 0 = Operação sem intermediador (em site ou plataforma própria) 
+             * 1 = Operação em site ou plataforma de terceiros (intermediadores/marketplace)
+             *      -> Caso == 1 (preencher o obj InfIntermed)
+             */
+            ide.setIndIntermed("0");
+        }
+        
         /**
          * Identificador do processo de emissao da NF-e: 0 - emissao de NF-e com
          * aplicativo do contribuinte; 1 - emissao de NF-e avulsa pelo Fisco; 2

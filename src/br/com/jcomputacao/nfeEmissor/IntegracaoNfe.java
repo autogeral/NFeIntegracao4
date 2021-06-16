@@ -52,67 +52,68 @@ import br.com.jcomputacao.tributacao.DeOlhoNoImpostoLogic;
 import br.com.jcomputacao.util.Ambiente;
 import br.com.jcomputacao.util.NumberUtil;
 import br.com.jcomputacao.util.StringUtil;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.ObjectFactory;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TEnderEmi;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TEndereco;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TIpi;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TIpi.IPINT;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TIpi.IPITrib;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TLocal;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Cobr.Dup;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Dest;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.COFINS;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.COFINS.COFINSAliq;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.COFINS.COFINSNT;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.COFINSST;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMS00;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMS10;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMS40;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMS51;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMS60;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMS90;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMSSN101;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMSSN102;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMSSN201;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMSSN202;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMSSN500;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMSSN900;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.ICMSUFDest;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.PIS;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.PIS.PISAliq;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.PIS.PISNT;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Imposto.PISST;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.ImpostoDevol;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.ImpostoDevol.IPI;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Prod;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Det.Prod.Comb;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Emit;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Ide;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Ide.NFref;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Ide.NFref.RefECF;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Pag;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Pag.DetPag;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Pag.DetPag.Card;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Total;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Total.ICMSTot;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Total.RetTrib;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Transp;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNFe.InfNFe.Transp.Transporta;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TNfeProc;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TProcEvento;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TProtNFe;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TProtNFe.InfProt;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TRetConsReciNFe;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TRetEnviNFe;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TRetEvento;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TUf;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TUfEmi;
-import br.inf.portalfiscal.nfe.xml.pl009v4.nfes.TVeiculo;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.ObjectFactory;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TEnderEmi;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TEndereco;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TIpi;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TIpi.IPINT;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TIpi.IPITrib;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TLocal;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Cobr.Dup;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Dest;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Imposto;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Imposto.COFINS;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Imposto.COFINS.COFINSAliq;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Imposto.COFINS.COFINSNT;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Imposto.COFINSST;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Imposto.ICMS;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMS00;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMS10;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMS40;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMS51;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMS60;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMS90;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMSSN101;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMSSN102;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMSSN201;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMSSN202;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMSSN500;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMSSN900;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Imposto.ICMSUFDest;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Imposto.PIS;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Imposto.PIS.PISAliq;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Imposto.PIS.PISNT;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Imposto.PISST;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.ImpostoDevol;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.ImpostoDevol.IPI;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Prod;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Prod.Comb;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Emit;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Ide;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Ide.NFref;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Ide.NFref.RefECF;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Pag;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Pag.DetPag;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Pag.DetPag.Card;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.InfIntermed;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Total;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Total.ICMSTot;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Total.RetTrib;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Transp;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Transp.Transporta;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNfeProc;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TProcEvento;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TProtNFe;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TProtNFe.InfProt;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TRetConsReciNFe;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TRetEnviNFe;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TRetEvento;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TUf;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TUfEmi;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TVeiculo;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -595,6 +596,22 @@ public class IntegracaoNfe extends Servico {
         }
         Pag pgto = criaPagamento(nfeModel);
         inf.setPag(pgto);
+        // TODO ( ESSE 'infIntermed' CAMPO SOMENTE DEVERÁ SER PREENCHIDO, CASO O CAMPO "indIntermed" , seja == 1) (campo dentro do OBJ ide)
+        // 
+        //Indicador de presenca do comprador no estabelecimento no momento da operacao
+        // 0 Nao se aplica (por exemplo, Nota Fiscal complementar ou ajuste)
+        // 1 Operacao presencial
+        // 2 Operacao nao presencial, pela internet
+        // 3 Operacao nao presencial, Teleatendimento
+        // 4 NFC-e em operacao com entrega a domicilio
+        // 5 Operação presencial, fora do estabelecimento;
+        // 9 Operacao nao presencial, outros
+        // Quando NÃO presencial && exigir intermediador ENTRARA na validação abaixo
+//        if (!ide.getIndPres().equals("0") && !ide.getIndPres().equals("1")  
+//                && !ide.getIndPres().equals("5") && !ide.getIndPres().equals("9")) {
+//            InfIntermed infIntermed = criarInfoDoIntermediador();
+//            inf.setInfIntermed(infIntermed);
+//        }
         if (nfeModel.getEntrega()) {
             TLocal localEntrega = criarLocalEntrega(nfeModel);
             inf.setEntrega(localEntrega);
@@ -1104,20 +1121,24 @@ public class IntegracaoNfe extends Servico {
                 //90= Sem pagamento
                 //99=Outros
                 ModoPagamentoDBFModel modoPagamento = ModoPagamentoBean.getModoPagamentoPorCodigo(pagamento.getModoPagamentoCodigo());
-                int codigoNfePagamento = modoPagamento.getNfeCodigo();
+                int codigoNfePagamento = modoPagamento.getNfeCodigo().getMeioPagamentoCodigo();
                 detPag.setTPag(Ambiente.ajusta(Integer.toString(codigoNfePagamento), 2, Ambiente.ALINHAMENTO_DIREITA, '0'));  
                 detPag.setVPag(NumberUtil.decimalBanco(pagamento.getValorPagamento()));
                 //0= Pagamento à Vista 1= Pagamento à Prazo
                 indicadorPagamento = codigoNfePagamento == 1 || codigoNfePagamento == 4 ? IndicadorPagamento.A_VISTA : IndicadorPagamento.A_PRAZO;
                 
                 detPag.setIndPag(indicadorPagamento.getIndicadorPagamento());
+                if (codigoNfePagamento == 99) {
+                    detPag.setXPag(modoPagamento.getDescricaoRelatorio());
+                } 
                 if(codigoNfePagamento == 3 || codigoNfePagamento == 4) {
                     Card card = new Card();
                     //1 = Pagamento integrado com o sistema de automação da
                     //  empresa (Ex.: equipamento TEF, Comércio Eletrônico);
                     //2 = Pagamento não integrado com o sistema de automaçã
-                    //   da empresa (Ex.: equipamento POS); 
-                    card.setTpIntegra("2");
+                    //   da empresa (Ex.: equipamento POS);
+                    boolean tef = pagamento.getIntencaoVenda() != null && pagamento.getIntencaoVenda() > 0;
+                    card.setTpIntegra(tef ? "1" : "2" );
                     //Quando for TEF e mudar o campo acima ai os campos abaixo
                     //serão obrigatórios;
                     //Informar o CNPJ da Credenciadora de cartão de crédito/débito
@@ -1142,6 +1163,35 @@ public class IntegracaoNfe extends Servico {
         return pag;
     }
 
+    /**
+     * TODO
+     * 
+        -> É VENDA realizada pela AUTOGERAL (se o campo VEND_CANA estiver preenchida da seguinte forma)
+                - Site
+                - "----" ("em branco")
+                - APP
+                - Ou se tiver o idReferenciaPgto() (no obj nfePagamento)
+            OU SEJA, não deverá ser preenchido o GRUPO ABAIXO
+        -> CASO CONTRARIO, (preencherá o grupo abaixo)
+               - Tem que ter o CNPJ do marktplace e do operador da transacao
+     * 
+     * "Grupo de Informações do Intermediador da transação". 
+     * 
+     * ESSE CAMPO SOMENTE DEVERÁ SER PREENCHIDO, CASO O CAMPO "indIntermed", seja == 1
+     * 
+     * PS: Preencher com as informações dos intermediadores
+     * 
+     * @return
+     * @throws DbfDatabaseException 
+     */
+    private InfIntermed criarInfoDoIntermediador() throws DbfDatabaseException {
+        InfIntermed infIntermed = new InfIntermed();
+        infIntermed.setCNPJ(StringUtil.somenteNumeros(LojaBean.getLojaAtual().getCpfCnpj()));
+        infIntermed.setIdCadIntTran(LojaBean.getLojaAtual().getNomeFantasia());
+
+        return infIntermed;
+    }
+    
     private TLocal criarLocalEntrega(NfeModel nfeModel) throws DbfException {
         Entidade ent = null;
         CadastroModel cm = new CadastroModel();
