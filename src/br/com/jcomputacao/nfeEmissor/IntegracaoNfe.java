@@ -1096,6 +1096,13 @@ public class IntegracaoNfe extends Servico {
 //        vai precisar de troco?
         MovimentoOperacaoModel operacao = MovimentoOperacaoBean.getMovimentoPorCodigo(nfeModel.getOperacaoCodigo());
         Pag pag = new Pag();
+        if (operacao.isBaixaConsumo()) {
+            DetPag detPag = new DetPag();
+            detPag.setTPag("90");
+            detPag.setVPag("0.00");
+            pag.getDetPag().add(detPag);
+//            detPag.setXPag("Baixa de Consumo");
+        }
         for (NfePagamentoModel pagamento : nfeModel.getPagamentos()) {
             DetPag detPag = new DetPag();        
             IndicadorPagamento indicadorPagamento;
