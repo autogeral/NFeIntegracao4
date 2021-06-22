@@ -2677,12 +2677,12 @@ public class IntegracaoNfe extends Servico {
             }
         }
         String operacaoObs = nfeModel.getOperacao().getObs().trim();
-        if (!nfeModel.getOperacao().isBaixaConsumo() && StringUtil.isNotNull(operacaoObs)) {
+        if (StringUtil.isNotNull(operacaoObs)) {
             info += operacaoObs;
             if (!info.endsWith(".")) {
                 info += ".";
             }
-        }
+        }        
         if (StringUtil.isNotNull(nfeModel.getObs())) {
             info += nfeModel.getObs();
         }
