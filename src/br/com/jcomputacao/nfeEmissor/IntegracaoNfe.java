@@ -32,6 +32,7 @@ import br.com.jcomputacao.model.NfePagamentoParcelaModel;
 import br.com.jcomputacao.model.NfeReferenciaModel;
 import br.com.jcomputacao.model.ProdutoDBFModel;
 import br.com.jcomputacao.model.ProdutoOrigem;
+import br.com.jcomputacao.model.TipoMaquinaCartao;
 import br.com.jcomputacao.model.VendaItemModel;
 import br.com.jcomputacao.model.VendaTipo;
 import br.com.jcomputacao.model.beans.LojaBean;
@@ -1149,18 +1150,23 @@ public class IntegracaoNfe extends Servico {
                     //Quando for TEF e mudar o campo acima ai os campos abaixo
                     //serão obrigatórios;
                     //Informar o CNPJ da Credenciadora de cartão de crédito/débito
-                    //card.setCNPJ();
-                    //01=Visa
-                    //02=Mastercard
-                    //03=American Express
-                    //04=Sorocred
-                    //05=Diners Club
-                    //06=Elo
-                    //07=Hipercard
-                    //08=Aura
-                    //09=Cabal
-                    //99=Outros
-                    //card.setCAut();   
+                    if (tef) {
+                        //https://atendimento.tecnospeed.com.br/hc/pt-br/articles/360012471354-Principais-Empresas-Credenciadoras-Adquirentes-de-Cart%C3%A3o-de-Cr%C3%A9dito-e-seus-CNPJs-Campo-CNPJ-YA05-
+                        card.setCNPJ(TipoMaquinaCartao.REDE.equals(pagamento.getMaquinaCartao()) ? "01425787000104" 
+                                : TipoMaquinaCartao.STONE.equals(pagamento.getMaquinaCartao()) ? "34590184000109" : "");
+                        //01=Visa
+                        //02=Mastercard
+                        //03=American Express
+                        //04=Sorocred
+                        //05=Diners Club
+                        //06=Elo
+                        //07=Hipercard
+                        //08=Aura
+                        //09=Cabal
+                        //99=Outros
+//                        card.setTBand(chave);
+                        card.setCAut(pagamento.getNumeroDocumentoFinanceiro());   
+                    }
                     detPag.setCard(card);
                 }
             }
