@@ -390,7 +390,8 @@ public class IntegracaoNfeEmissorFiscal {
 
         icmsTot.setVST(NumberUtil.decimalBanco(nota.getIcmsStValor()));
         icmsTot.setVProd(NumberUtil.decimalBanco(nota.getValorProdutos()));
-        icmsTot.setVFrete(NumberUtil.decimalBanco(nota.getValorFrete()));
+        String vFrete = nota.isAdicionaFreteNoTotal() ? NumberUtil.decimalBanco(nota.getValorFrete()) : "0.00";
+        icmsTot.setVFrete(vFrete);
         icmsTot.setVSeg(NumberUtil.decimalBanco(nota.getValorSeguro()));     
         
         if(nota.isDestacaDescontoNoCorpoDoDocumentoFiscal() && nota.getDescontoValor() > 0) {
