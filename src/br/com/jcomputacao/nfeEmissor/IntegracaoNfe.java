@@ -1145,7 +1145,7 @@ public class IntegracaoNfe extends Servico {
                     //  empresa (Ex.: equipamento TEF, Comércio Eletrônico);
                     //2 = Pagamento não integrado com o sistema de automaçã
                     //   da empresa (Ex.: equipamento POS);
-                    boolean tef = pagamento.getIntencaoVenda() != null && pagamento.getIntencaoVenda() > 0;
+                    boolean tef = pagamento.getIntencaoVenda() != null && pagamento.getIntencaoVenda() > 1;
                     card.setTpIntegra(tef ? "1" : "2" );
                     //Quando for TEF e mudar o campo acima ai os campos abaixo
                     //serão obrigatórios;
