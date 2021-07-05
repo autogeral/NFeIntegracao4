@@ -156,6 +156,7 @@ public class IntegracaoNfe extends Servico {
     private boolean valorFCPSTRetido;
     private String informacaoAdicionalProduto = "";
     private final boolean nfeTributaDifal = Boolean.parseBoolean(System.getProperty("nfe.tributa.difal", "false"));
+    private boolean isAdicionaFreteNoTotal = false; 
     private final EmissorFiscalClienteDocumentoFiscal efClienteDocFiscal = (EmissorFiscalClienteDocumentoFiscal) EmissorFiscalClienteFactory.getCliente(DocumentoFiscalDTO.class);
 //    private boolean isUsingEmissorFiscal = Boolean.parseBoolean(System.getProperty("emissor-fiscal.ativo","true"));
     // Deverá ser usada da forma que está abaixo
@@ -576,6 +577,7 @@ public class IntegracaoNfe extends Servico {
     }
 
     public String exportarString(NfeModel nfeModel) throws JAXBException, DbfDatabaseException, DbfException {
+        isAdicionaFreteNoTotal = nfeModel.isAdicionaFreteNoTotal();
         return exportarString(exportarXml(nfeModel));
     }
 
@@ -898,7 +900,8 @@ public class IntegracaoNfe extends Servico {
 
         icms.setVST(NumberUtil.decimalBanco(nota.getIcmsStValor()));
         icms.setVProd(NumberUtil.decimalBanco(nota.getValorProdutos()));
-        icms.setVFrete(NumberUtil.decimalBanco(nota.getValorFrete()));
+        String vFrete = isAdicionaFreteNoTotal ? NumberUtil.decimalBanco(nota.getValorFrete()) : "0.00";
+        icms.setVFrete(vFrete);
         icms.setVSeg(NumberUtil.decimalBanco(nota.getValorSeguro()));
         if(nota.isDestacaDescontoNoCorpoDoDocumentoFiscal()
                 && nota.getDescontoValor() > 0) {
@@ -1354,7 +1357,7 @@ public class IntegracaoNfe extends Servico {
          */
         prod.setIndTot("1");
 
-        if (item.getValorFrete() > 0) {
+        if (item.getValorFrete() > 0 && isAdicionaFreteNoTotal) {
             prod.setVFrete(NumberUtil.decimalBanco(item.getValorFrete()));
         }
         if (item.getValorOutrasDespesas() > 0) {
