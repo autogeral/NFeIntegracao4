@@ -17,6 +17,7 @@ import br.com.jcomputacao.model.EmpresaTributacao;
 import br.com.jcomputacao.model.Entidade;
 import br.com.jcomputacao.model.EntidadeEndereco;
 import br.com.jcomputacao.model.EntidadeTelefone;
+import br.com.jcomputacao.model.FinalidadeTipo;
 import br.com.jcomputacao.model.IndicadorPagamento;
 import br.com.jcomputacao.model.LojaModel;
 import br.com.jcomputacao.model.ModoPagamentoDBFModel;
@@ -1315,7 +1316,7 @@ public class IntegracaoNfe extends Servico {
       
         boolean descricaoSimples = Boolean.parseBoolean(System.getProperty("nfe.descricao.simples", "true"));
         String descricao = null;
-        if (descricaoSimples) {
+        if (item.getFinalidadeCodigo() == FinalidadeTipo.COMERCIALIZACAO.ordinal() + 1 && descricaoSimples) {
             descricao = item.getDescricaoAbreviada();
         } else {
             descricao = item.getDescricao();
