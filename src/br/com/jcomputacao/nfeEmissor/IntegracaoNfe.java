@@ -1174,7 +1174,6 @@ public class IntegracaoNfe extends Servico {
                     detPag.setCard(card);
                 }
             }
-            nfeModel.setIndicadorPagamento(indicadorPagamento);
             pag.getDetPag().add(detPag);
         }        
         return pag;
