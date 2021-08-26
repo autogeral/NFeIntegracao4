@@ -31,6 +31,8 @@ import org.apache.axis2.AxisFault;
  */
 public class ConsultaSituacaoNfe extends Servico {
 
+    private String xmlConsultaSituacaoAtualNfe;
+    
     public TRetConsSitNFe consultarNfe(NfeModel nfe) throws DbfException {
         String cnpj = obtemCnpjEmitente(nfe);
         WsConnectionConfig.setProperties(cnpj);
@@ -64,6 +66,7 @@ public class ConsultaSituacaoNfe extends Servico {
         ServicoConsultaSituacaoNfe servico = new ServicoConsultaSituacaoNfe();
         try {
             xml = servico.executar(xml);
+            this.xmlConsultaSituacaoAtualNfe = xml;
         } catch (AxisFault ex) {
             throw new DbfException("Erro ao tentar acessar acessar o servico da SEFAZ", ex);
         } catch (RemoteException ex) {
@@ -99,4 +102,13 @@ public class ConsultaSituacaoNfe extends Servico {
         String urlXsd = System.getProperty("nfe.validacao.localizacao.consulta");
         validar(xml, urlXsd);
     }
+
+    /**
+     * Irá retornar o xml, de consulta da situação atual
+     * @return 
+     */
+    public String getXmlConsultaSituacaoAtualNfe() {
+        return xmlConsultaSituacaoAtualNfe;
+    }
+    
 }
