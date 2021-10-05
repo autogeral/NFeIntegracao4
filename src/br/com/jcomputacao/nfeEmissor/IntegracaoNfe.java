@@ -532,10 +532,7 @@ public class IntegracaoNfe extends Servico {
             Optional<DocumentoFiscalDTO> opDocFiscalDto = efClienteDocFiscal.save(docFiscalDto);
             if (opDocFiscalDto.isPresent()) {
                 this.docFiscalDto = opDocFiscalDto.get();
-                // Seto para true, para não recalcular NADA. Depois volto para false, pois é uma VARIAVEL da CLASSE
-                VendaItemModel.FOI_CALCULADO_EMISSOR_FISCAL = true;
                 nfe = docFiscalDto.converteParaNfeOrSatModel(nfe, opDocFiscalDto.get());
-                VendaItemModel.FOI_CALCULADO_EMISSOR_FISCAL = false;
             } else {
                 isUsingEmissorFiscal = false;
             }
