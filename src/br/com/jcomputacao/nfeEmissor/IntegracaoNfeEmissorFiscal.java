@@ -9,7 +9,6 @@ import br.com.jcomputacao.model.beans.MovimentoOperacaoBean;
 import br.com.jcomputacao.util.NumberUtil;
 import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TIpi;
 import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TIpi.IPINT;
-import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe;
 import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Imposto.COFINS;
 import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Imposto.COFINS.COFINSAliq;
 import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Imposto.COFINS.COFINSNT;
@@ -22,22 +21,16 @@ import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Imposto.ICM
 import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMS20;
 import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMS30;
 import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMS40;
-import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMS51;
 import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMS60;
 import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMS70;
 import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMS90;
-import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMSSN101;
-import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMSSN102;
-import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMSSN201;
-import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMSSN202;
-import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMSSN500;
-import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Imposto.ICMS.ICMSSN900;
 import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Imposto.ICMSUFDest;
 import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Total.ICMSTot;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import static br.com.jcomputacao.util.NfeUtil.isAdicionaFreteNoTotal;
 /**
  *
  * @author robson.costa
@@ -390,7 +383,7 @@ public class IntegracaoNfeEmissorFiscal {
 
         icmsTot.setVST(NumberUtil.decimalBanco(nota.getIcmsStValor()));
         icmsTot.setVProd(NumberUtil.decimalBanco(nota.getValorProdutos()));
-        String vFrete = nota.isAdicionaFreteNoTotal() ? NumberUtil.decimalBanco(nota.getValorFrete()) : "0.00";
+        String vFrete = isAdicionaFreteNoTotal(nota.getFreteConta()) ? NumberUtil.decimalBanco(nota.getValorFrete()) : "0.00";
         icmsTot.setVFrete(vFrete);
         icmsTot.setVSeg(NumberUtil.decimalBanco(nota.getValorSeguro()));     
         
