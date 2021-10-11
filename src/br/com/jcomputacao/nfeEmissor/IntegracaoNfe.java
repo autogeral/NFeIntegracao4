@@ -34,7 +34,6 @@ import br.com.jcomputacao.model.NfeReferenciaModel;
 import br.com.jcomputacao.model.ProdutoDBFModel;
 import br.com.jcomputacao.model.ProdutoOrigem;
 import br.com.jcomputacao.model.TipoMaquinaCartao;
-import br.com.jcomputacao.model.VendaItemModel;
 import br.com.jcomputacao.model.VendaTipo;
 import br.com.jcomputacao.model.beans.LojaBean;
 import br.com.jcomputacao.model.beans.ModoPagamentoBean;
@@ -538,7 +537,7 @@ public class IntegracaoNfe extends Servico {
             }
         } else {
             isUsingEmissorFiscal = false;
-        } 
+        }
         
         try {
             xml = exportarString(nfe);
