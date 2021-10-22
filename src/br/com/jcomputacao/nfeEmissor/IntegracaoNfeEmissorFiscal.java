@@ -7,9 +7,11 @@ import br.com.jcomputacao.model.NfeItemModel;
 import br.com.jcomputacao.model.NfeModel;
 import br.com.jcomputacao.model.beans.MovimentoOperacaoBean;
 import br.com.jcomputacao.util.NumberUtil;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe;
 import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TIpi;
 import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TIpi.IPINT;
-import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.ImpostoDevol;
+import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.ImpostoDevol.IPI;
 import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Imposto.COFINS;
 import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Imposto.COFINS.COFINSAliq;
 import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.Imposto.COFINS.COFINSNT;
@@ -365,7 +367,8 @@ public class IntegracaoNfeEmissorFiscal {
      * @throws DbfDatabaseException
      * @throws DbfException 
      */
-    public ICMSTot atribuiTotalIcms(NfeModel nota) throws DbfDatabaseException, DbfException {
+//    ICMSTot atribuiTotalIcms(NfeModel nota, boolean devolucaoParaFornecedorPeloEmissorFiscal) {    }
+    public ICMSTot atribuiTotalIcms(NfeModel nota, boolean isDevolucaoParaFornecedorPeloEmissorFiscal) throws DbfDatabaseException, DbfException {
         ICMSTot icmsTot = new ICMSTot();
 
         icmsTot.setVBC(NumberUtil.decimalBanco((nota.getIcmsBase())));
@@ -394,15 +397,16 @@ public class IntegracaoNfeEmissorFiscal {
         icmsTot.setVFrete(vFrete);
         icmsTot.setVSeg(NumberUtil.decimalBanco(nota.getValorSeguro()));     
         
-        if(nota.isDestacaDescontoNoCorpoDoDocumentoFiscal() && nota.getDescontoValor() > 0) {
+        if((nota.isDestacaDescontoNoCorpoDoDocumentoFiscal() || isDevolucaoParaFornecedorPeloEmissorFiscal) 
+            && nota.getDescontoValor() > 0) {
             icmsTot.setVDesc(NumberUtil.decimalBanco(nota.getDescontoValor()));
         } else {
             icmsTot.setVDesc("0.00");
         }
         
         icmsTot.setVII("0.00");
-//        icms.setVIPI(this.tributaIpi ? NumberUtil.decimalBanco(nota.getValorIpi()) : "0.00");
-//        icms.setVIPIDevol(!this.tributaIpi ? NumberUtil.decimalBanco(nota.getValorIpi()) : "0.00");
+        icmsTot.setVIPI("0.00");
+        icmsTot.setVIPIDevol(NumberUtil.decimalBanco(nota.getValorIpi()));
         icmsTot.setVOutro(NumberUtil.decimalBanco(nota.getOutrasDespesas()));
         icmsTot.setVNF(NumberUtil.decimalBanco(nota.getValorTotal()));      // Tenho que ver se está sendo calculado no emissor
         
@@ -619,6 +623,16 @@ public class IntegracaoNfeEmissorFiscal {
         }
         icms.setICMS90(tributaICMS90);
         return icms;
+    }
+
+    public ImpostoDevol criaIpiDevolvido(NfeItemModel item) {
+        final double ipiAliquota = item.getIpiAliquota() * 100;
+        ImpostoDevol impDev = new ImpostoDevol();
+        IPI ipi = new IPI();
+        ipi.setVIPIDevol(NumberUtil.decimalBanco(item.getIpiValor()));
+        impDev.setIPI(ipi);
+        impDev.setPDevol(NumberUtil.decimalBanco(ipiAliquota));
+        return impDev;
     }
 
 }
