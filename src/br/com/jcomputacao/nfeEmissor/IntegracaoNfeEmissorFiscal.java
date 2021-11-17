@@ -33,7 +33,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import static br.com.jcomputacao.util.NfeUtil.isAdicionaFreteNoTotal;
+//import static br.com.jcomputacao.util.NfeUtil.isAdicionaFreteNoTotal;
 /**
  *
  * @author robson.costa
@@ -387,8 +387,8 @@ public class IntegracaoNfeEmissorFiscal {
 
         icmsTot.setVST(NumberUtil.decimalBanco(nota.getIcmsStValor()));
         icmsTot.setVProd(NumberUtil.decimalBanco(nota.getValorProdutos()));
-        String vFrete = isAdicionaFreteNoTotal(nota.getFreteConta()) ? NumberUtil.decimalBanco(nota.getValorFrete()) : "0.00";
-        icmsTot.setVFrete(vFrete);
+//        String vFrete = isAdicionaFreteNoTotal(nota.getFreteConta()) ? NumberUtil.decimalBanco(nota.getValorFrete()) : "0.00";
+//        icmsTot.setVFrete(vFrete);
         icmsTot.setVSeg(NumberUtil.decimalBanco(nota.getValorSeguro()));     
         
         if((nota.isDestacaDescontoNoCorpoDoDocumentoFiscal() || isDevolucaoParaFornecedorPeloEmissorFiscal) 
