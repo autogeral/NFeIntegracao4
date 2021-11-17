@@ -34,7 +34,6 @@ import br.com.jcomputacao.model.NfeReferenciaModel;
 import br.com.jcomputacao.model.ProdutoDBFModel;
 import br.com.jcomputacao.model.ProdutoOrigem;
 import br.com.jcomputacao.model.TipoMaquinaCartao;
-import br.com.jcomputacao.model.VendaItemModel;
 import br.com.jcomputacao.model.VendaTipo;
 import br.com.jcomputacao.model.beans.LojaBean;
 import br.com.jcomputacao.model.beans.ModoPagamentoBean;
@@ -160,9 +159,9 @@ public class IntegracaoNfe extends Servico {
     private final boolean nfeTributaDifal = Boolean.parseBoolean(System.getProperty("nfe.tributa.difal", "false"));
     private boolean isAdicionaFreteNoTotal = false; 
     private final EmissorFiscalClienteDocumentoFiscal efClienteDocFiscal = (EmissorFiscalClienteDocumentoFiscal) EmissorFiscalClienteFactory.getCliente(DocumentoFiscalDTO.class);
-//    private boolean isUsingEmissorFiscal = Boolean.parseBoolean(System.getProperty("emissor-fiscal.ativo","true"));
     // Deverá ser usada da forma que está abaixo
-    private boolean isUsingEmissorFiscal = Boolean.parseBoolean(System.getProperty("emissor-fiscal.ativo","false"));
+    private transient boolean isUsingEmissorFiscal = Boolean.parseBoolean(System.getProperty("emissor-fiscal.ativo","false"));
+    private transient boolean isDevolucaoParaFornecedorPeloEmissorFiscal = false;
     private DocumentoFiscalDTO docFiscalDto;
     private final IntegracaoNfeEmissorFiscal nfeEmissorFiscal = new IntegracaoNfeEmissorFiscal();
     /*
@@ -533,16 +532,18 @@ public class IntegracaoNfe extends Servico {
             Optional<DocumentoFiscalDTO> opDocFiscalDto = efClienteDocFiscal.save(docFiscalDto);
             if (opDocFiscalDto.isPresent()) {
                 this.docFiscalDto = opDocFiscalDto.get();
-                // Seto para true, para não recalcular NADA. Depois volto para false, pois é uma VARIAVEL da CLASSE
-                VendaItemModel.FOI_CALCULADO_EMISSOR_FISCAL = true;
                 nfe = docFiscalDto.converteParaNfeOrSatModel(nfe, opDocFiscalDto.get());
-                VendaItemModel.FOI_CALCULADO_EMISSOR_FISCAL = false;
             } else {
                 isUsingEmissorFiscal = false;
             }
         } else {
-            isUsingEmissorFiscal = false;
-        } 
+            // Como a DEVOLUÇÃO PARA FORNECEDOR agora (mês 10/21) começará a ser pelo emissor-fiscal
+            // Será setado para TRUE (para montar os imposto no xml com as informações que vier do emissorfiscal)
+            final boolean isUsingEmissorFiscalDevolucao = Boolean.parseBoolean(System.getProperty("emissor-fiscal.devolucao.ativo", "false"));
+            List<Integer> devolucaoParaFornecedor = Arrays.asList(6, 7, 39, 40);
+            this.isDevolucaoParaFornecedorPeloEmissorFiscal = devolucaoParaFornecedor.contains(nfe.getOperacaoCodigo());
+            isUsingEmissorFiscal = (isUsingEmissorFiscalDevolucao && isDevolucaoParaFornecedorPeloEmissorFiscal);
+        }
         
         try {
             xml = exportarString(nfe);
@@ -864,9 +865,7 @@ public class IntegracaoNfe extends Servico {
     private ICMSTot criaTotalIcms(NfeModel nota) throws DbfDatabaseException, DbfException {
         // DESCOMENTAR DEPOIS que CADASTRAR as TRIBUTACOES DE ICMS
         if (isUsingEmissorFiscal) {
-            ICMSTot icms = nfeEmissorFiscal.atribuiTotalIcms(nota);
-            icms.setVIPI(this.tributaIpi ? NumberUtil.decimalBanco(nota.getValorIpi()) : "0.00");
-            icms.setVIPIDevol(!this.tributaIpi ? NumberUtil.decimalBanco(nota.getValorIpi()) : "0.00");
+            ICMSTot icms = nfeEmissorFiscal.atribuiTotalIcms(nota, this.isDevolucaoParaFornecedorPeloEmissorFiscal);
             return icms;
         }
         
@@ -1265,7 +1264,10 @@ public class IntegracaoNfe extends Servico {
         det.setNItem(Integer.toString(item.getItem()));
         det.setProd(produto(item, destinatario));        
         det.setImposto(imposto(item));
-        if(!this.tributaIpi && nfe.getValorIpi() > 0) {//IPI DEVOLVIDO
+        if (isUsingEmissorFiscal && nfe.getValorIpi() > 0) {
+            ImpostoDevol ipiDevolvido = nfeEmissorFiscal.criaIpiDevolvido(item);
+            det.setImpostoDevol(ipiDevolvido);
+        } else if(!this.tributaIpi && nfe.getValorIpi() > 0) {//IPI DEVOLVIDO
             det.setImpostoDevol(criaImpostoDevolvido(item));
         }
         if(this.informacaoAdicionalProduto != null && !this.informacaoAdicionalProduto.isEmpty()) {
@@ -1346,7 +1348,7 @@ public class IntegracaoNfe extends Servico {
         prod.setUTrib(prod.getUCom());
         prod.setVUnTrib(prod.getVUnCom());
         
-        if(item.isDestacaDescontoNoCorpoDoDocumentoFiscal()
+        if(item.isDestacaDescontoNoCorpoDoDocumentoFiscal() || (this.isUsingEmissorFiscal && this.isDevolucaoParaFornecedorPeloEmissorFiscal)
                 && item.getDescontoValor() > 0) {
             prod.setVDesc(NumberUtil.decimalBanco(item.getDescontoValor()));
         }
