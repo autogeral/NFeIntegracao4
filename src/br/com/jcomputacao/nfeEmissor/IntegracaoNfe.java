@@ -135,7 +135,7 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.stream.StreamSource;
-//import static br.com.jcomputacao.util.NfeUtil.isAdicionaFreteNoTotal;
+import static br.com.jcomputacao.util.NfeUtil.isAdicionaFreteNoTotal;
 
 /**
  * 07/03/2016 12:27:11
@@ -580,7 +580,7 @@ public class IntegracaoNfe extends Servico {
     }
 
     public String exportarString(NfeModel nfeModel) throws JAXBException, DbfDatabaseException, DbfException {
-//        isAdicionaFreteNoTotal = isAdicionaFreteNoTotal(nfeModel.getFreteConta());
+        isAdicionaFreteNoTotal = isAdicionaFreteNoTotal(nfeModel.getFreteConta());
         return exportarString(exportarXml(nfeModel));
     }
 
