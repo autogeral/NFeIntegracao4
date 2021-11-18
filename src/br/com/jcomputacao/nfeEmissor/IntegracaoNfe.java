@@ -161,6 +161,7 @@ public class IntegracaoNfe extends Servico {
     private final EmissorFiscalClienteDocumentoFiscal efClienteDocFiscal = (EmissorFiscalClienteDocumentoFiscal) EmissorFiscalClienteFactory.getCliente(DocumentoFiscalDTO.class);
     // Deverá ser usada da forma que está abaixo
     private transient boolean isUsingEmissorFiscal = Boolean.parseBoolean(System.getProperty("emissor-fiscal.ativo","false"));
+    private transient List<String> operacoesDevolucaoParaFornecedorPeloEmissor;
     private transient boolean isDevolucaoParaFornecedorPeloEmissorFiscal = false;
     private DocumentoFiscalDTO docFiscalDto;
     private final IntegracaoNfeEmissorFiscal nfeEmissorFiscal = new IntegracaoNfeEmissorFiscal();
@@ -169,6 +170,11 @@ public class IntegracaoNfe extends Servico {
         quando o cliente é de fora do estado mas fazemos venda com CFOP interno.
     */
     private boolean obsEntregaBalcaoClienteForaEstado = false;
+
+    public IntegracaoNfe() {
+        String operacoes = System.getProperty("operacoes.devolucao.pelo.emissor-fiscal", "6,7,23,28,39,40");
+        this.operacoesDevolucaoParaFornecedorPeloEmissor = Arrays.asList(operacoes.split(","));
+    }
     
     public Date getNotBefore() {
         return notBefore;
@@ -540,8 +546,7 @@ public class IntegracaoNfe extends Servico {
             // Como a DEVOLUÇÃO PARA FORNECEDOR agora (mês 10/21) começará a ser pelo emissor-fiscal
             // Será setado para TRUE (para montar os imposto no xml com as informações que vier do emissorfiscal)
             final boolean isUsingEmissorFiscalDevolucao = Boolean.parseBoolean(System.getProperty("emissor-fiscal.devolucao.ativo", "false"));
-            List<Integer> devolucaoParaFornecedor = Arrays.asList(6, 7, 39, 40);
-            this.isDevolucaoParaFornecedorPeloEmissorFiscal = devolucaoParaFornecedor.contains(nfe.getOperacaoCodigo());
+            this.isDevolucaoParaFornecedorPeloEmissorFiscal = operacoesDevolucaoParaFornecedorPeloEmissor.contains(nfe.getOperacaoCodigoString());
             isUsingEmissorFiscal = (isUsingEmissorFiscalDevolucao && isDevolucaoParaFornecedorPeloEmissorFiscal);
         }
         
