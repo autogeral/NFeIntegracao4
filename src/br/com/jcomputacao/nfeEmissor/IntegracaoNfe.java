@@ -531,7 +531,8 @@ public class IntegracaoNfe extends Servico {
         
     public String converter(NfeModel nfe) throws DbfException, IOException {
         String xml;
-        if (isUsingEmissorFiscal && !nfe.getOperacao().isDevolucao()) {
+        this.isDevolucaoParaFornecedorPeloEmissorFiscal = operacoesDevolucaoParaFornecedorPeloEmissor.contains(nfe.getOperacaoCodigoString());
+        if (isUsingEmissorFiscal && (!this.isDevolucaoParaFornecedorPeloEmissorFiscal) ) {
             System.out.println("USANDO O EMISSOR-FISCAL! ");
             // Criar um DTO para converter o NFEModel para JSON (e ai sim enviar para o emissor-fiscal)
             this.docFiscalDto = new DocumentoFiscalDTO(nfe);
@@ -546,7 +547,6 @@ public class IntegracaoNfe extends Servico {
             // Como a DEVOLUÇÃO PARA FORNECEDOR agora (mês 10/21) começará a ser pelo emissor-fiscal
             // Será setado para TRUE (para montar os imposto no xml com as informações que vier do emissorfiscal)
             final boolean isUsingEmissorFiscalDevolucao = Boolean.parseBoolean(System.getProperty("emissor-fiscal.devolucao.ativo", "false"));
-            this.isDevolucaoParaFornecedorPeloEmissorFiscal = operacoesDevolucaoParaFornecedorPeloEmissor.contains(nfe.getOperacaoCodigoString());
             isUsingEmissorFiscal = (isUsingEmissorFiscalDevolucao && isDevolucaoParaFornecedorPeloEmissorFiscal);
         }
         
