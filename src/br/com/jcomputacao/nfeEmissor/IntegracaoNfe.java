@@ -669,7 +669,7 @@ public class IntegracaoNfe extends Servico {
                 nFaturas += bol.getCodigo() + "." + bol.getLoja();
                 cob.getDup().add(dup);
             }
-            fat.setNFat(nFaturas);
+            fat.setNFat(StringUtil.limitaTamanho(nFaturas, 59));
             fat.setVLiq(NumberUtil.decimalBanco(valorTotalLiquido));            
             fat.setVOrig(NumberUtil.decimalBanco(valorTotalLiquido));
             fat.setVDesc("0.00");
