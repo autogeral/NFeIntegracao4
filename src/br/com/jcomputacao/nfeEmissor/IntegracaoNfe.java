@@ -585,12 +585,7 @@ public class IntegracaoNfe extends Servico {
     }
 
     public String exportarString(NfeModel nfeModel) throws JAXBException, DbfDatabaseException, DbfException {
-<<<<<<< HEAD
-//        isAdicionaFreteNoTotal = isAdicionaFreteNoTotal(nfeModel.getFreteConta());
-        isAdicionaFreteNoTotal = nfeModel.isAdicionaFreteNoTotal();
-=======
         isAdicionaFreteNoTotal = isAdicionaFreteNoTotal(nfeModel.getFreteConta());
->>>>>>> gnre
         return exportarString(exportarXml(nfeModel));
     }
 
