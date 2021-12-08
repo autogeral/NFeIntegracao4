@@ -7,7 +7,6 @@ import br.com.jcomputacao.model.NfeItemModel;
 import br.com.jcomputacao.model.NfeModel;
 import br.com.jcomputacao.model.beans.MovimentoOperacaoBean;
 import br.com.jcomputacao.util.NumberUtil;
-import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe;
 import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TIpi;
 import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TIpi.IPINT;
 import br.inf.portalfiscal.nfe.xml.pl009v4_2021.nfes.TNFe.InfNFe.Det.ImpostoDevol;
@@ -33,7 +32,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-//import static br.com.jcomputacao.util.NfeUtil.isAdicionaFreteNoTotal;
+import static br.com.jcomputacao.util.NfeUtil.isAdicionaFreteNoTotal;
 /**
  *
  * @author robson.costa
@@ -387,7 +386,7 @@ public class IntegracaoNfeEmissorFiscal {
 
         icmsTot.setVST(NumberUtil.decimalBanco(nota.getIcmsStValor()));
         icmsTot.setVProd(NumberUtil.decimalBanco(nota.getValorProdutos()));
-        String vFrete = nota.isAdicionaFreteNoTotal() ? NumberUtil.decimalBanco(nota.getValorFrete()) : "0.00";
+        String vFrete = isAdicionaFreteNoTotal(nota.getFreteConta()) ? NumberUtil.decimalBanco(nota.getValorFrete()) : "0.00";
         icmsTot.setVFrete(vFrete);
         icmsTot.setVSeg(NumberUtil.decimalBanco(nota.getValorSeguro()));     
         
