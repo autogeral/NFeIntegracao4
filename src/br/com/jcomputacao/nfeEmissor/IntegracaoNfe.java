@@ -1326,13 +1326,13 @@ public class IntegracaoNfe extends Servico {
         if (item.getFinalidadeCodigo() == FinalidadeTipo.COMERCIALIZACAO.ordinal() + 1 && descricaoSimples) {
             descricao = item.getDescricaoAbreviada();
         } else {
-            descricao = item.getDescricao();
+            descricao = item.getDescricao().trim();
         }
 
         descricao = StringUtil.htmlIso8859encode(descricao).trim();
         int limiteDescricao = NumberUtil.getIntegerNullSafe(System.getProperty("nfe.item.descricao.tamanho.limite", "115"));
         if (limiteDescricao > 0 && descricao.length() > limiteDescricao) {
-            descricao = descricao.substring(0, limiteDescricao);
+            descricao = descricao.substring(0, limiteDescricao).trim();
         }
         prod.setXProd(descricao);
 //        if(StringUtil.isNotNull(item.getCodigoBarras())) {
