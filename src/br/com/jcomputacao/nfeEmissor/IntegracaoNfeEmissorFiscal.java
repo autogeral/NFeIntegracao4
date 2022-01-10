@@ -515,10 +515,22 @@ public class IntegracaoNfeEmissorFiscal {
         tributaICMS20.setCST(Integer.toString(item.getSituacaoTributaria()));
         tributaICMS20.setOrig(origem);
         tributaICMS20.setModBC("3");
-        tributaICMS20.setVBC(NumberUtil.decimal(item.getBaseIcmsValor()));
-        tributaICMS20.setPICMS(NumberUtil.decimal(item.getIcmsAliquota() * 100));
-        tributaICMS20.setVICMS(NumberUtil.decimal(item.getIcmsValor()));
-        tributaICMS20.setPRedBC(NumberUtil.decimalBanco(item.getValorIcmsStPorcentagemReducao() * 100));
+        tributaICMS20.setVBC(NumberUtil.decimalBanco(item.getBaseIcmsValor()));
+        tributaICMS20.setPICMS(NumberUtil.decimalBanco(item.getIcmsAliquota() * 100));
+        tributaICMS20.setVICMS(NumberUtil.decimalBanco(item.getIcmsValor()));
+//        tributaICMS20.setPRedBC(NumberUtil.decimalBanco(item.getValorIcmsStPorcentagemReducao() * 100));
+        if(item.getValorIcmsStPorcentagemReducaoPorcentagem() > 0) {
+            tributaICMS20.setPRedBC(NumberUtil.decimalBanco(item.getValorIcmsStPorcentagemReducao() * 100));
+        } else if(item.getBaseIcms() != 1 && (item.getBaseIcms() * 100) != 1) {
+            double baseIcms = item.getBaseIcms();
+            if(baseIcms < 1) {
+                baseIcms *= 100;
+            }
+            double reducao = 100 - baseIcms;
+            tributaICMS20.setPRedBC(NumberUtil.decimalBanco(reducao));
+        } else {
+            tributaICMS20.setPRedBC("0.00");
+        }
         /* A parte relacionada ao FCP e DIFAl, que tem na classe "IntegracaoNfe", não foi colocado aqui, pois segundo Gabriela
          * A autogeral usa ambos, apenas na CST 00: Na TAG -> (ICMSUFDest)
          */
