@@ -1867,6 +1867,7 @@ public class IntegracaoNfe extends Servico {
                 icms.setICMS20(icms20);
             }
             break;
+            case 40: 
             case 41: {
                 ICMS.ICMS40 icms40 = new ICMS.ICMS40();
                 icms40.setOrig(origem);
@@ -1895,7 +1896,14 @@ public class IntegracaoNfe extends Servico {
                 pisOutr.setPPIS("0.00");
                 pisOutr.setVPIS("0.00");
                 pis.setPISOutr(pisOutr);
-            } else if (item.getSituacaoTributaria() == 900
+            } else if (item.getSituacaoTributaria() == 102) {
+                pisOutr.setCST("07");
+                pisOutr.setVBC("0.00");
+                pisOutr.setPPIS("0.00");
+                pisOutr.setVPIS("0.00");
+                pis.setPISOutr(pisOutr);
+            }
+             else if (item.getSituacaoTributaria() == 900
                     && destacaImpostoCorpoNotaParaSimplesNacional && !item.getPisCofins()) {
                 pis.setPISAliq(aplicaPisParaSimplesIcmsSn900(pisAliquota, item));
             } else if (item.getSituacaoTributaria() == 900
@@ -2248,6 +2256,12 @@ public class IntegracaoNfe extends Servico {
                     || item.getSituacaoTributaria() == 20 || item.getSituacaoTributaria() == 201
                     || item.getSituacaoTributaria() == 102 || item.getSituacaoTributaria() == 101) {                
                 cofinsOutr.setCST("99");
+                cofinsOutr.setVBC("0.00");
+                cofinsOutr.setVCOFINS("0.00");
+                cofinsOutr.setPCOFINS("0.00");
+                cofins.setCOFINSOutr(cofinsOutr);
+            } else if (item.getSituacaoTributaria() == 102) {
+                cofinsOutr.setCST("07");
                 cofinsOutr.setVBC("0.00");
                 cofinsOutr.setVCOFINS("0.00");
                 cofinsOutr.setPCOFINS("0.00");
