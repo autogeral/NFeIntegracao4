@@ -585,6 +585,7 @@ public class IntegracaoNfe extends Servico {
     }
 
     public String exportarString(NfeModel nfeModel) throws JAXBException, DbfDatabaseException, DbfException {
+        cnpj = obtemCnpjEmitente(nfeModel);
         isAdicionaFreteNoTotal = isAdicionaFreteNoTotal(nfeModel.getFreteConta());
         return exportarString(exportarXml(nfeModel));
     }
@@ -1050,7 +1051,7 @@ public class IntegracaoNfe extends Servico {
             //Caso NÃO for informado a IE do Cliente e esteja marcado como ?Contribuinte ICMS?, o resultado será ?2 = Contribuinte Isento?.
             //Caso NÃO esteja marcado como ?Contribuinte ICMS?, o resultado será ?9 = Não Contribuinte?.
             String indicadorIEDest = (StringUtil.isNull(ent.getRgIe())) && cm.getTributacaoCodigo() == 0 ? "2" : (StringUtil.isNotNull(ent.getRgIe())) && cm.getTributacaoCodigo() == 0 ? "1" : "9";
-            dest.setIndIEDest(nfeModel.getOperacaoCodigo() == 2 ? "1" : indicadorIEDest);
+            dest.setIndIEDest(indicadorIEDest);
             if (StringUtil.isNotNull(ent.getRgIe())) {
                 dest.setIE(ent.getRgIe());
             }
@@ -1643,6 +1644,7 @@ public class IntegracaoNfe extends Servico {
             case 5915:
             case 1551://COMPRA DE ATIVO
             case 1407://COMPRA DE MATERIAL PARA CONSUMO QUANDO FORNECEDOR É MEI
+            case 1403:
             case 6949: {
                 if ("60".equals(st)) {
                     atribuiIcms60(icms, item, origem, st);
@@ -1991,7 +1993,7 @@ public class IntegracaoNfe extends Servico {
                 case 6949:
                 case 5901:
                 case 5902:
-                case 5910:
+                case 5910:                
                 case 6915:
                 case 6916:
                 case 5915:
@@ -2050,13 +2052,14 @@ public class IntegracaoNfe extends Servico {
                     pis.setPISAliq(pisAliquota);
                     pis.setPISNT(pisnt);
                     break;
+                case 1403:
                 case 1407:
                     pisOutr.setCST("98");
                     pisOutr.setQBCProd("0.0000");
                     pisOutr.setVAliqProd("0.0000");
                     pisOutr.setVPIS("0.00");
                     pis.setPISOutr(pisOutr);
-                    break;
+                    break;                    
             }
         } else {
 //            ProdutoTributacaoModel tributacao = ProdutoTributacaoBean.getTributacao(item.getTributacaoCodigo());
@@ -2167,8 +2170,7 @@ public class IntegracaoNfe extends Servico {
                 case 5605:
                 case 1949:
                 case 5949:
-                case 6949:
-                case 6915:
+                case 6949:                
                 case 6916:
                 case 5901:
                 case 5902:
@@ -2177,6 +2179,7 @@ public class IntegracaoNfe extends Servico {
                     pis.setPISNT(pisnt);
                     break;
                 case 5152:
+                case 6915:
                 case 5409:
                 case 5927:
                 case 5659:
@@ -2345,8 +2348,7 @@ public class IntegracaoNfe extends Servico {
                 case 5411:
                 case 5413:                                
                 case 6411:
-                case 6949:
-                case 6915:
+                case 6949:                
                 case 6916:
                 case 5915:
                 case 5901:
@@ -2361,6 +2363,7 @@ public class IntegracaoNfe extends Servico {
                     cofins.setCOFINSNT(cofinsnt);
                     break;
                 case 5152:
+                case 6915:
                 case 5409:
                 case 5927:
                 case 5659:
@@ -2407,6 +2410,7 @@ public class IntegracaoNfe extends Servico {
                     cofinsOutr.setVCOFINS("0.00");
                     cofins.setCOFINSOutr(cofinsOutr);
                     break;
+                case 1403:
                 case 1407://RETORNO DE CONSIGNACAO                    
                     cofinsOutr.setCST("98");
                     cofinsOutr.setQBCProd("0.0000");
@@ -2524,14 +2528,14 @@ public class IntegracaoNfe extends Servico {
                 case 5949:
                 case 6949:
                 case 5901:
-                case 5902:
-                case 6915:
+                case 5902:                
                 case 6916:                
                 case 5919:
                     cofinsnt.setCST("07");
                     cofins.setCOFINSNT(cofinsnt);
                     break;
                 case 5152:
+                case 6915:
                 case 5409:
                 case 5927:
                 case 5659:
