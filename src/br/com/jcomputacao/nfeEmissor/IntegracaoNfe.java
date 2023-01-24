@@ -20,7 +20,7 @@ import br.com.jcomputacao.model.EntidadeTelefone;
 import br.com.jcomputacao.model.FinalidadeTipo;
 import br.com.jcomputacao.model.IndicadorPagamento;
 import br.com.jcomputacao.model.LojaModel;
-import br.com.jcomputacao.model.ModoPagamentoDBFModel;
+import br.com.jcomputacao.model.ModoPagamentoModel;
 import br.com.jcomputacao.model.MovimentoOperacaoModel;
 import br.com.jcomputacao.model.NFeStatus;
 import br.com.jcomputacao.model.NfeImpostoAdicionalModel;
@@ -1138,7 +1138,7 @@ public class IntegracaoNfe extends Servico {
                 //15=Boleto Bancário
                 //90= Sem pagamento
                 //99=Outros
-                ModoPagamentoDBFModel modoPagamento = ModoPagamentoBean.getModoPagamentoPorCodigo(pagamento.getModoPagamentoCodigo());
+                ModoPagamentoModel modoPagamento = ModoPagamentoBean.getModoPagamentoPorCodigo(pagamento.getModoPagamentoCodigo());
                 int codigoNfePagamento = modoPagamento.getNfeCodigo().getMeioPagamentoCodigo();
                 detPag.setTPag(Ambiente.ajusta(Integer.toString(codigoNfePagamento), 2, Ambiente.ALINHAMENTO_DIREITA, '0'));  
                 detPag.setVPag(NumberUtil.decimalBanco(pagamento.getValorPagamento()));
