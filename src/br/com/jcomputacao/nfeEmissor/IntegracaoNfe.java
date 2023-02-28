@@ -532,7 +532,7 @@ public class IntegracaoNfe extends Servico {
     public String converter(NfeModel nfe) throws DbfException, IOException {
         String xml;
         this.isDevolucaoParaFornecedorPeloEmissorFiscal = operacoesDevolucaoParaFornecedorPeloEmissor.contains(nfe.getOperacaoCodigoString());
-        if (isUsingEmissorFiscal && (!this.isDevolucaoParaFornecedorPeloEmissorFiscal) ) {
+        if (isUsingEmissorFiscal && (!this.isDevolucaoParaFornecedorPeloEmissorFiscal) && !nfe.getOperacao().isTransferenciaIcms()) {
             System.out.println("USANDO O EMISSOR-FISCAL! ");
             // Criar um DTO para converter o NFEModel para JSON (e ai sim enviar para o emissor-fiscal)
             this.docFiscalDto = new DocumentoFiscalDTO(nfe);
@@ -1302,24 +1302,27 @@ public class IntegracaoNfe extends Servico {
             prod.setCEST(StringUtil.somenteNumeros(cestFormatado));
         } else {
             prod.setCFOP(Integer.toString(item.getCfop()));
-            CestNcmModel ncm = buscarExistenciaCodigoCestParaItem(item);
-            if (item.getCEST() != null) {
-                String cest = "0199900";
-                try {
-                    cest = StringUtil.somenteNumeros(ncm.buscaCest());
-                } catch (NullPointerException ex) {
-                    System.err.println("Erro ao tentar atribuir cest ::: " +ex.getStackTrace());
-                }
-                  prod.setCEST(cest);
-            } else {
-                  //Cest para os produtos onde o ncm não está relacionado a nenhum 
-                  //item da lista de cests.
-                  //Apenas para alguns segmentos existe esta opcao de outros
-                  String cest = System.getProperty("codigo.cest.outros");
-                  if(cest != null) {
-                      prod.setCEST(cest);
-                  }
-            }             // DESCOMENTAR DEPOIS que CADASTRAR as TRIBUTACOES DE ICMS
+            if (item.getCfop() != 5605) {
+                CestNcmModel ncm = buscarExistenciaCodigoCestParaItem(item);
+                if (item.getCEST() != null) {
+                    String cest = "0199900";
+                    try {
+                        cest = StringUtil.somenteNumeros(ncm.buscaCest());
+                    } catch (NullPointerException ex) {
+                        System.err.println("Erro ao tentar atribuir cest ::: " + ex.getStackTrace());
+                    }
+                    prod.setCEST(cest);
+                } else {
+                    //Cest para os produtos onde o ncm não está relacionado a nenhum 
+                    //item da lista de cests.
+                    //Apenas para alguns segmentos existe esta opcao de outros
+                    String cest = System.getProperty("codigo.cest.outros");
+                    if (cest != null) {
+                        prod.setCEST(cest);
+                    }
+                }             // DESCOMENTAR DEPOIS que CADASTRAR as TRIBUTACOES DE ICMS
+                
+            }
         }
       
         boolean descricaoSimples = Boolean.parseBoolean(System.getProperty("nfe.descricao.simples", "true"));
@@ -1720,7 +1723,7 @@ public class IntegracaoNfe extends Servico {
                     tributacaoIcms90.setModBC("3");
                     tributacaoIcms90.setVBC("0.00");
                     tributacaoIcms90.setPICMS("0.00");
-                    tributacaoIcms90.setVICMS(NumberUtil.decimalBanco(item.getIcmsValor()));
+                    tributacaoIcms90.setVICMS(item.getCfop() == 5605 ? "0.00" : NumberUtil.decimalBanco(item.getIcmsValor()));
                 }
                 icms.setICMS90(tributacaoIcms90);
             }
@@ -1991,7 +1994,6 @@ public class IntegracaoNfe extends Servico {
                     pis.setPISNT(pisnt);
                     break;
                 case 5602:
-                case 5605:
                 case 5410:
                 case 5411:
                 case 5413:
@@ -2013,6 +2015,7 @@ public class IntegracaoNfe extends Servico {
                     pisnt.setCST("07");
                     pis.setPISNT(pisnt);
                     break;
+                case 5605:
                 case 5152:
                 case 5409:
                 case 5659:
@@ -2175,7 +2178,6 @@ public class IntegracaoNfe extends Servico {
                     pis.setPISAliq(pisAliquota);
                     break;                
                 case 5602:
-                case 5605:
                 case 1949:
                 case 5949:
                 case 6949:                
@@ -2186,6 +2188,7 @@ public class IntegracaoNfe extends Servico {
                     pisnt.setCST("07");
                     pis.setPISNT(pisnt);
                     break;
+                case 5605:
                 case 5152:
                 case 6915:
                 case 5409:
@@ -2355,7 +2358,6 @@ public class IntegracaoNfe extends Servico {
                     cofins.setCOFINSNT(cofinsnt);
                     break;
                 case 5602:
-                case 5605:
                 case 1949:
                 case 2949:
                 case 5410:
@@ -2376,6 +2378,7 @@ public class IntegracaoNfe extends Servico {
                     cofinsnt.setCST("07");
                     cofins.setCOFINSNT(cofinsnt);
                     break;
+                case 5605:
                 case 5152:
                 case 6915:
                 case 5409:
@@ -2537,7 +2540,6 @@ public class IntegracaoNfe extends Servico {
                     cofins.setCOFINSAliq(aliquota);
                     break;
                 case 5602:
-                case 5605:
                 case 1949:
                 case 5949:
                 case 6949:
@@ -2546,6 +2548,10 @@ public class IntegracaoNfe extends Servico {
                 case 6916:                
                 case 5919:
                     cofinsnt.setCST("07");
+                    cofins.setCOFINSNT(cofinsnt);
+                    break;
+                case 5605:
+                    cofinsnt.setCST("08");
                     cofins.setCOFINSNT(cofinsnt);
                     break;
                 case 5152:
@@ -2703,57 +2709,70 @@ public class IntegracaoNfe extends Servico {
     
     private void atribuiObservacoes(InfNFe inf, NfeModel nfeModel) throws DbfDatabaseException, DbfException {
         TNFe.InfNFe.InfAdic infAdicionais = new TNFe.InfNFe.InfAdic();
-        DeOlhoNoImpostoLogic deOlho = new DeOlhoNoImpostoLogic();
-        List<String> msgsDeOlho = deOlho.mensagemParaVenda(nfeModel, false);
-        String info = "";
-        if (msgsDeOlho != null && !msgsDeOlho.isEmpty()) {
-            for (String msgs : msgsDeOlho) {
-                info += msgs + ".";
+        StringBuilder info = new StringBuilder();
+        if (!nfeModel.getOperacao().isTransferenciaIcms()) {
+            DeOlhoNoImpostoLogic deOlho = new DeOlhoNoImpostoLogic();
+            List<String> msgsDeOlho = deOlho.mensagemParaVenda(nfeModel, false);
+            if (msgsDeOlho != null && !msgsDeOlho.isEmpty()) {
+                for (String msgs : msgsDeOlho) {
+                    info.append(msgs).append(".");
+                }
+            }
+            if (!deOlho.getAvisos().isEmpty()) {
+                StringBuilder avisos = new StringBuilder();
+                for (String aviso : deOlho.getAvisos()) {
+                    if (avisos.length() > 0) {
+                        avisos.append("\n");
+                    }
+                    avisos.append(aviso);
+                }
+                JOptionPane.showInternalMessageDialog(Ambiente.getDesktop(), avisos.toString(), "Lei 12.741/2012", JOptionPane.WARNING_MESSAGE);
             }
         }
+
         String operacaoObs = nfeModel.getOperacao().getObs().trim();
         if (StringUtil.isNotNull(operacaoObs)) {
-            info += operacaoObs;
-            if (!info.endsWith(".")) {
-                info += ".";
+            info.append(operacaoObs);
+            if (!operacaoObs.endsWith(".")) {
+                info.append(".");
             }
         }        
         if (StringUtil.isNotNull(nfeModel.getObs())) {
-            info += nfeModel.getObs();
+            info.append(nfeModel.getObs());
         }
         boolean nfeInformaCaixa = Boolean.parseBoolean(System.getProperty("nfe.informaCaixa", "true"));
-        if (nfeInformaCaixa) {
+        if (nfeInformaCaixa && !nfeModel.getOperacao().isTransferenciaIcms()) {
             if (nfeModel.getCaixaCodigo() > 0) {
-                info += " CAIXA: " + nfeModel.getCaixaCodigo() + "." + nfeModel.getCaixaLoja();
+                info.append(" CAIXA: ").append(nfeModel.getCaixaCodigo()).append(".").append(nfeModel.getCaixaLoja());
             } else {
-                info += " Caixa nao aberto";
+                info.append(" Caixa nao aberto");
             }
         }
         boolean nfeInformaVendedor = Boolean.parseBoolean(System.getProperty("nfe.informaVendedor", "true"));
-        if (nfeInformaVendedor) {
+        if (nfeInformaVendedor && !nfeModel.getOperacao().isTransferenciaIcms()) {
             if (StringUtil.isNotNull(nfeModel.getVendedorNome())) {
-                info += " VENDEDOR: " + nfeModel.getVendedorNome();
+                info.append(" VENDEDOR: ").append(nfeModel.getVendedorNome());
             }
         }
         boolean nfeInformaComprador = Boolean.parseBoolean(System.getProperty("nfe.informaComprador", "true"));
-        if (nfeInformaComprador) {
+        if (nfeInformaComprador && !nfeModel.getOperacao().isTransferenciaIcms()) {
             if (StringUtil.isNotNull(nfeModel.getCompradorNome())) {
-                info += " COMPRADOR: " + nfeModel.getCompradorNome();
+                info.append(" COMPRADOR: ").append(nfeModel.getCompradorNome());
             }
         }
         boolean nfeInformaEnderecoEntrega = Boolean.parseBoolean(System.getProperty("nfe.informaEnderecoEntrega", "true"));
-        if(nfeInformaEnderecoEntrega) {
+        if(nfeInformaEnderecoEntrega && !nfeModel.getOperacao().isTransferenciaIcms()) {
             if(nfeModel.getEntrega()) {
-                info += " ENTREGA: " + nfeModel.getEnderecoEntregaVenda();
+                info.append(" ENTREGA: ").append(nfeModel.getEnderecoEntregaVenda());
             }
         }
-        if(this.obsEntregaBalcaoClienteForaEstado) {
-            info += " VENDA BALCAO";     
+        if(this.obsEntregaBalcaoClienteForaEstado && !nfeModel.getOperacao().isTransferenciaIcms()) {
+            info.append(" VENDA BALCAO");     
         }
-        if(nfeModel.getOrigemTipo() != null && nfeModel.getOrigemTipo().equals(VendaTipo.ROMANEIO)) {
-            info += "Cod. Painel " + formataNumeroPainel(String.valueOf(nfeModel.getOrigemCodigo()));
+        if(nfeModel.getOrigemTipo() != null && nfeModel.getOrigemTipo().equals(VendaTipo.ROMANEIO) && !nfeModel.getOperacao().isTransferenciaIcms()) {
+            info.append("Cod. Painel ").append(formataNumeroPainel(String.valueOf(nfeModel.getOrigemCodigo())));
         }
-        infAdicionais.setInfCpl(StringUtil.noSpecialKeys(info, new String[]{".", ",", "$", "%"}));
+        infAdicionais.setInfCpl(StringUtil.noSpecialKeys(info.toString(), new String[]{".", ",", "$", "%"}));
         inf.setInfAdic(infAdicionais);
 
         boolean isentoPisCofins = false;
@@ -2869,16 +2888,6 @@ public class IntegracaoNfe extends Servico {
             }
         }
 
-        if (!deOlho.getAvisos().isEmpty()) {
-            StringBuilder avisos = new StringBuilder();
-            for (String aviso : deOlho.getAvisos()) {
-                if (avisos.length() > 0) {
-                    avisos.append("\n");
-                }
-                avisos.append(aviso);
-            }
-            JOptionPane.showInternalMessageDialog(Ambiente.getDesktop(), avisos.toString(), "Lei 12.741/2012", JOptionPane.WARNING_MESSAGE);
-        }
         nfeModel.setInfoAdicionalFisco(infAdicionais.getInfAdFisco() == null ? "" : infAdicionais.getInfAdFisco());
         nfeModel.setInfoComplementar(infAdicionais.getInfCpl() == null ? "" : infAdicionais.getInfCpl());
     }
