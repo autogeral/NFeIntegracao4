@@ -23,6 +23,7 @@ import br.com.jcomputacao.model.LojaModel;
 import br.com.jcomputacao.model.ModoPagamentoModel;
 import br.com.jcomputacao.model.MovimentoOperacaoModel;
 import br.com.jcomputacao.model.NFeStatus;
+import br.com.jcomputacao.model.NfceModel;
 import br.com.jcomputacao.model.NfeImpostoAdicionalModel;
 import br.com.jcomputacao.model.NfeItemModel;
 import br.com.jcomputacao.model.NfeLote;
@@ -293,6 +294,10 @@ public class IntegracaoNfe extends Servico {
         
         return status;
     }
+    
+    public int enviar(NfceModel nfce) throws DbfException {
+        return -1;
+    }
 
     public int enviar(NfeModel nfe) throws DbfException, IOException {
         NfeLote lote;
@@ -339,7 +344,6 @@ public class IntegracaoNfe extends Servico {
 
     private NfeLote enviarLote(NfeModel nfe) throws DbfException, IOException {
         String xml = converterEAssinar(nfe);
-        validar(xml);
 
         String fname = (chave != null ? chave : "") + "-nfe.xml";
         try {
@@ -347,6 +351,7 @@ public class IntegracaoNfe extends Servico {
         } catch (IOException ex) {
             throw new DbfException("Erro ao tentar escrever o arquivo " + fname, ex);
         }
+        validar(xml);
         nfe.setNfeXml(xml);
         nfe.setStatus(NFeStatus.ASSINADA);
 
