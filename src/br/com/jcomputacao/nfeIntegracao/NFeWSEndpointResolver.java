@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package br.com.jcomputacao.nfeIntegracao;
 
 import br.com.jcomputacao.nfe.NFeUF;
@@ -16,8 +11,8 @@ import java.util.Map;
  */
 public class NFeWSEndpointResolver {
 
-    private Map<NFeUF, Map<ServicoTipoNfe, String>> mapProducao = new EnumMap<NFeUF, Map<ServicoTipoNfe, String>>(NFeUF.class);
-    private Map<NFeUF, Map<ServicoTipoNfe, String>> mapHomologacao = new EnumMap<NFeUF, Map<ServicoTipoNfe, String>>(NFeUF.class);
+    private Map<NFeUF, Map<ServicoTipoNfe, String>> MAPA_NFE_WS_PRODUCAO = new EnumMap<NFeUF, Map<ServicoTipoNfe, String>>(NFeUF.class);
+    private Map<NFeUF, Map<ServicoTipoNfe, String>> MAPA_NFE_WS_HOMOLOGACAO = new EnumMap<NFeUF, Map<ServicoTipoNfe, String>>(NFeUF.class);
 
     public NFeWSEndpointResolver() {
         Map<ServicoTipoNfe, String> map = new EnumMap<ServicoTipoNfe, String>(ServicoTipoNfe.class);
@@ -31,7 +26,7 @@ public class NFeWSEndpointResolver {
         map.put(ServicoTipoNfe.RecepcaoEvento, "https://nfe.sefaz.am.gov.br/services2/services/RecepcaoEvento");
         map.put(ServicoTipoNfe.NfeAutorizacao, "https://nfe.sefaz.am.gov.br/services2/services/NfeAutorizacao");
         map.put(ServicoTipoNfe.NfeRetAutorizacao, "https://nfe.sefaz.am.gov.br/services2/services/NfeRetAutorizacao");
-        mapProducao.put(NFeUF.AMAZONAS, map);
+        MAPA_NFE_WS_PRODUCAO.put(NFeUF.AMAZONAS, map);
 
         map = new EnumMap<ServicoTipoNfe, String>(ServicoTipoNfe.class);
         map.put(ServicoTipoNfe.NfeRecepcao, "https://nfe.sefaz.ba.gov.br/webservices/nfenw/NfeRecepcao2.asmx");
@@ -44,7 +39,7 @@ public class NFeWSEndpointResolver {
         map.put(ServicoTipoNfe.RecepcaoEvento, "https://nfe.sefaz.ba.gov.br/webservices/sre/RecepcaoEvento.asmx");
         map.put(ServicoTipoNfe.NfeAutorizacao, "https://nfe.sefaz.ba.gov.br/webservices/NfeAutorizacao/NfeAutorizacao.asmx");
         map.put(ServicoTipoNfe.NfeRetAutorizacao, "https://nfe.sefaz.ba.gov.br/webservices/NfeRetAutorizacao/NfeRetAutorizacao.asmx");
-        mapProducao.put(NFeUF.BAHIA, map);
+        MAPA_NFE_WS_PRODUCAO.put(NFeUF.BAHIA, map);
 
         //Sefaz Ceará - (CE)  Serviço Versão URL");
         map = new EnumMap<ServicoTipoNfe, String>(ServicoTipoNfe.class);
@@ -58,7 +53,7 @@ public class NFeWSEndpointResolver {
         map.put(ServicoTipoNfe.RecepcaoEvento, "https://nfe.sefaz.ce.gov.br/nfe2/services/RecepcaoEvento");
         map.put(ServicoTipoNfe.NfeAutorizacao, "https://nfe.sefaz.ce.gov.br/nfe2/services/NfeAutorizacao");
         map.put(ServicoTipoNfe.NfeRetAutorizacao, "https://nfe.sefaz.ce.gov.br/nfe2/services/NfeRetAutorizacao");
-        mapProducao.put(NFeUF.CEARA, map);
+        MAPA_NFE_WS_PRODUCAO.put(NFeUF.CEARA, map);
 
         map = new EnumMap<ServicoTipoNfe, String>(ServicoTipoNfe.class);
         //Sefaz Goias - (GO)  Serviço Versão URL");
@@ -72,7 +67,7 @@ public class NFeWSEndpointResolver {
         map.put(ServicoTipoNfe.RecepcaoEvento, "https://nfe.sefaz.go.gov.br/nfe/services/v2/NfeRecepcaoEvento");
         map.put(ServicoTipoNfe.NfeAutorizacao, "https://nfe.sefaz.go.gov.br/nfe/services/v2/NfeAutorizacao");
         map.put(ServicoTipoNfe.NfeRetAutorizacao, "https://nfe.sefaz.go.gov.br/nfe/services/v2/NfeRetAutorizacao");
-        mapProducao.put(NFeUF.GOIAS, map);
+        MAPA_NFE_WS_PRODUCAO.put(NFeUF.GOIAS, map);
 
         map = new EnumMap<ServicoTipoNfe, String>(ServicoTipoNfe.class);
         //Sef Minas Gerais - (MG)  Serviço Versão URL");
@@ -86,7 +81,7 @@ public class NFeWSEndpointResolver {
         map.put(ServicoTipoNfe.RecepcaoEvento, "https://nfe.fazenda.mg.gov.br/nfe2/services/RecepcaoEvento");
         map.put(ServicoTipoNfe.NfeAutorizacao, "https://nfe.fazenda.mg.gov.br/nfe2/services/NfeAutorizacao");
         map.put(ServicoTipoNfe.NfeRetAutorizacao, "https://nfe.fazenda.mg.gov.br/nfe2/services/NfeRetAutorizacao");
-        mapProducao.put(NFeUF.MINAS, map);
+        MAPA_NFE_WS_PRODUCAO.put(NFeUF.MINAS, map);
 
         map = new EnumMap<ServicoTipoNfe, String>(ServicoTipoNfe.class);
         //Sefaz Mato Grosso do Sul - (MS)  Serviço Versão URL");
@@ -100,7 +95,7 @@ public class NFeWSEndpointResolver {
         map.put(ServicoTipoNfe.RecepcaoEvento, "https://nfe.fazenda.ms.gov.br/producao/services2/NfeRecepcaoEvento");
         map.put(ServicoTipoNfe.NfeAutorizacao, "https://nfe.fazenda.ms.gov.br/producao/services2/NfeAutorizacao");
         map.put(ServicoTipoNfe.NfeRetAutorizacao, "https://nfe.fazenda.ms.gov.br/producao/services2/NfeRetAutorizacao");
-        mapProducao.put(NFeUF.MATO_GROSSO_SUL, map);
+        MAPA_NFE_WS_PRODUCAO.put(NFeUF.MATO_GROSSO_SUL, map);
 
         map = new EnumMap<ServicoTipoNfe, String>(ServicoTipoNfe.class);
         //Sefaz Mato Grosso - (MT)  Serviço Versão URL
@@ -114,7 +109,7 @@ public class NFeWSEndpointResolver {
         map.put(ServicoTipoNfe.RecepcaoEvento, "https://nfe.sefaz.mt.gov.br/nfews/v2/services/RecepcaoEvento");
         map.put(ServicoTipoNfe.NfeAutorizacao, "https://nfe.sefaz.mt.gov.br/nfews/v2/services/NfeAutorizacao");
         map.put(ServicoTipoNfe.NfeRetAutorizacao, "https://nfe.sefaz.mt.gov.br/nfews/v2/services/NfeRetAutorizacao");
-        mapProducao.put(NFeUF.MATO_GROSSO, map);
+        MAPA_NFE_WS_PRODUCAO.put(NFeUF.MATO_GROSSO, map);
 
         map = new EnumMap<ServicoTipoNfe, String>(ServicoTipoNfe.class);
         //Sefaz Pernambuco - (PE)  Serviço Versão URL
@@ -128,7 +123,7 @@ public class NFeWSEndpointResolver {
         map.put(ServicoTipoNfe.RecepcaoEvento, "https://nfe.sefaz.pe.gov.br/nfe-service/services/RecepcaoEvento");
         map.put(ServicoTipoNfe.NfeAutorizacao, "https://nfe.sefaz.pe.gov.br/nfe-service/services/NfeAutorizacao");
         map.put(ServicoTipoNfe.NfeRetAutorizacao, "https://nfe.sefaz.pe.gov.br/nfe-service/services/NfeRetAutorizacao");
-        mapProducao.put(NFeUF.PERNAMBUCO, map);
+        MAPA_NFE_WS_PRODUCAO.put(NFeUF.PERNAMBUCO, map);
 
         map = new EnumMap<ServicoTipoNfe, String>(ServicoTipoNfe.class);
         //Sefaz Paraná - (PR)  Serviço Versão URL
@@ -141,7 +136,7 @@ public class NFeWSEndpointResolver {
         map.put(ServicoTipoNfe.RecepcaoEvento, "https://nfe.fazenda.pr.gov.br/nfe/NFeRecepcaoEvento");
         map.put(ServicoTipoNfe.NfeAutorizacao, "https://nfe.fazenda.pr.gov.br/nfe/NFeAutorizacao3");
         map.put(ServicoTipoNfe.NfeRetAutorizacao, "https://nfe.fazenda.pr.gov.br/nfe/NFeRetAutorizacao3");
-        mapProducao.put(NFeUF.PARANA, map);
+        MAPA_NFE_WS_PRODUCAO.put(NFeUF.PARANA, map);
 
         map = new EnumMap<ServicoTipoNfe, String>(ServicoTipoNfe.class);
         //Sefaz Rio Grande do Sul - (RS)  Serviço Versão URL
@@ -155,21 +150,21 @@ public class NFeWSEndpointResolver {
         map.put(ServicoTipoNfe.RecepcaoEvento, "https://nfe.sefaz.rs.gov.br/ws/recepcaoevento/recepcaoevento.asmx");
         map.put(ServicoTipoNfe.NfeAutorizacao, "https://nfe.sefaz.rs.gov.br/ws/NfeAutorizacao/NFeAutorizacao.asmx");
         map.put(ServicoTipoNfe.NfeRetAutorizacao, "https://nfe.sefaz.rs.gov.br/ws/NfeRetAutorizacao/NFeRetAutorizacao.asmx");
-        mapProducao.put(NFeUF.RIO_SUL, map);
+        MAPA_NFE_WS_PRODUCAO.put(NFeUF.RIO_SUL, map);
 
         map = new EnumMap<ServicoTipoNfe, String>(ServicoTipoNfe.class);
         //Sefaz São Paulo - (SP)  Serviço Versão URL
         map.put(ServicoTipoNfe.NfeRecepcao, "https://nfe.fazenda.sp.gov.br/nfeweb/services/nferecepcao2.asmx");
         map.put(ServicoTipoNfe.NfeRetRecepcao, "https://nfe.fazenda.sp.gov.br/nfeweb/services/nferetrecepcao2.asmx");
         map.put(ServicoTipoNfe.NfeCancelamento, "https://nfe.fazenda.sp.gov.br/nfeweb/services/nfecancelamento2.asmx");
-        map.put(ServicoTipoNfe.NfeInutilizacao, "https://nfe.fazenda.sp.gov.br/ws/nfeinutilizacao2.asmx");
-        map.put(ServicoTipoNfe.NfeConsultaProtocolo, "https://nfe.fazenda.sp.gov.br/ws/nfeconsulta2.asmx");
-        map.put(ServicoTipoNfe.NfeStatusServico, "https://nfe.fazenda.sp.gov.br/ws/nfestatusservico2.asmx");
-        map.put(ServicoTipoNfe.NfeConsultaCadastro, "https://nfe.fazenda.sp.gov.br/ws/cadconsultacadastro2.asmx");
-        map.put(ServicoTipoNfe.RecepcaoEvento, "https://nfe.fazenda.sp.gov.br/ws/recepcaoevento.asmx");
-        map.put(ServicoTipoNfe.NfeAutorizacao, "https://nfe.fazenda.sp.gov.br/ws/nfeautorizacao.asmx");
-        map.put(ServicoTipoNfe.NfeRetAutorizacao, "https://nfe.fazenda.sp.gov.br/ws/nferetautorizacao.asmx");
-        mapProducao.put(NFeUF.SAO_PAULO, map);
+        map.put(ServicoTipoNfe.NfeInutilizacao, "https://nfe.fazenda.sp.gov.br/ws/nfeinutilizacao4.asmx");
+        map.put(ServicoTipoNfe.NfeConsultaProtocolo, "https://nfe.fazenda.sp.gov.br/ws/nfeconsultaprotocolo4.asmx");
+        map.put(ServicoTipoNfe.NfeStatusServico, "https://nfe.fazenda.sp.gov.br/ws/nfestatusservico4.asmx");
+        map.put(ServicoTipoNfe.NfeConsultaCadastro, "https://nfe.fazenda.sp.gov.br/ws/cadconsultacadastro4.asmx");
+        map.put(ServicoTipoNfe.RecepcaoEvento, "https://nfe.fazenda.sp.gov.br/ws/nferecepcaoevento4.asmx");
+        map.put(ServicoTipoNfe.NfeAutorizacao, "https://nfe.fazenda.sp.gov.br/ws/nfeautorizacao4.asmx");
+        map.put(ServicoTipoNfe.NfeRetAutorizacao, "https://nfe.fazenda.sp.gov.br/ws/nferetautorizacao4.asmx");
+        MAPA_NFE_WS_PRODUCAO.put(NFeUF.SAO_PAULO, map);
 
         map = new EnumMap<ServicoTipoNfe, String>(ServicoTipoNfe.class);
         //Estados que utilizam a SVAN - Sefaz Virtual do Ambiente Nacional: ES, MA, PA, PI, RN
@@ -183,11 +178,11 @@ public class NFeWSEndpointResolver {
         map.put(ServicoTipoNfe.RecepcaoEvento, "https://www.sefazvirtual.fazenda.gov.br/RecepcaoEvento/RecepcaoEvento.asmx");
         map.put(ServicoTipoNfe.NfeAutorizacao, "https://www.sefazvirtual.fazenda.gov.br/NfeAutorizacao/NfeAutorizacao.asmx");
         map.put(ServicoTipoNfe.NfeRetAutorizacao, "https://www.sefazvirtual.fazenda.gov.br/NfeRetAutorizacao/NfeRetAutorizacao.asmx");
-        mapProducao.put(NFeUF.ESPIRITO_SANTO, map);
-        mapProducao.put(NFeUF.MARANHAO, map);
-        mapProducao.put(NFeUF.PARA, map);
-        mapProducao.put(NFeUF.PIAUI, map);
-        mapProducao.put(NFeUF.RIO_NORTE, map);
+        MAPA_NFE_WS_PRODUCAO.put(NFeUF.ESPIRITO_SANTO, map);
+        MAPA_NFE_WS_PRODUCAO.put(NFeUF.MARANHAO, map);
+        MAPA_NFE_WS_PRODUCAO.put(NFeUF.PARA, map);
+        MAPA_NFE_WS_PRODUCAO.put(NFeUF.PIAUI, map);
+        MAPA_NFE_WS_PRODUCAO.put(NFeUF.RIO_NORTE, map);
 
         map = new EnumMap<ServicoTipoNfe, String>(ServicoTipoNfe.class);
         //Sefaz Virtual Rio Grande do Sul - (SVRS)  Serviço Versão URL
@@ -201,15 +196,15 @@ public class NFeWSEndpointResolver {
         map.put(ServicoTipoNfe.RecepcaoEvento, "https://nfe.sefazvirtual.rs.gov.br/ws/recepcaoevento/recepcaoevento.asmx");
         map.put(ServicoTipoNfe.NfeAutorizacao, "https://nfe.sefazvirtual.rs.gov.br/ws/NfeAutorizacao/NFeAutorizacao.asmx");
         map.put(ServicoTipoNfe.NfeRetAutorizacao, "https://nfe.sefazvirtual.rs.gov.br/ws/NfeRetAutorizacao/NFeRetAutorizacao.asmx");
-        mapProducao.put(NFeUF.ACRE, map);
-        mapProducao.put(NFeUF.ALAGOAS, map);
-        mapProducao.put(NFeUF.AMAPA, map);
-        mapProducao.put(NFeUF.PARAIBA, map);
-        mapProducao.put(NFeUF.RONDONIA, map);
-        mapProducao.put(NFeUF.ROMAIMA, map);
-        mapProducao.put(NFeUF.SANTA_CATARINA, map);
-        mapProducao.put(NFeUF.SERGIPE, map);
-        mapProducao.put(NFeUF.TOCANTINS, map);
+        MAPA_NFE_WS_PRODUCAO.put(NFeUF.ACRE, map);
+        MAPA_NFE_WS_PRODUCAO.put(NFeUF.ALAGOAS, map);
+        MAPA_NFE_WS_PRODUCAO.put(NFeUF.AMAPA, map);
+        MAPA_NFE_WS_PRODUCAO.put(NFeUF.PARAIBA, map);
+        MAPA_NFE_WS_PRODUCAO.put(NFeUF.RONDONIA, map);
+        MAPA_NFE_WS_PRODUCAO.put(NFeUF.ROMAIMA, map);
+        MAPA_NFE_WS_PRODUCAO.put(NFeUF.SANTA_CATARINA, map);
+        MAPA_NFE_WS_PRODUCAO.put(NFeUF.SERGIPE, map);
+        MAPA_NFE_WS_PRODUCAO.put(NFeUF.TOCANTINS, map);
 
         //		//Sefaz Contingência Ambiente Nacional - (SCAN)  Serviço Versão URL 
 //		map.put(ServicoTipoNfe.NfeRecepcao,"https://www.scan.fazenda.gov.br/NfeRecepcao2/NfeRecepcao2.asmx"); 
@@ -229,7 +224,7 @@ public class NFeWSEndpointResolver {
         map.put(ServicoTipoNfe.RecepcaoEvento, "https://homnfe.sefaz.am.gov.br/services2/services/RecepcaoEvento");
         map.put(ServicoTipoNfe.NfeAutorizacao, "https://homnfe.sefaz.am.gov.br/services2/services/NfeAutorizacao");
         map.put(ServicoTipoNfe.NfeRetAutorizacao, "https://homnfe.sefaz.am.gov.br/services2/services/NfeRetAutorizacao");
-        mapHomologacao.put(NFeUF.AMAZONAS, map);
+        MAPA_NFE_WS_HOMOLOGACAO.put(NFeUF.AMAZONAS, map);
 
         map = new EnumMap<ServicoTipoNfe, String>(ServicoTipoNfe.class);
         map.put(ServicoTipoNfe.NfeRecepcao, "https://hnfe.sefaz.ba.gov.br/webservices/nfenw/NfeRecepcao2.asmx");
@@ -242,7 +237,7 @@ public class NFeWSEndpointResolver {
         map.put(ServicoTipoNfe.RecepcaoEvento, "https://hnfe.sefaz.ba.gov.br/webservices/sre/RecepcaoEvento.asmx");
         map.put(ServicoTipoNfe.NfeAutorizacao, "https://hnfe.sefaz.ba.gov.br/webservices/NfeAutorizacao/NfeAutorizacao.asmx");
         map.put(ServicoTipoNfe.NfeRetAutorizacao, "https://hnfe.sefaz.ba.gov.br/webservices/NfeRetAutorizacao/NfeRetAutorizacao.asmx");
-        mapHomologacao.put(NFeUF.BAHIA, map);
+        MAPA_NFE_WS_HOMOLOGACAO.put(NFeUF.BAHIA, map);
 
         //Sefaz Ceará - (CE)  Serviço Versão URL");
         map = new EnumMap<ServicoTipoNfe, String>(ServicoTipoNfe.class);
@@ -256,7 +251,7 @@ public class NFeWSEndpointResolver {
         map.put(ServicoTipoNfe.RecepcaoEvento, "https://nfeh.sefaz.ce.gov.br/nfe2/services/RecepcaoEvento");
         map.put(ServicoTipoNfe.NfeAutorizacao, "https://nfeh.sefaz.ce.gov.br/nfe2/services/NfeAutorizacao");
         map.put(ServicoTipoNfe.NfeRetAutorizacao, "https://nfeh.sefaz.ce.gov.br/nfe2/services/NfeRetAutorizacao");
-        mapHomologacao.put(NFeUF.CEARA, map);
+        MAPA_NFE_WS_HOMOLOGACAO.put(NFeUF.CEARA, map);
 
         map = new EnumMap<ServicoTipoNfe, String>(ServicoTipoNfe.class);
         //Sefaz Goias - (GO)  Serviço Versão URL");
@@ -270,7 +265,7 @@ public class NFeWSEndpointResolver {
         map.put(ServicoTipoNfe.RecepcaoEvento, "https://homolog.sefaz.go.gov.br/nfe/services/v2/NfeRecepcaoEvento");
         map.put(ServicoTipoNfe.NfeAutorizacao, "https://homolog.sefaz.go.gov.br/nfe/services/v2/NfeAutorizacao");
         map.put(ServicoTipoNfe.NfeRetAutorizacao, "https://homolog.sefaz.go.gov.br/nfe/services/v2/NfeRetAutorizacao");
-        mapHomologacao.put(NFeUF.GOIAS, map);
+        MAPA_NFE_WS_HOMOLOGACAO.put(NFeUF.GOIAS, map);
 
         map = new EnumMap<ServicoTipoNfe, String>(ServicoTipoNfe.class);
         //Sef Minas Gerais - (MG)  Serviço Versão URL");
@@ -284,7 +279,7 @@ public class NFeWSEndpointResolver {
         map.put(ServicoTipoNfe.RecepcaoEvento, "https://homologacao.fazenda.mg.gov.br/nfe2/services/RecepcaoEvento");
         map.put(ServicoTipoNfe.NfeAutorizacao, "https://homologacao.fazenda.mg.gov.br/nfe2/services/NfeAutorizacao");
         map.put(ServicoTipoNfe.NfeRetAutorizacao, "https://homologacao.fazenda.mg.gov.br/nfe2/services/NfeRetAutorizacao");
-        mapHomologacao.put(NFeUF.MINAS, map);
+        MAPA_NFE_WS_HOMOLOGACAO.put(NFeUF.MINAS, map);
 
         map = new EnumMap<ServicoTipoNfe, String>(ServicoTipoNfe.class);
         //Sefaz Mato Grosso do Sul - (MS)  Serviço Versão URL");
@@ -298,7 +293,7 @@ public class NFeWSEndpointResolver {
         map.put(ServicoTipoNfe.RecepcaoEvento, "https://homologacao.fazenda.ms.gov.br/producao/services2/NfeRecepcaoEvento");
         map.put(ServicoTipoNfe.NfeAutorizacao, "https://homologacao.fazenda.ms.gov.br/producao/services2/NfeAutorizacao");
         map.put(ServicoTipoNfe.NfeRetAutorizacao, "https://homologacao.fazenda.ms.gov.br/producao/services2/NfeRetAutorizacao");
-        mapHomologacao.put(NFeUF.MATO_GROSSO_SUL, map);
+        MAPA_NFE_WS_HOMOLOGACAO.put(NFeUF.MATO_GROSSO_SUL, map);
 
         map = new EnumMap<ServicoTipoNfe, String>(ServicoTipoNfe.class);
         //Sefaz Mato Grosso - (MT)  Serviço Versão URL
@@ -312,7 +307,7 @@ public class NFeWSEndpointResolver {
         map.put(ServicoTipoNfe.RecepcaoEvento, "https://hnfe.sefaz.mt.gov.br/nfews/v2/services/RecepcaoEvento");
         map.put(ServicoTipoNfe.NfeAutorizacao, "https://hnfe.sefaz.mt.gov.br/nfews/v2/services/NfeAutorizacao");
         map.put(ServicoTipoNfe.NfeRetAutorizacao, "https://hnfe.sefaz.mt.gov.br/nfews/v2/services/NfeRetAutorizacao");
-        mapHomologacao.put(NFeUF.MATO_GROSSO, map);
+        MAPA_NFE_WS_HOMOLOGACAO.put(NFeUF.MATO_GROSSO, map);
 
         map = new EnumMap<ServicoTipoNfe, String>(ServicoTipoNfe.class);
         //Sefaz Pernambuco - (PE)  Serviço Versão URL
@@ -326,7 +321,7 @@ public class NFeWSEndpointResolver {
         map.put(ServicoTipoNfe.RecepcaoEvento, "https://homologacao.sefaz.pe.gov.br/nfe-service/services/RecepcaoEvento");
         map.put(ServicoTipoNfe.NfeAutorizacao, "https://homologacao.sefaz.pe.gov.br/nfe-service/services/NfeAutorizacao");
         map.put(ServicoTipoNfe.NfeRetAutorizacao, "https://homologacao.sefaz.pe.gov.br/nfe-service/services/NfeRetAutorizacao");
-        mapHomologacao.put(NFeUF.PERNAMBUCO, map);
+        MAPA_NFE_WS_HOMOLOGACAO.put(NFeUF.PERNAMBUCO, map);
 
         map = new EnumMap<ServicoTipoNfe, String>(ServicoTipoNfe.class);
         //Sefaz Paraná - (PR)  Serviço Versão URL
@@ -339,7 +334,7 @@ public class NFeWSEndpointResolver {
         map.put(ServicoTipoNfe.RecepcaoEvento, "https://nfehomolog.fazenda.pr.gov.br/nfe/NFeRecepcaoEvento");
         map.put(ServicoTipoNfe.NfeAutorizacao, "https://nfehomolog.fazenda.pr.gov.br/nfe/NFeAutorizacao3");
         map.put(ServicoTipoNfe.NfeRetAutorizacao, "https://nfehomolog.fazenda.pr.gov.br/nfe/NFeRetAutorizacao3");
-        mapHomologacao.put(NFeUF.PARANA, map);
+        MAPA_NFE_WS_HOMOLOGACAO.put(NFeUF.PARANA, map);
 
         map = new EnumMap<ServicoTipoNfe, String>(ServicoTipoNfe.class);
         //Sefaz Rio Grande do Sul - (RS)  Serviço Versão URL
@@ -353,7 +348,7 @@ public class NFeWSEndpointResolver {
         map.put(ServicoTipoNfe.RecepcaoEvento, "https://homologacao.sefaz.rs.gov.br/ws/recepcaoevento/recepcaoevento.asmx");
         map.put(ServicoTipoNfe.NfeAutorizacao, "https://homologacao.sefaz.rs.gov.br/ws/NfeAutorizacao/NFeAutorizacao.asmx");
         map.put(ServicoTipoNfe.NfeRetAutorizacao, "https://homologacao.sefaz.rs.gov.br/ws/NfeRetAutorizacao/NFeRetAutorizacao.asmx");
-        mapHomologacao.put(NFeUF.RIO_SUL, map);
+        MAPA_NFE_WS_HOMOLOGACAO.put(NFeUF.RIO_SUL, map);
 
         map = new EnumMap<ServicoTipoNfe, String>(ServicoTipoNfe.class);
         //Sefaz São Paulo - (SP)  Serviço Versão URL
@@ -367,7 +362,7 @@ public class NFeWSEndpointResolver {
         map.put(ServicoTipoNfe.RecepcaoEvento, "https://homologacao.nfe.fazenda.sp.gov.br/ws/recepcaoevento.asmx");
         map.put(ServicoTipoNfe.NfeAutorizacao, "https://homologacao.nfe.fazenda.sp.gov.br/ws/nfeautorizacao.asmx");
         map.put(ServicoTipoNfe.NfeRetAutorizacao, "https://homologacao.nfe.fazenda.sp.gov.br/ws/nferetautorizacao.asmx");
-        mapHomologacao.put(NFeUF.SAO_PAULO, map);
+        MAPA_NFE_WS_HOMOLOGACAO.put(NFeUF.SAO_PAULO, map);
 
         map = new EnumMap<ServicoTipoNfe, String>(ServicoTipoNfe.class);
         //Estados que utilizam a SVAN - Sefaz Virtual do Ambiente Nacional: ES, MA, PA, PI, RN
@@ -381,11 +376,11 @@ public class NFeWSEndpointResolver {
         map.put(ServicoTipoNfe.RecepcaoEvento, "https://www.hom.sefazvirtual.fazenda.gov.br/RecepcaoEvento/RecepcaoEvento.asmx");
         map.put(ServicoTipoNfe.NfeAutorizacao, "https://www.hom.sefazvirtual.fazenda.gov.br/NfeAutorizacao/NfeAutorizacao.asmx");
         map.put(ServicoTipoNfe.NfeRetAutorizacao, "https://www.hom.sefazvirtual.fazenda.gov.br/NfeRetAutorizacao/NfeRetAutorizacao.asmx");
-        mapHomologacao.put(NFeUF.ESPIRITO_SANTO, map);
-        mapHomologacao.put(NFeUF.MARANHAO, map);
-        mapHomologacao.put(NFeUF.PARA, map);
-        mapHomologacao.put(NFeUF.PIAUI, map);
-        mapHomologacao.put(NFeUF.RIO_NORTE, map);
+        MAPA_NFE_WS_HOMOLOGACAO.put(NFeUF.ESPIRITO_SANTO, map);
+        MAPA_NFE_WS_HOMOLOGACAO.put(NFeUF.MARANHAO, map);
+        MAPA_NFE_WS_HOMOLOGACAO.put(NFeUF.PARA, map);
+        MAPA_NFE_WS_HOMOLOGACAO.put(NFeUF.PIAUI, map);
+        MAPA_NFE_WS_HOMOLOGACAO.put(NFeUF.RIO_NORTE, map);
 
         map = new EnumMap<ServicoTipoNfe, String>(ServicoTipoNfe.class);
         //Sefaz Virtual Rio Grande do Sul - (SVRS)  Serviço Versão URL
@@ -399,24 +394,24 @@ public class NFeWSEndpointResolver {
         map.put(ServicoTipoNfe.RecepcaoEvento, "https://homologacao.nfe.sefazvirtual.rs.gov.br/ws/recepcaoevento/recepcaoevento.asmx");
         map.put(ServicoTipoNfe.NfeAutorizacao, "https://homologacao.nfe.sefazvirtual.rs.gov.br/ws/NfeAutorizacao/NFeAutorizacao.asmx");
         map.put(ServicoTipoNfe.NfeRetAutorizacao, "https://homologacao.nfe.sefazvirtual.rs.gov.br/ws/NfeRetAutorizacao/NFeRetAutorizacao.asmx");
-        mapHomologacao.put(NFeUF.ACRE, map);
-        mapHomologacao.put(NFeUF.ALAGOAS, map);
-        mapHomologacao.put(NFeUF.AMAPA, map);
-        mapHomologacao.put(NFeUF.PARAIBA, map);
-        mapHomologacao.put(NFeUF.RONDONIA, map);
-        mapHomologacao.put(NFeUF.ROMAIMA, map);
-        mapHomologacao.put(NFeUF.SANTA_CATARINA, map);
-        mapHomologacao.put(NFeUF.SERGIPE, map);
-        mapHomologacao.put(NFeUF.TOCANTINS, map);
+        MAPA_NFE_WS_HOMOLOGACAO.put(NFeUF.ACRE, map);
+        MAPA_NFE_WS_HOMOLOGACAO.put(NFeUF.ALAGOAS, map);
+        MAPA_NFE_WS_HOMOLOGACAO.put(NFeUF.AMAPA, map);
+        MAPA_NFE_WS_HOMOLOGACAO.put(NFeUF.PARAIBA, map);
+        MAPA_NFE_WS_HOMOLOGACAO.put(NFeUF.RONDONIA, map);
+        MAPA_NFE_WS_HOMOLOGACAO.put(NFeUF.ROMAIMA, map);
+        MAPA_NFE_WS_HOMOLOGACAO.put(NFeUF.SANTA_CATARINA, map);
+        MAPA_NFE_WS_HOMOLOGACAO.put(NFeUF.SERGIPE, map);
+        MAPA_NFE_WS_HOMOLOGACAO.put(NFeUF.TOCANTINS, map);
 
     }
 
     public String getEndpoing(NFeUF uf, ServicoTipoNfe tipo) {
         Map<NFeUF, Map<ServicoTipoNfe, String>> map;
         if (NFeUtil.getAmbiente() == 1) {
-            map = mapProducao;
+            map = MAPA_NFE_WS_PRODUCAO;
         } else {
-            map = mapHomologacao;
+            map = MAPA_NFE_WS_HOMOLOGACAO;
         }
         Map<ServicoTipoNfe, String> servicoMap = map.get(uf);
         if (servicoMap == null) {
