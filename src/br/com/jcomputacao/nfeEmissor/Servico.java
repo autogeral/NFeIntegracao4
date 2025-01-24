@@ -146,8 +146,8 @@ public class Servico {
         // 1 - PRODUCAO
         // 2 - HOMOLOGACAO
         ide.setTpAmb(Integer.toString(NFeUtil.getAmbiente()));
-        ide.setMod(NFeUtil.getModelo());
-        ide.setSerie("1");
+        ide.setMod(Integer.toString(nfeModel.getModelo()));
+        ide.setSerie(nfeModel.getSerie());
 
         //Indica operacao com consumidor final
         // 0 Normal

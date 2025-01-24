@@ -23,6 +23,7 @@ import br.com.jcomputacao.model.LojaModel;
 import br.com.jcomputacao.model.ModoPagamentoModel;
 import br.com.jcomputacao.model.MovimentoOperacaoModel;
 import br.com.jcomputacao.model.NFeStatus;
+import br.com.jcomputacao.model.NfceModel;
 import br.com.jcomputacao.model.NfeImpostoAdicionalModel;
 import br.com.jcomputacao.model.NfeItemModel;
 import br.com.jcomputacao.model.NfeLote;
@@ -293,6 +294,10 @@ public class IntegracaoNfe extends Servico {
         
         return status;
     }
+    
+    public int enviar(NfceModel nfce) throws DbfException {
+        return -1;
+    }
 
     public int enviar(NfeModel nfe) throws DbfException, IOException {
         NfeLote lote;
@@ -339,7 +344,6 @@ public class IntegracaoNfe extends Servico {
 
     private NfeLote enviarLote(NfeModel nfe) throws DbfException, IOException {
         String xml = converterEAssinar(nfe);
-        validar(xml);
 
         String fname = (chave != null ? chave : "") + "-nfe.xml";
         try {
@@ -347,6 +351,7 @@ public class IntegracaoNfe extends Servico {
         } catch (IOException ex) {
             throw new DbfException("Erro ao tentar escrever o arquivo " + fname, ex);
         }
+        validar(xml);
         nfe.setNfeXml(xml);
         nfe.setStatus(NFeStatus.ASSINADA);
 
@@ -878,8 +883,15 @@ public class IntegracaoNfe extends Servico {
         ICMSTot icms = new ICMSTot();
         boolean destacaImpostoCorpoNotaParaSimplesNacional = Boolean.parseBoolean(
                     System.getProperty("destaca.impostos.corpoNota", "false"));
-        icms.setVBC(NumberUtil.decimalBanco((!simples || (simples && destacaImpostoCorpoNotaParaSimplesNacional) ? nota.getIcmsBase() : 0)));
-        icms.setVICMS(NumberUtil.decimalBanco((!simples || (simples && destacaImpostoCorpoNotaParaSimplesNacional) ? nota.getIcmsValor() : 0)));
+        MovimentoOperacaoModel operacao = MovimentoOperacaoBean.getMovimentoPorCodigo(nota.getOperacaoCodigo());
+        if (operacao != null && operacao.isTransferenciaIcms()) {
+            icms.setVBC(NumberUtil.decimalBanco(0));
+            icms.setVICMS(NumberUtil.decimalBanco(0));
+        } else {
+            icms.setVBC(NumberUtil.decimalBanco((!simples || (simples && destacaImpostoCorpoNotaParaSimplesNacional) ? nota.getIcmsBase() : 0)));
+            icms.setVICMS(NumberUtil.decimalBanco((!simples || (simples && destacaImpostoCorpoNotaParaSimplesNacional) ? nota.getIcmsValor() : 0)));
+        }
+        
         if (nota.getIcmsValor() > 0
                 || (nota.getOperacao().isComplementoImposto() && nota.getIcmsStBase() > 0)) {
             icms.setVBCST(NumberUtil.decimalBanco(nota.getIcmsStBase()));
@@ -935,7 +947,6 @@ public class IntegracaoNfe extends Servico {
             if (destacaImpostoCorpoNotaParaSimplesNacional || possuiItemCst202) {
                 Double aliquotaPis = Double.parseDouble(System.getProperty("nfe.pis.aliquota", "1.65"));
                 double porcentagemPis = aliquotaPis / 100;
-                MovimentoOperacaoModel operacao = MovimentoOperacaoBean.getMovimentoPorCodigo(nota.getOperacaoCodigo());
                 if (operacao == null) {
                     throw new DbfException("Nao foi encontrada operacao para a nfe " + nota.getNumero() + "." + nota.getLoja());
                 }
@@ -958,7 +969,6 @@ public class IntegracaoNfe extends Servico {
         } else {
             Double aliquotaPis = Double.parseDouble(System.getProperty("nfe.pis.aliquota", "1.65"));
             double porcentagemPis = aliquotaPis / 100;
-            MovimentoOperacaoModel operacao = MovimentoOperacaoBean.getMovimentoPorCodigo(nota.getOperacaoCodigo());
             if (operacao == null) {
                 throw new DbfException("Nao foi encontrada operacao para a nfe " + nota.getNumero() + "." + nota.getLoja());
             }
