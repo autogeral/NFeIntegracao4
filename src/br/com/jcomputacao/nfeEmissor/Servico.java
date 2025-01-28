@@ -146,7 +146,7 @@ public class Servico {
         // 1 - PRODUCAO
         // 2 - HOMOLOGACAO
         ide.setTpAmb(Integer.toString(NFeUtil.getAmbiente()));
-        ide.setMod(Integer.toString(nfeModel.getModelo()));
+        ide.setMod(nfeModel.getModelo());
         ide.setSerie(nfeModel.getSerie());
 
         //Indica operacao com consumidor final
