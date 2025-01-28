@@ -883,8 +883,15 @@ public class IntegracaoNfe extends Servico {
         ICMSTot icms = new ICMSTot();
         boolean destacaImpostoCorpoNotaParaSimplesNacional = Boolean.parseBoolean(
                     System.getProperty("destaca.impostos.corpoNota", "false"));
-        icms.setVBC(NumberUtil.decimalBanco((!simples || (simples && destacaImpostoCorpoNotaParaSimplesNacional) ? nota.getIcmsBase() : 0)));
-        icms.setVICMS(NumberUtil.decimalBanco((!simples || (simples && destacaImpostoCorpoNotaParaSimplesNacional) ? nota.getIcmsValor() : 0)));
+        MovimentoOperacaoModel operacao = MovimentoOperacaoBean.getMovimentoPorCodigo(nota.getOperacaoCodigo());
+        if (operacao != null && operacao.isTransferenciaIcms()) {
+            icms.setVBC(NumberUtil.decimalBanco(0));
+            icms.setVICMS(NumberUtil.decimalBanco(0));
+        } else {
+            icms.setVBC(NumberUtil.decimalBanco((!simples || (simples && destacaImpostoCorpoNotaParaSimplesNacional) ? nota.getIcmsBase() : 0)));
+            icms.setVICMS(NumberUtil.decimalBanco((!simples || (simples && destacaImpostoCorpoNotaParaSimplesNacional) ? nota.getIcmsValor() : 0)));
+        }
+        
         if (nota.getIcmsValor() > 0
                 || (nota.getOperacao().isComplementoImposto() && nota.getIcmsStBase() > 0)) {
             icms.setVBCST(NumberUtil.decimalBanco(nota.getIcmsStBase()));
@@ -940,7 +947,6 @@ public class IntegracaoNfe extends Servico {
             if (destacaImpostoCorpoNotaParaSimplesNacional || possuiItemCst202) {
                 Double aliquotaPis = Double.parseDouble(System.getProperty("nfe.pis.aliquota", "1.65"));
                 double porcentagemPis = aliquotaPis / 100;
-                MovimentoOperacaoModel operacao = MovimentoOperacaoBean.getMovimentoPorCodigo(nota.getOperacaoCodigo());
                 if (operacao == null) {
                     throw new DbfException("Nao foi encontrada operacao para a nfe " + nota.getNumero() + "." + nota.getLoja());
                 }
@@ -963,7 +969,6 @@ public class IntegracaoNfe extends Servico {
         } else {
             Double aliquotaPis = Double.parseDouble(System.getProperty("nfe.pis.aliquota", "1.65"));
             double porcentagemPis = aliquotaPis / 100;
-            MovimentoOperacaoModel operacao = MovimentoOperacaoBean.getMovimentoPorCodigo(nota.getOperacaoCodigo());
             if (operacao == null) {
                 throw new DbfException("Nao foi encontrada operacao para a nfe " + nota.getNumero() + "." + nota.getLoja());
             }
