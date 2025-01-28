@@ -146,7 +146,7 @@ public class Servico {
         // 1 - PRODUCAO
         // 2 - HOMOLOGACAO
         ide.setTpAmb(Integer.toString(NFeUtil.getAmbiente()));
-        ide.setMod(Integer.toString(nfeModel.getModelo()));
+        ide.setMod(nfeModel.getModelo());
         ide.setSerie(nfeModel.getSerie());
 
         //Indica operacao com consumidor final
@@ -214,14 +214,13 @@ public class Servico {
     }
 
     private String converteData(Date data) throws ParseException {
-        String dataString = "";
         SimpleDateFormat dateFormatGmt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sszzz");
         //Time in GMT
         //quando o horario de verão adianta 1 hora, o time zone precisa ser 
         //02:00 e quando atrasa é 03:00
         String horaTimeZone = System.getProperty("timeZone.dataHora.horarioVerao", "03:00");
         dateFormatGmt.setTimeZone(TimeZone.getTimeZone("GMT-" + horaTimeZone));
-        dataString = dateFormatGmt.format(data).toString().replaceAll("GMT", "");
+        String dataString = dateFormatGmt.format(data).toString().replaceAll("GMT", "");
         if (dataString.length() > 24) {
             int i;
             String pedacoString1;
