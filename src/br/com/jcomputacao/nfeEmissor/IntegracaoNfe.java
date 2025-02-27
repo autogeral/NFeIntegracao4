@@ -1238,6 +1238,9 @@ public class IntegracaoNfe extends Servico {
             throw new DbfException("nao encontrou o destinatario da NFe " + nfeModel.getNumero() + "." + nfeModel.getLoja());
         }
         CadastroEnderecoModel enderecoEntrega = nfeModel.getEnderecoEntregaVenda();
+        if (enderecoEntrega == null) {
+            throw new DbfException("Endereco de entrega nao encontrado!");
+        }
         TLocal localEntrega = new TLocal();
 
         if (ent.isPessoaFisica()) {
