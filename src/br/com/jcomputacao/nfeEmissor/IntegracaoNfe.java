@@ -1283,10 +1283,10 @@ public class IntegracaoNfe extends Servico {
         det.setNItem(Integer.toString(item.getItem()));
         det.setProd(produto(item, destinatario));        
         det.setImposto(imposto(item));
-        if (isUsingEmissorFiscal && nfe.getValorIpi() > 0) {
+        if (isUsingEmissorFiscal && item.getIpiValor() > 0) {
             ImpostoDevol ipiDevolvido = nfeEmissorFiscal.criaIpiDevolvido(item);
             det.setImpostoDevol(ipiDevolvido);
-        } else if(!this.tributaIpi && nfe.getValorIpi() > 0) {//IPI DEVOLVIDO
+        } else if(!this.tributaIpi && item.getIpiValor() > 0) {//IPI DEVOLVIDO
             det.setImpostoDevol(criaImpostoDevolvido(item));
         }
         if(this.informacaoAdicionalProduto != null && !this.informacaoAdicionalProduto.isEmpty()) {
@@ -1493,6 +1493,8 @@ public class IntegracaoNfe extends Servico {
         if (this.tributaIpi && !simples) {
             imp.getContent().add(new ObjectFactory().createTNFeInfNFeDetImpostoIPI(ipi(item)));
         }
+        //new ObjectFactory().createTNFeInfNFeDetImpostoDevolIPI()
+        
         imp.getContent().add(new ObjectFactory().createTNFeInfNFeDetImpostoPIS(pis(item)));
 //        imp.getContent().add(new ObjectFactory().createTNFeInfNFeDetImpostoPISST(pisSt(item)));
         imp.getContent().add(new ObjectFactory().createTNFeInfNFeDetImpostoCOFINS(cofins(item)));

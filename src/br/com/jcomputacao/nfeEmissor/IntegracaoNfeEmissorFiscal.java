@@ -631,7 +631,7 @@ public class IntegracaoNfeEmissorFiscal {
     }
 
     public ImpostoDevol criaIpiDevolvido(NfeItemModel item) {
-        final double ipiAliquota = item.getIpiAliquota() * 100;
+        final double ipiAliquota = (item.getIpiAliquota() > 1 ? item.getIpiAliquota() : item.getIpiAliquota() * 100);
         ImpostoDevol impDev = new ImpostoDevol();
         IPI ipi = new IPI();
         ipi.setVIPIDevol(NumberUtil.decimalBanco(item.getIpiValor()));
