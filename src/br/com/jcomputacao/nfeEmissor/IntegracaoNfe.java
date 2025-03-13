@@ -1283,10 +1283,11 @@ public class IntegracaoNfe extends Servico {
         det.setNItem(Integer.toString(item.getItem()));
         det.setProd(produto(item, destinatario));        
         det.setImposto(imposto(item));
-        if (isUsingEmissorFiscal && item.getIpiValor() > 0) {
+        boolean operacaoSimplesDevolucao = nfe.getOperacaoCodigo() == 10 || nfe.getOperacaoCodigo() == 11;
+        if (isUsingEmissorFiscal && item.getIpiValor() > 0 && !operacaoSimplesDevolucao) {
             ImpostoDevol ipiDevolvido = nfeEmissorFiscal.criaIpiDevolvido(item);
             det.setImpostoDevol(ipiDevolvido);
-        } else if(!this.tributaIpi && item.getIpiValor() > 0) {//IPI DEVOLVIDO
+        } else if(!this.tributaIpi && item.getIpiValor() > 0 && !operacaoSimplesDevolucao) {//IPI DEVOLVIDO
             det.setImpostoDevol(criaImpostoDevolvido(item));
         }
         if(this.informacaoAdicionalProduto != null && !this.informacaoAdicionalProduto.isEmpty()) {
