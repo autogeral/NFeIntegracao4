@@ -2256,12 +2256,16 @@ public class IntegracaoNfe extends Servico {
             if (item.getPisAliquota() > 0) {
                 pisAliquota.setCST(PIS_COFINS_CST_FORMAT.format(item.getPisSt()));
                 pisAliquota.setPPIS(NumberUtil.decimalBanco(item.getPisAliquota(), 4));
-                pisAliquota.setVBC(NumberUtil.decimalBanco(item.getPisBase(), 4));
+                pisAliquota.setVBC(NumberUtil.decimalBanco(item.getPisBase(), 2));
                 pisAliquota.setVPIS(NumberUtil.decimalBanco(item.getPisValor(), 2));
                 pis.setPISAliq(pisAliquota);
             } else {
-                pisnt.setCST(PIS_COFINS_CST_FORMAT.format(item.getPisSt()));
-                pis.setPISNT(pisnt);
+                // Para o CST 49 pelo menos eh utilizado desta forma, se for alterar, passe a considerar o codigo
+                pisOutr.setCST(PIS_COFINS_CST_FORMAT.format(item.getPisSt()));
+                pisOutr.setPPIS(NumberUtil.decimalBanco(item.getPisAliquota(), 4));
+                pisOutr.setVBC(NumberUtil.decimalBanco(item.getPisBase(), 2));
+                pisOutr.setVPIS(NumberUtil.decimalBanco(item.getPisValor(), 2));
+                pis.setPISOutr(pisOutr);
             }
         }
         return pis;
@@ -2635,12 +2639,16 @@ public class IntegracaoNfe extends Servico {
             if (item.getPisAliquota() > 0) {
                 aliquota.setCST(PIS_COFINS_CST_FORMAT.format(item.getCofinsSt()));
                 aliquota.setPCOFINS(NumberUtil.decimalBanco(item.getCofinsAliquota(), 4));
-                aliquota.setVBC(NumberUtil.decimalBanco(item.getCofinsBase(), 4));
-                aliquota.setVCOFINS(NumberUtil.decimalBanco(item.getCofinsValor(), 2));
+                aliquota.setVBC(NumberUtil.decimalBanco(item.getCofinsBase()));
+                aliquota.setVCOFINS(NumberUtil.decimalBanco(item.getCofinsValor()));
                 cofins.setCOFINSAliq(aliquota);
             } else {
-                cofinsnt.setCST(PIS_COFINS_CST_FORMAT.format(item.getCofinsSt()));
-                cofins.setCOFINSNT(cofinsnt);
+                // Para o CST 49 pelo menos eh utilizado desta forma, se for alterar, passe a considerar o codigo
+                cofinsOutr.setCST(PIS_COFINS_CST_FORMAT.format(item.getCofinsSt()));
+                cofinsOutr.setPCOFINS(NumberUtil.decimalBanco(item.getCofinsAliquota(), 4));
+                cofinsOutr.setVBC(NumberUtil.decimalBanco(item.getCofinsBase()));
+                cofinsOutr.setVCOFINS(NumberUtil.decimalBanco(item.getCofinsValor()));
+                cofins.setCOFINSOutr(cofinsOutr);
             }
         }
         return cofins;
