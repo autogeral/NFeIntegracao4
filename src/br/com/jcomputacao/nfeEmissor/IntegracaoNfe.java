@@ -166,6 +166,13 @@ public class IntegracaoNfe extends Servico {
     private transient boolean isDevolucaoParaFornecedorPeloEmissorFiscal = false;
     private DocumentoFiscalDTO docFiscalDto;
     private final IntegracaoNfeEmissorFiscal nfeEmissorFiscal = new IntegracaoNfeEmissorFiscal();
+    private static final NumberFormat PIS_COFINS_CST_FORMAT = NumberFormat.getNumberInstance();
+    
+    static {
+        PIS_COFINS_CST_FORMAT.setGroupingUsed(false);
+        PIS_COFINS_CST_FORMAT.setMinimumIntegerDigits(2);
+        PIS_COFINS_CST_FORMAT.setMaximumIntegerDigits(2);
+    }
     /*
         Contabilidade disse que temos que informar na OBS, que foi uma venda balcão
         quando o cliente é de fora do estado mas fazemos venda com CFOP interno.
@@ -1490,7 +1497,7 @@ public class IntegracaoNfe extends Servico {
     private Imposto imposto(NfeItemModel item) throws DbfDatabaseException {
         Imposto imp = new Imposto();
 
-        imp.getContent().add(new ObjectFactory().createTNFeInfNFeDetImpostoICMS(icms(item)));        
+        imp.getContent().add(new ObjectFactory().createTNFeInfNFeDetImpostoICMS(icms(item)));
         if (this.tributaIpi && !simples) {
             imp.getContent().add(new ObjectFactory().createTNFeInfNFeDetImpostoIPI(ipi(item)));
         }
@@ -2245,6 +2252,18 @@ public class IntegracaoNfe extends Servico {
                     break;
             }
         }
+        if (pis.getPISAliq() == null && pis.getPISNT() == null && pis.getPISOutr() == null && pis.getPISQtde() == null) {
+            if (item.getPisAliquota() > 0) {
+                pisAliquota.setCST(PIS_COFINS_CST_FORMAT.format(item.getPisSt()));
+                pisAliquota.setPPIS(NumberUtil.decimalBanco(item.getPisAliquota(), 4));
+                pisAliquota.setVBC(NumberUtil.decimalBanco(item.getPisBase(), 4));
+                pisAliquota.setVPIS(NumberUtil.decimalBanco(item.getPisValor(), 2));
+                pis.setPISAliq(pisAliquota);
+            } else {
+                pisnt.setCST(PIS_COFINS_CST_FORMAT.format(item.getPisSt()));
+                pis.setPISNT(pisnt);
+            }
+        }
         return pis;
     }
 
@@ -2610,6 +2629,18 @@ public class IntegracaoNfe extends Servico {
                     cofinsOutr.setVCOFINS("0.00");
                     cofins.setCOFINSOutr(cofinsOutr);
                     break;
+            }
+        }
+        if (cofins.getCOFINSNT() == null && cofins.getCOFINSAliq() == null && cofins.getCOFINSOutr() == null && cofins.getCOFINSQtde() == null) {
+            if (item.getPisAliquota() > 0) {
+                aliquota.setCST(PIS_COFINS_CST_FORMAT.format(item.getCofinsSt()));
+                aliquota.setPCOFINS(NumberUtil.decimalBanco(item.getCofinsAliquota(), 4));
+                aliquota.setVBC(NumberUtil.decimalBanco(item.getCofinsBase(), 4));
+                aliquota.setVCOFINS(NumberUtil.decimalBanco(item.getCofinsValor(), 2));
+                cofins.setCOFINSAliq(aliquota);
+            } else {
+                cofinsnt.setCST(PIS_COFINS_CST_FORMAT.format(item.getCofinsSt()));
+                cofins.setCOFINSNT(cofinsnt);
             }
         }
         return cofins;
